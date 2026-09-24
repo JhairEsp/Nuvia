@@ -127,28 +127,36 @@ const toInsight = (r: InsightRow): AiInsight => ({
 export function publicSiteFromSnapshot(snap: Record<string, unknown> | null): PublicSite | null {
   if (!snap) return null;
   const biz = (snap.business ?? {}) as Record<string, string>;
-  const brand = (snap.branding ?? {}) as { preset?: string; colors?: Record<string, string>; font_key?: string };
-  const web = (snap.website ?? {}) as { tagline?: string; socials?: Record<string, string>; map_query?: string };
+  const brand = (snap.branding ?? {}) as { preset?: string; colors?: Record<string, string>; font_key?: string; logo_url?: string; cover_url?: string };
+  const web = (snap.website ?? {}) as { template_key?: string; tagline?: string; socials?: Record<string, string>; map_query?: string };
   const list = (k: string): Record<string, unknown>[] => (Array.isArray(snap[k]) ? (snap[k] as Record<string, unknown>[]) : []);
   return {
     business: {
-      name: s(biz.name), slug: s(biz.slug), description: s(biz.description), phone: s(biz.phone),
+      name: s(biz.name), slug: s(biz.slug), type: s(biz.type), description: s(biz.description), phone: s(biz.phone),
       whatsapp: s(biz.whatsapp), email: s(biz.email), address: s(biz.address),
     },
     branding: {
       preset: (brand.preset as ThemePreset) ?? "MODERN",
       colors: { primary: brand.colors?.primary, button: brand.colors?.button },
-      font_key: brand.font_key ?? "sans",
+      font_key: brand.font_key ?? "sans", logo_url: brand.logo_url, cover_url: brand.cover_url,
     },
     website: {
+      template_key: s(web.template_key) || null,
       tagline: s(web.tagline),
       socials: (web.socials ?? (snap.socials as Record<string, string>) ?? {}),
       map_query: s(web.map_query ?? snap.map_query),
     },
-    sections: list("sections").map((x) => ({
-      type: s(x.type) as WebsiteSectionType, position: n(x.position), active: x.active !== false,
-      content: (x.content ?? {}) as Record<string, unknown>,
-    })),
+    sections: list("sections").map((x) => {
+      const content = { ...((x.content ?? {}) as Record<string, unknown>) };
+      if (x.type === "GALLERY" && !Array.isArray(content.images)) {
+        content.images = list("media").filter(m => m.role === "GALLERY").map(m => {
+          const path = s(m.storage_path);
+          const url = /^https?:\/\//i.test(path) ? path : supabase.storage.from("website-media").getPublicUrl(path.replace(/^website-media\//, "")).data.publicUrl;
+          return { url, alt: s(m.alt) };
+        });
+      }
+      return { type: s(x.type) as WebsiteSectionType, position: n(x.position), active: x.active !== false, content };
+    }),
     services: list("services").map((x) => toService({
       id: s(x.id), name: s(x.name), description: s(x.description), duration_min: n(x.duration_min),
       price: n(x.price), category: s(x.category) || null, category_id: null, show_on_website: true,
@@ -303,12 +311,6 @@ interface DB {
   sendMessage: (customerName: string, phone: string, body: string) => Promise<void>;
   // IA
   dismissInsight: (id: string) => void;
-  // Website
-  updateSection: (type: string, content: Record<string, unknown>) => void;
-  toggleSection: (type: string) => void;
-  moveSection: (type: string, dir: -1 | 1) => void;
-  setBranding: (preset?: string, colors?: { primary?: string; button?: string }) => void;
-  publishSite: () => void;
   // Plataforma
   setBusinessStatus: (slug: string, status: PlatformBusiness["status"]) => Promise<void>;
   savePlan: (p: PlanRow) => Promise<void>;
@@ -736,73 +738,6 @@ export const useDB = create<DB>()((set, get) => {
     dismissInsight(id) {
       set((st) => ({ insights: st.insights.map((x) => (x.id === id ? { ...x, status: "DISMISSED" } : x)) }));
       void supabase.from("ai_insights").update({ status: "DISMISSED", resolved_at: new Date().toISOString() }).eq("id", id).then(({ error }) => error && fail(error));
-    },
-
-    /* ── Website ───────────────────────────────────────────────────────── */
-    updateSection(type, content) {
-      set((st) => ({
-        site: {
-          ...st.site,
-          sections: st.site.sections.map((x) => (x.type === type ? { ...x, content: { ...x.content, ...content } } : x)),
-        },
-      }));
-      void (async () => {
-        const cur = get().site.sections.find((x) => x.type === type);
-        const { error } = await supabase.from("website_sections")
-          .update({ content: cur?.content ?? content })
-          .eq("business_id", B()).eq("type", type);
-        if (error) { fail(error); refresh(); }
-      })();
-    },
-    toggleSection(type) {
-      const cur = get().site.sections.find((x) => x.type === type);
-      set((st) => ({
-        site: { ...st.site, sections: st.site.sections.map((x) => (x.type === type ? { ...x, active: !x.active } : x)) },
-      }));
-      void supabase.from("website_sections").update({ active: !(cur?.active ?? true) }).eq("business_id", B()).eq("type", type)
-        .then(({ error }) => error && fail(error));
-    },
-    moveSection(type, dir) {
-      const secs = [...get().site.sections].sort((a, b) => a.position - b.position);
-      const i = secs.findIndex((x) => x.type === type);
-      const j = i + dir;
-      if (i < 0 || j < 0 || j >= secs.length) return;
-      const a = secs[i]; const b = secs[j];
-      if (!a || !b) return;
-      set((st) => ({
-        site: { ...st.site, sections: st.site.sections.map((x) => (x.type === a.type ? { ...x, position: b.position } : x.type === b.type ? { ...x, position: a.position } : x)) },
-      }));
-      void (async () => {
-        await supabase.from("website_sections").update({ position: b.position }).eq("business_id", B()).eq("type", a.type);
-        await supabase.from("website_sections").update({ position: a.position }).eq("business_id", B()).eq("type", b.type);
-      })();
-    },
-    setBranding(preset, colors) {
-      set((st) => ({
-        site: {
-          ...st.site,
-          branding: {
-            preset: (preset as ThemePreset) ?? st.site.branding.preset,
-            colors: { ...st.site.branding.colors, ...colors },
-            font_key: st.site.branding.font_key,
-          },
-        },
-      }));
-      void supabase.from("business_branding").upsert({
-        business_id: B(),
-        preset: preset ?? get().site.branding.preset,
-        colors: { ...get().site.branding.colors, ...colors },
-        font_key: get().site.branding.font_key,
-      }).then(({ error }) => error && fail(error));
-    },
-    publishSite() {
-      const snapshot = JSON.parse(JSON.stringify(get().site)) as PublicSite;
-      set({ publishedSnapshot: snapshot, publishedAt: new Date().toISOString() });
-      void (async () => {
-        const { error } = await supabase.rpc("publish_website", { p_business_id: B() });
-        if (error) return fail(error);
-        refresh();
-      })();
     },
 
     /* ── Plataforma ────────────────────────────────────────────────────── */

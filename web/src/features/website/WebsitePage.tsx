@@ -1,317 +1,92 @@
-import { BRAND_NAME, publicBusinessUrl } from "../../lib/brand";
-import {
-  ArrowDown, ArrowUp, Eye, GripVertical, Monitor, Palette, Save, Send, Smartphone, Tablet,
-} from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Field, Input, Textarea } from "../../components/ui/input";
-import { Switch } from "../../components/ui/switch";
-import { cn } from "../../lib/utils";
-import { money } from "../../lib/format";
-import { useDB } from "../../store/db";
-import type { ThemePreset, WebsiteSectionType } from "../../types/domain";
-
-const PRESETS: Array<{ id: ThemePreset; label: string; primary: string; bg: string; ink: string }> = [
-  { id: "LUXURY", label: "Luxury", primary: "#c9a227", bg: "#faf7f0", ink: "#1a1410" },
-  { id: "MODERN", label: "Modern", primary: "#3d6bff", bg: "#f7f8fa", ink: "#10131a" },
-  { id: "MINIMAL", label: "Minimal", primary: "#191410", bg: "#ffffff", ink: "#191410" },
-  { id: "DARK", label: "Dark", primary: "#c9a227", bg: "#0e0c0a", ink: "#f3efeb" },
-  { id: "SOFT", label: "Soft", primary: "#d98c9a", bg: "#fdf6f4", ink: "#3a2a2e" },
-  { id: "ELEGANT", label: "Elegant", primary: "#8e3b46", bg: "#f8f3ef", ink: "#241418" },
-];
-
-const VIEWPORTS = [
-  { id: "desktop", icon: Monitor, w: "100%" },
-  { id: "tablet", icon: Tablet, w: "48rem" },
-  { id: "mobile", icon: Smartphone, w: "22rem" },
-] as const;
-
-const LABEL: Record<WebsiteSectionType, string> = {
-  HERO: "Portada (Hero)", SERVICES: "Servicios", ABOUT: "Sobre nosotros", GALLERY: "Galería",
-  TEAM: "Equipo", PROMOTIONS: "Promociones", TESTIMONIALS: "Testimonios", LOCATION: "Ubicación",
-  CTA: "Llamada final", FOOTER: "Footer",
-};
-
-/** Editor visual de landing (§5–13, §41–44): draft → preview → publicar. */
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ArrowLeft, ArrowDown, ArrowUp, Check, Copy, ExternalLink, Eye, ImagePlus, Loader2, Monitor, Palette, Plus, Save, Send, Smartphone, Tablet, Trash2, X, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../../components/ui/button';
+import { Field, Input, Textarea } from '../../components/ui/input';
+import { Switch } from '../../components/ui/switch';
+import { useSession, usePermission } from '../../store/session';
+import { publicBusinessUrl } from '../../lib/brand';
+import type { PublicSite, WebsiteSectionType } from '../../types/domain';
+import { TEMPLATES, businessCopy, applyTemplate, SECTION_LABELS, templateFor, type TemplateKey, safeImage } from './templates';
+import { loadEditor, saveDraft, publishDraft, uploadWebsiteImage, websiteError, type EditorData } from './api';
+import SitePreview from './components/SitePreview';
+import { SiteArt } from './SiteRenderer';
+import './editor.css';
+const views=[{width:1100,label:'Escritorio',icon:Monitor},{width:768,label:'Tablet',icon:Tablet},{width:390,label:'Celular',icon:Smartphone}];
+const fingerprint=(site:PublicSite)=>JSON.stringify(site);
 export default function WebsitePage() {
-  const db = useDB();
-  const [selected, setSelected] = useState<WebsiteSectionType | null>("HERO");
-  const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
-
-  const sections = [...db.site.sections].sort((a, b) => a.position - b.position);
-  const publicUrl = db.business.slug ? publicBusinessUrl(db.business.slug) : "";
-  const dirty = JSON.stringify(db.site) !== JSON.stringify(db.publishedSnapshot);
-  const sec = db.site.sections.find((s) => s.type === selected);
-  const preset = PRESETS.find((p) => p.id === db.site.branding.preset) ?? PRESETS[0]!;
-  const primary = db.site.branding.colors.primary ?? preset.primary;
-
-  const set = (content: Record<string, unknown>) => selected && db.updateSection(selected, content);
-
-  return (
-    <div className="space-y-4">
-      {/* Barra superior */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-title font-semibold tracking-[-0.014em]">Mi página</h1>
-          <p className="text-body text-muted">
-            <Badge tone={dirty ? "warning" : "success"}>{dirty ? "Borrador sin publicar" : "Publicado"}</Badge>
-            {" "}{publicUrl || "Configura el enlace de tu negocio"}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button size="sm" variant="quiet" onClick={() => toast.success("Borrador guardado ✓", { description: "Tus visitantes aún no ven los cambios" })}>
-            <Save className="h-4 w-4" /> Guardar borrador
-          </Button>
-          <Button size="sm" variant="secondary" disabled={!publicUrl} onClick={() => window.open(publicUrl, "_blank", "noopener,noreferrer")}>
-            <Eye className="h-4 w-4" /> Previsualizar
-          </Button>
-          <Button size="sm" disabled={!dirty} onClick={() => { db.publishSite(); toast.success("¡Página publicada! 🎉", { description: "Los cambios ya están visibles para tus clientes" }); }}>
-            <Send className="h-4 w-4" /> Publicar cambios
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid xl:grid-cols-[260px_1fr_300px] gap-4">
-        {/* Izquierda: secciones drag & drop */}
-        <Card className="h-fit">
-          <CardHeader><CardTitle>Secciones</CardTitle>
-            <GripVertical className="h-4 w-4 text-faint" />
-          </CardHeader>
-          <CardContent className="space-y-1.5">
-            {sections.map((s) => (
-              <div
-                key={s.type}
-                draggable
-                onDragStart={(e) => e.dataTransfer.setData("text/section", s.type)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  const from = e.dataTransfer.getData("text/section") as WebsiteSectionType;
-                  if (!from || from === s.type) return;
-                  const fromIdx = sections.findIndex((x) => x.type === from);
-                  const toIdx = sections.findIndex((x) => x.type === s.type);
-                  db.moveSection(from, fromIdx < toIdx ? 1 : -1);
-                  toast.success("Orden actualizado");
-                }}
-                className={cn(
-                  "flex items-center gap-2 p-2.5 rounded-[var(--radius-control)] cursor-grab active:cursor-grabbing transition-colors",
-                  selected === s.type ? "bg-accent-soft text-accent" : "hover:bg-subtle",
-                )}
-              >
-                <GripVertical className="h-3.5 w-3.5 text-faint shrink-0" />
-                <button className="flex-1 text-left text-caption font-medium" onClick={() => setSelected(s.type)}>
-                  {LABEL[s.type]}
-                </button>
-                <button onClick={() => db.moveSection(s.type, -1)} className="text-faint hover:text-ink" aria-label="Subir"><ArrowUp className="h-3 w-3" /></button>
-                <button onClick={() => db.moveSection(s.type, 1)} className="text-faint hover:text-ink" aria-label="Bajar"><ArrowDown className="h-3 w-3" /></button>
-                <Switch checked={s.active} onChange={() => db.toggleSection(s.type)} label={LABEL[s.type]} />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Centro: preview en vivo */}
-        <Card className="overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2.5 border-b border-hairline">
-            <span className="text-micro font-semibold uppercase tracking-wide text-faint">Preview en vivo</span>
-            <div className="flex gap-1 p-0.5 bg-subtle rounded-full">
-              {VIEWPORTS.map((v) => (
-                <button key={v.id} onClick={() => setViewport(v.id)}
-                  className={cn("p-1.5 rounded-full transition-colors", viewport === v.id ? "bg-surface shadow-soft text-accent" : "text-faint")}>
-                  <v.icon className="h-3.5 w-3.5" />
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="bg-subtle p-4 flex justify-center overflow-y-auto max-h-[640px]">
-            <div className="bg-white rounded-xl shadow-[var(--shadow-card)] overflow-hidden transition-all duration-300 w-full" style={{ maxWidth: VIEWPORTS.find((v) => v.id === viewport)?.w }}>
-              {sections.filter((s) => s.active).map((s) => (
-                <div key={s.type} className={cn("px-5 py-6 border-b border-hairline/50 last:border-0", selected === s.type && "ring-2 ring-inset ring-[var(--color-accent)]")}>
-                  <p className="text-micro uppercase tracking-wide text-faint mb-2">{LABEL[s.type]}</p>
-                  {/* mini-render por sección */}
-                  {s.type === "HERO" && (
-                    <div className="rounded-xl p-8 text-center text-white" style={{ background: `radial-gradient(70% 60% at 50% 30%, ${primary}44, transparent 60%), ${preset.id === "DARK" ? "#0e0c0a" : "#1a1512"}` }}>
-                      <p className="text-[1.6rem] font-semibold leading-tight" style={{ fontFamily: db.site.branding.font_key === "sans" ? "inherit" : "var(--font-display)" }}>
-                        {String(s.content.title ?? "")}
-                      </p>
-                      <p className="text-white/60 text-caption mt-1.5">{String(s.content.subtitle ?? "")}</p>
-                      {s.content.cta_enabled !== false && (
-                        <span className="inline-block mt-3 px-4 py-1.5 rounded-full text-caption font-semibold" style={{ background: primary, color: "#0e0c0a" }}>
-                          {String(s.content.cta ?? "Reservar cita")}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {s.type === "SERVICES" && (
-                    <div className="grid grid-cols-3 gap-2">
-                      {db.site.services.slice(0, 3).map((sv) => (
-                        <div key={sv.id} className="p-3 rounded-lg bg-[#faf9f7] text-center">
-                          <p className="text-caption font-semibold text-[#191410]">{sv.name}</p>
-                          <p className="text-micro text-[#7d7268] num">{sv.durationMin} min · {money(sv.price)}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {s.type === "ABOUT" && (
-                    <div className="text-center max-w-md mx-auto">
-                      <p className="font-semibold text-[#191410]">{String(s.content.title ?? "")}</p>
-                      <p className="text-caption text-[#7d7268] mt-1">{String(s.content.body ?? "").slice(0, 90)}…</p>
-                    </div>
-                  )}
-                  {s.type === "GALLERY" && (
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="aspect-square rounded-lg" style={{ background: `linear-gradient(${140 + i * 30}deg, ${primary}33, #1a1512)` }} />
-                      ))}
-                    </div>
-                  )}
-                  {s.type === "TEAM" && (
-                    <div className="flex justify-center gap-6">
-                      {db.site.team.map((e) => (
-                        <div key={e.id} className="text-center">
-                          <div className="h-10 w-10 rounded-full mx-auto flex items-center justify-center text-caption font-semibold" style={{ background: `${primary}22`, color: primary }}>
-                            {e.fullName.split(" ").map((p) => p[0]).join("")}
-                          </div>
-                          <p className="text-micro font-medium mt-1 text-[#191410]">{e.fullName.split(" ")[0]}</p>
-                          <p className="text-micro" style={{ color: primary }}>{e.roleLabel}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {s.type === "PROMOTIONS" && (
-                    <div className="grid grid-cols-2 gap-2">
-                      {db.promos.filter((p) => p.showOnWebsite && p.isActive).map((p) => (
-                        <div key={p.id} className="p-3 rounded-lg bg-[#faf9f7]">
-                          <p className="text-caption font-semibold text-[#191410]">{p.name}</p>
-                          <p className="text-micro num" style={{ color: primary }}>{money(p.price ?? 0)} · -{p.discountPercent}%</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {s.type === "TESTIMONIALS" && (
-                    <div className="grid grid-cols-3 gap-2">
-                      {db.site.testimonials.slice(0, 3).map((t) => (
-                        <div key={t.author_name} className="p-3 rounded-lg bg-[#faf9f7]">
-                          <p className="text-micro text-[#7d7268]">“{t.content.slice(0, 60)}…”</p>
-                          <p className="text-micro font-semibold mt-1" style={{ color: primary }}>{t.author_name}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {s.type === "LOCATION" && (
-                    <div className="text-center">
-                      <p className="text-caption font-semibold text-[#191410]">{db.site.business.address}</p>
-                      <p className="text-micro text-[#7d7268] num">{db.site.business.phone} · Lun–Sáb 9am–8pm</p>
-                    </div>
-                  )}
-                  {s.type === "CTA" && (
-                    <div className="text-center">
-                      <p className="font-semibold text-[#191410]">{String(s.content.title ?? "")}</p>
-                      <span className="inline-block mt-2 px-4 py-1.5 rounded-full text-caption font-semibold" style={{ background: primary, color: "#0e0c0a" }}>
-                        {String(s.content.cta ?? "Reservar cita")}
-                      </span>
-                    </div>
-                  )}
-                  {s.type === "FOOTER" && (
-                    <p className="text-center text-micro text-[#a39a90]">© 2026 {db.site.business.name} · Hecho con {BRAND_NAME}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        {/* Derecha: props + branding */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader><CardTitle>{selected ? LABEL[selected] : "Sección"}</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              {selected === "HERO" && (
-                <>
-                  <Field label="Título"><Input value={String(sec?.content.title ?? "")} onChange={(e) => set({ title: e.target.value })} /></Field>
-                  <Field label="Subtítulo"><Input value={String(sec?.content.subtitle ?? "")} onChange={(e) => set({ subtitle: e.target.value })} /></Field>
-                  <Field label="Texto del botón"><Input value={String(sec?.content.cta ?? "")} onChange={(e) => set({ cta: e.target.value })} /></Field>
-                  <div className="flex items-center justify-between p-3 rounded-[var(--radius-tile)] bg-subtle">
-                    <span className="text-caption font-medium">Mostrar botón CTA</span>
-                    <Switch checked={sec?.content.cta_enabled !== false} onChange={(v) => set({ cta_enabled: v })} />
-                  </div>
-                  <Button variant="quiet" size="sm" className="w-full" onClick={() => toast.success("En Supabase: upload a brand-assets/{business}/hero 📸")}>
-                    Cambiar imagen de portada
-                  </Button>
-                </>
-              )}
-              {selected === "ABOUT" && (
-                <>
-                  <Field label="Título"><Input value={String(sec?.content.title ?? "")} onChange={(e) => set({ title: e.target.value })} /></Field>
-                  <Field label="Texto"><Textarea value={String(sec?.content.body ?? "")} onChange={(e) => set({ body: e.target.value })} /></Field>
-                </>
-              )}
-              {selected === "SERVICES" && <Field label="Título"><Input value={String(sec?.content.title ?? "")} onChange={(e) => set({ title: e.target.value })} /></Field>}
-              {selected === "TEAM" && <Field label="Título"><Input value={String(sec?.content.title ?? "")} onChange={(e) => set({ title: e.target.value })} /></Field>}
-              {selected === "CTA" && (
-                <>
-                  <Field label="Título"><Input value={String(sec?.content.title ?? "")} onChange={(e) => set({ title: e.target.value })} /></Field>
-                  <Field label="Texto del botón"><Input value={String(sec?.content.cta ?? "")} onChange={(e) => set({ cta: e.target.value })} /></Field>
-                </>
-              )}
-              {selected === "GALLERY" && (
-                <>
-                  <Field label="Título"><Input value={String(sec?.content.title ?? "")} onChange={(e) => set({ title: e.target.value })} /></Field>
-                  <Field label="Fotos visibles"><Input type="number" value={String(sec?.content.visible_count ?? 6)} onChange={(e) => set({ visible_count: +e.target.value })} /></Field>
-                  <Button variant="quiet" size="sm" className="w-full" onClick={() => toast.success("Galería con drag & drop — upload a website-media/ 📸")}>
-                    Gestionar galería (drag & drop)
-                  </Button>
-                </>
-              )}
-              {selected === "PROMOTIONS" && (
-                <p className="text-caption text-muted">Las promos se gestionan en <strong>Fidelización & Promos</strong>. Las activas y visibles aparecen aquí automáticamente.</p>
-              )}
-              {selected === "TESTIMONIALS" && (
-                <p className="text-caption text-muted">{db.site.testimonials.length} testimonios publicados. Se gestionan desde la ficha de cada cliente.</p>
-              )}
-              {selected === "LOCATION" && (
-                <Field label="Referencia del mapa"><Input defaultValue={db.site.website.map_query} onBlur={(e) => { db.setBranding(undefined); toast.success("Ubicación actualizada"); }} /></Field>
-              )}
-              {selected === "FOOTER" && (
-                <Field label="Instagram"><Input defaultValue={db.site.website.socials.instagram ?? ""} onBlur={() => toast.success("Redes actualizadas")} /></Field>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-4 w-4 text-accent" /> Marca</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-2">
-                {PRESETS.map((p) => (
-                  <button key={p.id} onClick={() => { db.setBranding(p.id, { primary: p.primary, button: p.primary }); toast.success(`Preset ${p.label} aplicado`); }}
-                    className={cn(
-                      "p-2.5 rounded-[var(--radius-tile)] border text-micro font-semibold transition-all",
-                      db.site.branding.preset === p.id ? "border-accent bg-accent-soft text-accent" : "border-hairline text-muted hover:border-accent/40",
-                    )}>
-                    <span className="block h-6 rounded-md mb-1.5" style={{ background: `linear-gradient(135deg, ${p.primary}, ${p.bg})` }} />
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-              <Field label="Color principal">
-                <div className="flex gap-2 items-center">
-                  <input type="color" value={primary} onChange={(e) => db.setBranding(undefined, { primary: e.target.value, button: e.target.value })} className="h-10 w-14 rounded-lg border border-hairline cursor-pointer" />
-                  <span className="text-caption num text-muted">{primary}</span>
-                </div>
-              </Field>
-              <Field label="Tipografía">
-                <select value={db.site.branding.font_key} onChange={(e) => toast.success(`Tipografía ${e.target.value}`)} className="w-full h-11 px-3 rounded-[var(--radius-control)] bg-subtle text-body">
-                  <option value="sans">Sans (moderna)</option>
-                  <option value="serif">Serif (elegante)</option>
-                </select>
-              </Field>
-              <p className="text-micro text-faint">Solo combinaciones con contraste AA — protegemos tu marca 💎</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
+ const bid=useSession(s=>s.businessId);const allowed=usePermission('website.manage');const navigate=useNavigate();
+ const [data,setData]=useState<EditorData|null>(null);const [draft,setDraft]=useState<PublicSite|null>(null);const [saved,setSaved]=useState('');
+ const [loading,setLoading]=useState(true);const [error,setError]=useState('');const [busy,setBusy]=useState('');const [chooser,setChooser]=useState(false);
+ const [selected,setSelected]=useState<WebsiteSectionType|'BRAND'|'CONTACT'>('HERO');const [width,setWidth]=useState(1100);const [preview,setPreview]=useState(false);const [reload,setReload]=useState(0);
+ const [publication,setPublication]=useState<string|null>(null);const epoch=useRef(0);const previewOpener=useRef<HTMLElement|null>(null);
+ const dirty=!!draft&&fingerprint(draft)!==saved;
+ useEffect(()=>{if(!preview)return;const root=document.getElementById('root');const oldOverflow=document.body.style.overflow;const oldInert=root?.inert??false;const focused=previewOpener.current;
+  if(root)root.inert=true;document.body.style.overflow='hidden';
+  const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape')setPreview(false);};document.addEventListener('keydown',onKey);
+  return()=>{if(root)root.inert=oldInert;document.body.style.overflow=oldOverflow;document.removeEventListener('keydown',onKey);focused?.focus();};
+ },[preview]);
+ useEffect(()=>{const token=++epoch.current;setLoading(true);setError('');setData(null);setDraft(null);setPublication(null);setBusy('');setPreview(false);
+  if(!bid||!allowed){setLoading(false);return;}
+  void loadEditor(bid).then(result=>{if(epoch.current!==token)return;setData(result);setDraft(result.draft);setSaved(fingerprint(result.draft));setChooser(!result.draft.website.template_key);}).catch(e=>{if(epoch.current===token)setError(websiteError(e));}).finally(()=>{if(epoch.current===token)setLoading(false);});
+  return()=>{epoch.current++;};
+ },[bid,allowed,reload]);
+ useEffect(()=>{const handler=(e:BeforeUnloadEvent)=>{if(dirty||busy){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',handler);return()=>window.removeEventListener('beforeunload',handler);},[dirty,busy]);
+ const update=(fn:(site:PublicSite)=>PublicSite)=>setDraft(old=>old?fn(old):old);
+ const section=(type:WebsiteSectionType,patch:Record<string,unknown>)=>update(s=>({...s,sections:s.sections.map(x=>x.type===type?{...x,content:{...x.content,...patch}}:x)}));
+ const brand=(patch:Partial<PublicSite['branding']>)=>update(s=>({...s,branding:{...s.branding,...patch}}));
+ const website=(patch:Partial<PublicSite['website']>)=>update(s=>({...s,website:{...s.website,...patch}}));
+ const move=(type:WebsiteSectionType,dir:number)=>update(s=>{const items=[...s.sections].sort((a,b)=>a.position-b.position);const i=items.findIndex(x=>x.type===type),j=i+dir;if(j<0||j>=items.length)return s;[items[i],items[j]]=[items[j]!,items[i]!];return {...s,sections:items.map((x,position)=>({...x,position}))};});
+ const choose=(key:TemplateKey)=>{update(s=>applyTemplate(s,key));setChooser(false);setSelected('HERO');setPublication(null);};
+ const save=async(publish=false)=>{if(!bid||!draft||!data||busy)return;const token=epoch.current;setBusy(publish?'Publicando…':'Guardando…');setError('');setPublication(null);try {
+  if(publish){const r=await publishDraft(bid,draft,data.revision);if(epoch.current!==token)return;setData({...data,revision:r.revision,publishedAt:r.published_at,publishedRevision:r.revision});setPublication(publicBusinessUrl(r.slug));toast.success('Página publicada correctamente');}
+  else {const revision=await saveDraft(bid,draft,data.revision);if(epoch.current!==token)return;setData({...data,revision});toast.success('Borrador guardado. Tu página pública no cambió.');}
+  setSaved(fingerprint(draft));
+ }catch(e){if(epoch.current===token)setError(websiteError(e));}finally{if(epoch.current===token)setBusy('');}};
+ const upload=async(file:File|undefined,role:'cover'|'logo'|'about'|'gallery')=>{if(!file||!bid||busy)return;const token=epoch.current;setBusy('Subiendo imagen…');setError('');try{const url=await uploadWebsiteImage(bid,file,role);if(epoch.current!==token)return;
+  update(s=>role==='logo'?{...s,branding:{...s.branding,logo_url:url}}:role==='cover'?{...s,branding:{...s.branding,cover_url:url},sections:s.sections.map(x=>x.type==='HERO'?{...x,content:{...x.content,image_url:''}}:x)}:{...s,sections:s.sections.map(x=>x.type===(role==='about'?'ABOUT':'GALLERY')?{...x,content:role==='about'?{...x.content,image_url:url}:{...x.content,images:[...(Array.isArray(x.content.images)?x.content.images:[]),{url,alt:''}]}}:x)});
+  toast.success('Imagen subida. Guarda o publica para aplicar el cambio.');
+ }catch(e){if(epoch.current===token)setError(websiteError(e));}finally{if(epoch.current===token)setBusy('');}};
+ const copy=async(url:string)=>{try{await navigator.clipboard.writeText(url);toast.success('Enlace copiado');}catch{toast.info('Selecciona el enlace y cópialo manualmente.');}};
+ const jump=(path:string)=>{if(!dirty||window.confirm('Tienes cambios sin guardar. ¿Salir del editor sin guardarlos?'))navigate(path);};
+ if(!allowed)return <div className="we-alert">Necesitas el permiso de gestionar la página web para utilizar el editor.</div>;
+ if(loading)return <div className="we-loading"><Loader2 className="animate-spin"/> Cargando tu espacio creativo…</div>;
+ if(!draft||!data)return <div className="space-y-4"><h1 className="text-title font-semibold">Mi página</h1><p role="alert" className="we-alert">{error||'Selecciona un negocio para comenzar.'}</p><Button onClick={()=>setReload(x=>x+1)}>Volver a intentar</Button></div>;
+ const template=templateFor(draft);const copyRubro=businessCopy(draft.business.type);const sec=draft.sections.find(s=>s.type===selected);const content=sec?.content??{};
+ const publicUrl=data.publishedAt?publicBusinessUrl(draft.business.slug):null;
+ const setContent=(patch:Record<string,unknown>)=>sec&&section(sec.type,patch);
+ const value=(key:string)=>typeof content[key]==='string'?content[key] as string:'';
+ const images=(Array.isArray(content.images)?content.images:[]) as Array<{url:string;alt:string}>;
+ const reviews=(Array.isArray(content.items)?content.items:draft.testimonials) as Array<{author_name:string;content:string;rating:number}>;
+ const input=(key:string,label:string,multiline=false)=><Field label={label}>{multiline?<Textarea aria-label={label} value={value(key)} onChange={e=>setContent({[key]:e.target.value})}/>:<Input aria-label={label} value={value(key)} onChange={e=>setContent({[key]:e.target.value})}/>}</Field>;
+ const uploader=(role:'cover'|'logo'|'about'|'gallery',label:string)=><label className="we-upload"><ImagePlus size={19}/><span>{label}<small>JPG, PNG o WebP · máx. 10 MB por imagen</small></span><input aria-label={label} disabled={!!busy} type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>{const file=e.target.files?.[0];e.target.value='';void upload(file,role);}}/></label>;
+ const previewControls=<div className="we-devices">{views.map(v=><button type="button" key={v.width} aria-label={v.label} aria-pressed={width===v.width} onClick={()=>setWidth(v.width)}><v.icon size={16}/></button>)}</div>;
+ return <div className="website-editor">
+  <div className="we-top"><div><p className="we-eyebrow">TU NEGOCIO, EN SU MEJOR VERSIÓN</p><h1>Mi página <span className="we-status">{busy||dirty?'● '+(busy||'Cambios sin guardar'):data.publishedAt&&data.publishedRevision===data.revision?'● Publicado':'● Borrador guardado'}</span></h1><p>Diseña, previsualiza y comparte. Sin escribir una línea de código.</p></div><div className="we-actions"><Button variant="quiet" size="sm" disabled={!!busy} onClick={e=>{previewOpener.current=e.currentTarget;setPreview(true);}}><Eye size={16}/>Previsualizar</Button><Button variant="secondary" size="sm" disabled={!!busy||!draft.website.template_key||!dirty} onClick={()=>void save()}><Save size={16}/>Guardar borrador</Button><Button size="sm" disabled={!!busy||!draft.website.template_key} onClick={()=>void save(true)}>{busy?<Loader2 size={16} className="animate-spin"/>:<Send size={16}/>}Publicar cambios</Button></div></div>
+  {error&&<div role="alert" className="we-alert">{error}</div>}
+  {(publication||publicUrl)&&<div className={`we-published ${publication?'just-published':''}`} role="status"><div><Check size={19}/><strong>{publication?'¡Tu página ya está publicada!':'Tu enlace público'}</strong><small>{publication?'Comparte este enlace con tus clientes.':'El enlace muestra la última versión publicada, no los cambios del borrador.'}</small></div><div className="we-link-row"><input aria-label="Enlace público" readOnly value={publication||publicUrl||''} onFocus={e=>e.target.select()}/><Button size="sm" variant="quiet" onClick={()=>void copy(publication||publicUrl!)}><Copy size={15}/>Copiar</Button><a href={publication||publicUrl!} target="_blank" rel="noopener noreferrer" aria-label="Abrir página publicada"><ExternalLink size={18}/></a></div></div>}
+  {chooser?<section className="we-template-step"><div className="we-template-intro"><span className="we-step">01 / ELIGE TU ESTILO</span><h2>Una primera impresión<br/><em>que se queda.</em></h2><p>Tres formas de contar tu historia. Textos adaptados a <strong>{copyRubro.label.toLowerCase()}</strong>, con movimiento, personalidad y diseño responsive.</p>{draft.website.template_key&&<button onClick={()=>setChooser(false)} className="we-back"><ArrowLeft size={15}/>Volver a mi diseño</button>}</div><div className="we-template-grid">{TEMPLATES.map(t=><article key={t.key} className="we-template-card"><div className={`we-template-art nuvia-site nw-${t.key.toLowerCase()}`}><div className="we-mini-nav"><strong>{draft.business.name}</strong><span>Reservar ↗</span></div><div className="we-mini-layout"><div><span className="we-mini-kicker">{copyRubro.label}</span><h3>{t.subtitle}</h3><span className="we-mini-button">Tu próxima cita ↗</span></div><div className="we-mini-art"><SiteArt small/></div></div><div className="we-mini-bottom"><span>DISEÑADO PARA TI</span><span>✳</span></div>{copyRubro.recommended===t.key&&<span className="we-recommended"><Sparkles size={12}/>Recomendada para tu rubro</span>}</div><div className="we-template-info"><div><h3>{t.name}</h3><span>0{TEMPLATES.indexOf(t)+1}</span></div><p>{t.description}</p><small>{t.tags}</small><Button className="w-full" variant={copyRubro.recommended===t.key?'primary':'secondary'} onClick={()=>choose(t.key)}>Elegir {t.name}<ArrowUpIcon/></Button></div></article>)}</div><p className="we-template-help">Puedes cambiar de plantilla después: tus textos, imágenes y secciones se conservan. Las composiciones abstractas son decorativas; agrega fotografías reales de tu negocio cuando quieras.</p></section>:<>
+   <div className="we-design-bar"><div><Palette size={17}/><span>Tu diseño: <strong>{template.name}</strong></span><button disabled={!!busy} onClick={()=>setChooser(true)}>Cambiar plantilla</button></div><span>Estás editando un borrador privado</span></div>
+   <fieldset disabled={!!busy} className="we-workspace"><aside className="we-panel we-sections"><p className="we-panel-title">CONSTRUYE TU PÁGINA</p><button className={selected==='BRAND'?'we-settings active':'we-settings'} onClick={()=>setSelected('BRAND')}><Palette size={16}/>Marca y apariencia</button><button className={selected==='CONTACT'?'we-settings active':'we-settings'} onClick={()=>setSelected('CONTACT')}><ExternalLink size={16}/>Información y contacto</button><p className="we-panel-title we-spaced">TUS SECCIONES</p>{draft.sections.map((s,i)=><div key={s.type} className={`we-section-row ${selected===s.type?'active':''}`}><button onClick={()=>setSelected(s.type)}><span>{String(i+1).padStart(2,'0')}</span>{SECTION_LABELS[s.type]}</button><Switch checked={s.active} onChange={active=>update(x=>({...x,sections:x.sections.map(y=>y.type===s.type?{...y,active}:y)}))} label={`Mostrar ${SECTION_LABELS[s.type]}`}/></div>)}<p className="we-hint">Oculta secciones que aún no estén listas. Tus clientes solo verán lo que publiques.</p></aside>
+   <div className="we-preview-panel"><div className="we-preview-toolbar"><span><span className="we-live-dot"/>Vista previa en vivo</span>{previewControls}</div><SitePreview site={draft} width={width}/><p className="we-preview-caption">Este es el mismo diseño que verán tus clientes. Desplázate dentro de la vista previa para recorrer la página.</p></div>
+   <aside className="we-panel we-fields"><div className="we-field-heading"><h2>{selected==='BRAND'?'Marca y apariencia':selected==='CONTACT'?'Información y contacto':SECTION_LABELS[selected]}</h2>{sec&&<div><button aria-label="Subir sección" disabled={sec.position===0} onClick={()=>move(sec.type,-1)}><ArrowUp size={16}/></button><button aria-label="Bajar sección" disabled={sec.position===9} onClick={()=>move(sec.type,1)}><ArrowDown size={16}/></button></div>}</div>
+    {selected==='BRAND'?<><p className="we-hint">Los cambios de marca no alteran los datos operativos del negocio.</p>{uploader('logo','Subir logo')}{draft.branding.logo_url&&<div className="we-image-thumb"><img src={safeImage(draft.branding.logo_url)} alt="Logo"/><button aria-label="Quitar logo" onClick={()=>brand({logo_url:''})}><Trash2 size={16}/></button></div>}<Field label="Color principal"><input aria-label="Color principal" type="color" value={draft.branding.colors.primary||template.accent} onChange={e=>brand({colors:{...draft.branding.colors,primary:e.target.value}})}/></Field><Field label="Color de botones"><input aria-label="Color de botones" type="color" value={draft.branding.colors.button||template.accent} onChange={e=>brand({colors:{...draft.branding.colors,button:e.target.value}})}/></Field><Field label="Tipografía"><select aria-label="Tipografía" value={draft.branding.font_key} onChange={e=>brand({font_key:e.target.value})}><option value="serif">Editorial · elegante</option><option value="sans">Sans · moderna</option></select></Field><Field label="Frase de marca"><Input aria-label="Frase de marca" value={draft.website.tagline} onChange={e=>website({tagline:e.target.value})}/></Field></>:selected==='CONTACT'?<>{(['name','description','address','phone','whatsapp','email'] as const).map(key=><Field key={key} label={{name:'Nombre público',description:'Descripción del negocio',address:'Dirección',phone:'Teléfono',whatsapp:'WhatsApp (código de país + número)',email:'Email'}[key]}><Input aria-label={key==='name'?'Nombre público':key} value={draft.business[key]} onChange={e=>update(s=>({...s,business:{...s.business,[key]:e.target.value}}))}/></Field>)}<p className="we-hint">Datos visibles en tu web. El enlace y la información administrativa del negocio no se modifican aquí.</p></>:<>
+     {selected!=='FOOTER'&&input('title','Título de la sección')}
+     {['HERO','SERVICES','GALLERY','TEAM','PROMOTIONS','TESTIMONIALS','LOCATION'].includes(selected)&&input('subtitle','Descripción de la sección',true)}
+     {selected==='HERO'&&<>{input('eyebrow','Etiqueta superior')}{input('cta','Texto del botón')}<label className="we-inline-label">Mostrar botón<Switch checked={content.cta_enabled!==false} onChange={v=>setContent({cta_enabled:v})} label="Mostrar botón de reserva"/></label>{uploader('cover','Cambiar imagen de portada')}{safeImage(content.image_url||draft.branding.cover_url)&&<div className="we-image-thumb"><img src={safeImage(content.image_url||draft.branding.cover_url)} alt="Portada"/><button aria-label="Quitar imagen de portada" onClick={()=>{brand({cover_url:''});setContent({image_url:''});}}><Trash2 size={16}/></button></div>}{input('image_alt','Descripción de la imagen')}{input('image_caption','Pie de imagen')}</>}
+     {selected==='ABOUT'&&<>{input('body','Tu historia',true)}{uploader('about','Subir foto de nosotros')}{safeImage(content.image_url)&&<div className="we-image-thumb"><img src={safeImage(content.image_url)} alt="Sobre nosotros"/><button aria-label="Quitar foto de nosotros" onClick={()=>setContent({image_url:''})}><Trash2 size={16}/></button></div>}{input('image_alt','Descripción de la imagen')}</>}
+     {selected==='GALLERY'&&<>{uploader('gallery','Agregar foto a galería')}{images.map((img,i)=><div className="we-gallery-editor" key={`${img.url}-${i}`}><img src={safeImage(img.url)} alt={img.alt||`Foto ${i+1}`}/><Input aria-label={`Descripción foto ${i+1}`} placeholder="Describe esta fotografía" value={img.alt} onChange={e=>setContent({images:images.map((x,j)=>i===j?{...x,alt:e.target.value}:x)})}/><button aria-label={`Quitar foto ${i+1}`} onClick={()=>setContent({images:images.filter((_,j)=>j!==i)})}><Trash2 size={16}/></button></div>)}<p className="we-hint">Quitar una imagen del borrador no borra el archivo que pudiera usar tu página ya publicada. Sube solo fotografías aptas para acceso público.</p></>}
+     {(selected==='SERVICES'||selected==='TEAM')&&<><p className="we-hint">Elige qué mostrar. Precios, duración y perfiles se editan en su módulo, sin duplicar datos.</p>{(selected==='SERVICES'?draft.services.map(s=>({id:s.id,name:s.name})):draft.team.map(s=>({id:s.id,name:s.fullName}))).map(item=><label key={item.id} className="we-check"><input type="checkbox" checked={!(Array.isArray(content.hidden_ids)&&content.hidden_ids.includes(item.id))} onChange={e=>{const ids=Array.isArray(content.hidden_ids)?content.hidden_ids as string[]:[];setContent({hidden_ids:e.target.checked?ids.filter(id=>id!==item.id):[...ids,item.id]});}}/>{item.name}</label>)}<Button size="sm" variant="quiet" onClick={()=>jump(selected==='SERVICES'?'/app/services':'/app/team')}>Gestionar {selected==='SERVICES'?'servicios':'equipo'}<ExternalLink size={14}/></Button></>}
+     {selected==='PROMOTIONS'&&<><p className="we-hint">Se muestran las promociones activas, vigentes y marcadas para la web.</p><Button size="sm" variant="quiet" onClick={()=>jump('/app/loyalty')}>Gestionar promociones<ExternalLink size={14}/></Button></>}
+     {selected==='TESTIMONIALS'&&<>{reviews.map((r,i)=><div className="we-review-editor" key={i}><Input aria-label={`Autor ${i+1}`} placeholder="Nombre del cliente" value={r.author_name} onChange={e=>setContent({items:reviews.map((x,j)=>i===j?{...x,author_name:e.target.value}:x)})}/><Textarea aria-label={`Testimonio ${i+1}`} placeholder="Testimonio auténtico del cliente" value={r.content} onChange={e=>setContent({items:reviews.map((x,j)=>i===j?{...x,content:e.target.value}:x)})}/><div><select aria-label={`Calificación ${i+1}`} value={r.rating} onChange={e=>setContent({items:reviews.map((x,j)=>i===j?{...x,rating:Number(e.target.value)}:x)})}>{[1,2,3,4,5].map(n=><option value={n} key={n}>{n} estrellas</option>)}</select><button aria-label={`Quitar testimonio ${i+1}`} onClick={()=>setContent({items:reviews.filter((_,j)=>i!==j)})}><Trash2 size={16}/></button></div></div>)}<Button size="sm" variant="quiet" onClick={()=>setContent({items:[...reviews,{author_name:'',content:'',rating:5}]})}><Plus size={16}/>Agregar testimonio</Button><p className="we-hint">Usa testimonios reales con autorización del cliente. No se crean opiniones ficticias.</p></>}
+     {selected==='LOCATION'&&<><Field label="Dirección o referencia para Google Maps"><Input aria-label="Referencia del mapa" value={draft.website.map_query} onChange={e=>website({map_query:e.target.value})}/></Field><button className="we-inline-link" onClick={()=>setSelected('CONTACT')}>Editar dirección y datos de contacto →</button><p className="we-hint">Los horarios vienen de la sucursal principal.</p><Button size="sm" variant="quiet" onClick={()=>jump('/app/settings/branches')}>Editar horarios<ExternalLink size={14}/></Button></>}
+     {selected==='CTA'&&<>{input('body','Mensaje de invitación',true)}{input('cta','Texto del botón')}</>}
+     {selected==='FOOTER'&&<>{input('text','Texto del pie',true)}{(['instagram','facebook','tiktok'] as const).map(network=><Field key={network} label={network[0]!.toUpperCase()+network.slice(1)}><Input aria-label={network} type="url" placeholder={`https://${network}.com/tu-negocio`} value={draft.website.socials[network]||''} onChange={e=>website({socials:{...draft.website.socials,[network]:e.target.value}})}/></Field>)}</>}
+    </>}
+   </aside></fieldset></>}
+  {preview&&createPortal(<div className="we-full-preview" role="dialog" aria-modal="true" aria-label="Previsualización privada"><div className="we-full-toolbar"><div><strong>Tu página, antes de publicarla</strong><span>Borrador privado · incluye tus cambios sin guardar</span></div>{previewControls}<button autoFocus aria-label="Cerrar previsualización" onClick={()=>setPreview(false)}><X size={23}/></button></div><div className="we-full-frame"><SitePreview site={draft} width={width} height={Math.max(400,window.innerHeight-135)} onEscape={()=>setPreview(false)}/></div></div>,document.body)}
+ </div>;
 }
+function ArrowUpIcon(){return <ExternalLink size={15}/>;}

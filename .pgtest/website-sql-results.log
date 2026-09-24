@@ -1,0 +1,236 @@
+BEGIN
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+DELETE 0
+INSERT 0 1
+INSERT 0 1
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000002
+(1 row)
+
+  set_config   
+---------------
+ authenticated
+(1 row)
+
+SET
+NOTICE:  PASS: Editor inicial sin filas devuelve revisión cero
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Horario principal prevalece sin duplicar días heredados
+ ok 
+----
+ 
+(1 row)
+
+ save_website_draft 
+--------------------
+                  1
+(1 row)
+
+NOTICE:  PASS: Guardar crea las diez secciones faltantes
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Nombre público no altera negocio ni slug operativo
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Guardar borrador no publica
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Portada persistida en borrador
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Editor conserva datos públicos personalizados
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Revisión antigua no sobrescribe
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Solo tres plantillas válidas
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Redes rechazan esquemas peligrosos
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Colores rechazan contenido CSS arbitrario
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Borrador incompleto se rechaza
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Validaciones fallidas no cambian revisión
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Publicación inválida revierte guardado
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Publicación fallida conserva versión del borrador
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Publicar devuelve slug real e ID confirmado
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Publicar crea solo un release
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Revisión publicada identificable
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Snapshot no acepta servicios inyectados por cliente
+ ok 
+----
+ 
+(1 row)
+
+ save_website_draft 
+--------------------
+                  3
+(1 row)
+
+SET
+NOTICE:  PASS: Público no ve cambios sin publicar
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Anónimo no lee borrador
+ reject 
+--------
+ 
+(1 row)
+
+SET
+NOTICE:  PASS: IDOR lectura borrador
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: IDOR publicación
+ reject 
+--------
+ 
+(1 row)
+
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000004
+(1 row)
+
+NOTICE:  PASS: Trabajador sin website.manage no guarda
+ reject 
+--------
+ 
+(1 row)
+
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000003
+(1 row)
+
+                                                                publish_website_draft                                                                
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+ {"slug": "local-business", "revision": 1, "release_id": "cbb10011-a505-4f86-8e48-12963fa4f5d9", "published_at": "2026-09-24T22:57:35.914218+00:00"}
+(1 row)
+
+NOTICE:  PASS: Business publica plantilla Studio
+ ok 
+----
+ 
+(1 row)
+
+                                                                publish_website_draft                                                                
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+ {"slug": "local-business", "revision": 2, "release_id": "3f940ed8-32d1-458f-bd82-7bd3f23a511d", "published_at": "2026-09-24T22:57:35.918439+00:00"}
+(1 row)
+
+NOTICE:  PASS: Business cambia a Serene sin borrar historial
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Conserva historial de publicaciones
+ ok 
+----
+ 
+(1 row)
+
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000001
+(1 row)
+
+UPDATE 1
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000002
+(1 row)
+
+NOTICE:  PASS: Capacidad deshabilitada bloquea guardado directo
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Snapshot privado no es API pública
+ reject 
+--------
+ 
+(1 row)
+
+ROLLBACK

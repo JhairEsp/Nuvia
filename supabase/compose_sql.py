@@ -3,9 +3,10 @@ from pathlib import Path
 root = Path(__file__).resolve().parent
 migration = root / 'migrations/20260924000003_two_plans.sql'
 (root / 'PLANES_Y_SUCURSALES.sql').write_bytes(migration.read_bytes())
+(root / 'EDITOR_WEB.sql').write_bytes((root / 'migrations/20260924000004_website_editor.sql').read_bytes())
 header = """-- Nuvia · instalación NUEVA exclusivamente (2026-09-24).
 -- NO idempotente. NO ejecutar en un proyecto Nuvia existente.
--- Existentes: inspeccionar INSPECCION_PLANES.sql y aplicar PLANES_Y_SUCURSALES.sql.
+-- Existentes: seguir README; aplicar incrementales 03/04 solo si faltan.
 -- Solo esquema, RBAC y dos planes; no usuarios Auth, contraseñas ni datos demo.
 -- Generado por python3 supabase/compose_sql.py; modificar las migraciones originales.
 do $$ begin
@@ -15,6 +16,6 @@ do $$ begin
 end $$;
 
 """
-parts = ['migrations/20260921000001_init.sql', 'seed.sql', 'migrations/20260922000002_platform_admin.sql', 'migrations/20260924000003_two_plans.sql']
+parts = ['migrations/20260921000001_init.sql', 'seed.sql', 'migrations/20260922000002_platform_admin.sql', 'migrations/20260924000003_two_plans.sql', 'migrations/20260924000004_website_editor.sql']
 (root / 'SUPABASE.sql').write_text(header + '\n\n'.join('-- FUENTE: ' + name + '\n' + (root/name).read_text() for name in parts))
-print('Paquetes regenerados: SUPABASE.sql y PLANES_Y_SUCURSALES.sql (copia exacta de migración 03)')
+print('Paquetes regenerados: SUPABASE.sql (01–04), PLANES_Y_SUCURSALES.sql (03) y EDITOR_WEB.sql (04)')

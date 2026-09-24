@@ -1,0 +1,566 @@
+BEGIN
+CREATE FUNCTION
+CREATE FUNCTION
+NOTICE:  PASS: Solo dos planes comerciales
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Conservar UUID Starter
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Conservar UUID Business
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Conservar snapshot histórico Pro
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Suscripción Pro conserva UUID y ahora usa Business
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Business ilimitado explícito y 10 GB
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: No recrear tercer plan
+ reject 
+--------
+ 
+(1 row)
+
+ALTER TABLE
+GRANT
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000002
+(1 row)
+
+  set_config   
+---------------
+ authenticated
+(1 row)
+
+SET
+NOTICE:  PASS: Capacidad Starter en API
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Starter fidelización
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Starter Copiloto IA
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Starter WhatsApp
+ ok 
+----
+ 
+(1 row)
+
+ require_plan_capability 
+-------------------------
+ 
+(1 row)
+
+                              ai_tool_loyalty_summary                              
+-----------------------------------------------------------------------------------
+ {"by_tier": {}, "accounts": 0, "points_outstanding": 0, "referrals_completed": 0}
+(1 row)
+
+NOTICE:  PASS: Starter una sucursal
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Starter bloquea segunda por INSERT directo
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Starter bloquea segunda por RPC
+ reject 
+--------
+ 
+(1 row)
+
+INSERT 0 1
+NOTICE:  PASS: Crear trabajador 1
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 4
+NOTICE:  PASS: Crear trabajador 5
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Bloquear trabajador 6 directamente
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Bloquear trabajador 6 por RPC
+ reject 
+--------
+ 
+(1 row)
+
+UPDATE 1
+NOTICE:  PASS: Desactivar trabajador no permite bypass
+ reject 
+--------
+ 
+(1 row)
+
+INSERT 0 1
+NOTICE:  PASS: UPSERT edición no consume trabajador extra
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+INSERT 0 300
+NOTICE:  PASS: Crear citas 1 a 300 y consumo del mes
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Bloquear cita 301 directamente
+ reject 
+--------
+ 
+(1 row)
+
+INSERT 0 1
+NOTICE:  PASS: Mes futuro independiente
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Reprogramar al mes completo no evita cuota
+ reject 
+--------
+ 
+(1 row)
+
+UPDATE 1
+NOTICE:  PASS: Cancelar no atendida libera cupo
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+NOTICE:  PASS: Reactivar cancelada valida consumo
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Completada no se cancela para recuperar cupo
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Completada no se elimina para recuperar cupo
+ reject 
+--------
+ 
+(1 row)
+
+UPDATE 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 7
+INSERT 0 1
+           publish_website            
+--------------------------------------
+ 2d8ca0ad-d3ee-4bc1-8bbd-d819e38c7df0
+(1 row)
+
+INSERT 0 299
+SET
+NOTICE:  PASS: Catálogo público de una sucursal Starter
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Disponibilidad pública con horarios configurados
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Reserva pública anónima no evita cuota
+ reject 
+--------
+ 
+(1 row)
+
+SET
+NOTICE:  PASS: Reserva rechazada revierte alta del cliente
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+NOTICE:  PASS: Starter registra historial de fidelización
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Starter registra promociones
+ ok 
+----
+ 
+(1 row)
+
+        adjust_loyalty_points         
+--------------------------------------
+ e35ae733-e128-4823-b476-cba41153405d
+(1 row)
+
+        adjust_loyalty_points         
+--------------------------------------
+ b2e1d324-51e6-4e62-bcaf-02e983ea737e
+(1 row)
+
+NOTICE:  PASS: Starter gana/canjea puntos y conserva nivel acumulado
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Canje conserva historial completo
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Canje rechaza saldo negativo
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Fidelización rechaza cliente ajeno
+ reject 
+--------
+ 
+(1 row)
+
+INSERT 0 1
+INSERT 0 1
+NOTICE:  PASS: Starter puede encolar WhatsApp
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Starter puede configurar automatizaciones
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+NOTICE:  PASS: Starter persiste insights IA autorizados
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Usuario no usa el endpoint del job de IA
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: IDOR consumo
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: IDOR tool IA
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: IDOR sucursales
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: business_id inmutable
+ reject 
+--------
+ 
+(1 row)
+
+UPDATE 0
+NOTICE:  PASS: RLS bloquea cambio de plan directo
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Usuario no modifica capacidades
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: No escalamiento de rol
+ reject 
+--------
+ 
+(1 row)
+
+INSERT 0 1
+NOTICE:  PASS: Almacenamiento 500 MB exactos
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Almacenamiento bloquea exceso
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Overwrite no evita cuota
+ reject 
+--------
+ 
+(1 row)
+
+UPDATE 1
+INSERT 0 1
+NOTICE:  PASS: Reducir tamaño libera espacio
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Storage no cambia tenant
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Ruta con UUID en mayúsculas no evita cuota
+ reject 
+--------
+ 
+(1 row)
+
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000004
+(1 row)
+
+NOTICE:  PASS: IA incluida no concede permiso al trabajador
+ reject 
+--------
+ 
+(1 row)
+
+SET
+NOTICE:  PASS: Anónimo no lee consumo
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Helpers privados no son API
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Catálogo público solo dos planes
+ ok 
+----
+ 
+(1 row)
+
+SET
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000003
+(1 row)
+
+INSERT 0 55
+NOTICE:  PASS: Business supera 5,12,50 trabajadores
+ ok 
+----
+ 
+(1 row)
+
+             save_branch              
+--------------------------------------
+ d0576f4b-4190-4980-9b01-8d126c483492
+(1 row)
+
+NOTICE:  PASS: Business varias sucursales
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Business mismas capacidades principales
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+INSERT 0 20001
+NOTICE:  PASS: Business supera antiguo tope 20000 citas
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+          create_branch_sale          
+--------------------------------------
+ 5aca71f2-5c80-40db-9e11-c73280e29664
+(1 row)
+
+NOTICE:  PASS: POS descuenta stock de sucursal
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: POS otorga fidelización
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Reporte por sucursal correcto
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: POS no crea venta parcial sin stock
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Rollback conserva solo venta confirmada
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: FK de cliente no cruza tenants
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: IDOR reporte por fechas
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Reporte rechaza período invertido
+ reject 
+--------
+ 
+(1 row)
+
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000001
+(1 row)
+
+NOTICE:  PASS: Downgrade no elimina datos y rechaza exceso
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Downgrade rechazado conserva empleados
+ ok 
+----
+ 
+(1 row)
+
+UPDATE 1
+UPDATE 1
+NOTICE:  PASS: Reporte incluye última hora local con DST
+ ok 
+----
+ 
+(1 row)
+
+UPDATE 1
+NOTICE:  PASS: Reporte excluye siguiente día con DST
+ ok 
+----
+ 
+(1 row)
+
+ admin_delete_business 
+-----------------------
+ 
+(1 row)
+
+NOTICE:  PASS: Eliminación explícita de negocio conserva el CRUD y cascadas
+ ok 
+----
+ 
+(1 row)
+
+ROLLBACK
+PASS: suite terminada; datos locales de prueba revertidos

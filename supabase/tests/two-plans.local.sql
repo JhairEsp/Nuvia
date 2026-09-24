@@ -64,6 +64,7 @@ insert into public.services(id,business_id,name,duration_min,price) values('f200
 insert into public.employee_services(employee_id,service_id,business_id) values('e0000000-0000-0000-0000-000000000001','f2000000-0000-0000-0000-000000000001','b0000000-0000-0000-0000-000000000001');
 insert into public.business_settings(business_id) values('b0000000-0000-0000-0000-000000000001');
 insert into public.business_hours(business_id,weekday,open_time,close_time) select 'b0000000-0000-0000-0000-000000000001',i,'09:00','18:00' from generate_series(0,6) i;
+insert into public.website_sections(business_id,type,content) values('b0000000-0000-0000-0000-000000000001','HERO','{"title":"Negocio local"}');
 select public.publish_website('b0000000-0000-0000-0000-000000000001');
 insert into public.appointments(business_id,customer_id,scheduled_start,scheduled_end)
  select 'b0000000-0000-0000-0000-000000000001','c0000000-0000-0000-0000-000000000001',now()+interval '1 month',now()+interval '1 month 1 hour' from generate_series(1,299);

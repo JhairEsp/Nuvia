@@ -35,6 +35,22 @@ Protección: SECURITY DEFINER con `search_path` fijado, validación de estado de
 `add_loyalty_points` · `redeem_points` · `process_referral` · `match_waitlist` ·
 `get_recoverable_slots(p_days)` · `refresh_customer_stats` · `log_audit`
 
+## Contrato vigente del editor web (migración 04)
+
+| RPC | Parámetros | Resultado |
+|---|---|---|
+| `get_website_editor` | `p_business_id uuid` | `{draft, revision, published_at, published_revision}` |
+| `save_website_draft` | `p_business_id uuid, p_draft jsonb, p_expected_revision bigint` | Nueva revisión `bigint`, sin publicar |
+| `publish_website_draft` | Los mismos parámetros | `{release_id, revision, slug, published_at}`; guarda y publica atómicamente |
+
+Requieren JWT, `website.manage` y capacidad `website`; autorización tenant del lado servidor. `p_draft` contiene únicamente `business` (overrides públicos), `branding`, `website` y `sections`. No permite sustituir servicios/precios/equipo del catálogo. Revisión desactualizada: error SQLSTATE `40001`, sin sobrescritura; recargar y reconciliar cambios antes de reintentar.
+
+`beautyos_private.website_snapshot` no está expuesto a clientes. `get_public_site` sigue leyendo exclusivamente el release publicado. El wrapper legado `publish_website` aplica las nuevas validaciones. La URL pública se construye en frontend con origen/ruta base actuales y el `slug` confirmado.
+
+Imágenes: cliente Supabase Storage autenticado, prefijo UUID del tenant y cuotas existentes. Solo JPG/PNG/WebP hasta 10 MB por archivo, con decodificación antes de subir. Los buckets web son públicos: no subir datos privados. No hay borrado físico al quitar una imagen del borrador.
+
+[Instalación del editor y límites de las pruebas](entrega-editor-web.md). Estas RPCs no implementan un proveedor de WhatsApp ni modifican contratos de IA.
+
 ## Analytics (dashboard e IA)
 
 | RPC | Entrega |

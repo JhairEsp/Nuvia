@@ -1,92 +1,63 @@
-# 06 · Website Builder & Landing pública — Nuvia
+# Mi página · editor web Nuvia
 
-Una de las funciones principales (§5–15): cada negocio tiene su página pública
-(`https://TU-DOMINIO/#/b/slug-del-negocio`) editable sin programar. Se utiliza el dominio del despliegue; no se presupone un dominio comercial registrado.
+Estado implementado localmente al 24/09/2026. Ver [activación y pruebas](entrega-editor-web.md). Este documento describe el código actual, no una lista de funciones futuras.
 
-## Modelo de contenido
+## Tres plantillas, antes de editar
 
-| Pieza | Tabla | Notas |
+| Plantilla | Diseño | Orientación |
 |---|---|---|
-| Identidad + contacto | `businesses` + `business_settings` | nombre, descripción, logo, favicon, tel, WhatsApp, email, dirección, Google Maps, horarios |
-| Branding | `business_branding` | preset + overrides (colores, tipografía, fondo) |
-| Secciones | `website_sections` | `type`, `position`, `active`, `content jsonb` (borrador) |
-| Media / galería | `website_media` | drag & drop, posición, principal, alt, descripción |
-| Servicios visibles | `services.show_on_website` | el editor elige cuáles |
-| Equipo visible | `employees.show_on_website` | "Nuestro equipo" |
-| Promociones | `promotions.show_on_website` | "Martes Beauty" |
-| Testimonios | `reviews.is_published` | con foto opcional |
-| Snapshots publicados | `website_releases` | lo único que ve el público (DECISIÓN 4) |
+| **Éditorial** | Composición editorial, serif, colores cálidos | Salones, estética, pestañas y nails |
+| **Studio** | Fondo oscuro, tipografía contundente, acentos eléctricos | Barberías y estudios creativos |
+| **Serene** | Colores naturales, formas orgánicas, movimiento suave | Spa, bienestar y terapias |
 
-## Motor de secciones (un solo engine, §44)
+El rubro determina la recomendación y los textos iniciales; cualquiera de las tres se puede elegir. Los diseños tienen composiciones diferenciadas, son responsive y respetan `prefers-reduced-motion`. El reveal al desplazarse es mejora progresiva según soporte del navegador. Sin fotos propias se muestra arte CSS decorativo, no fotografías ni testimonios de clientes inventados.
 
-Orden editable por drag & drop (idéntico al brief):
+Los negocios sin `template_key` eligen primero una plantilla. Cambiar después conserva contenido, imágenes, orden y visibilidad, pero aplica la fuente y los colores del nuevo diseño. La web publicada anterior sigue intacta hasta publicar de nuevo.
 
-```
-HERO → SERVICES → ABOUT → GALLERY → TEAM → PROMOTIONS → TESTIMONIALS → LOCATION → CTA → FOOTER
-```
+## Qué se puede editar
 
-Cada sección: activar/desactivar · reordenar · editar contenido. `<SectionsRenderer/>` mapea
-`type → componente`; el **theme** (tokens) cambia la piel, no el código.
+- **Marca:** logo, colores principal/botones, fuente y frase de marca.
+- **Contacto:** nombre público, descripción, dirección, teléfono, WhatsApp y email. Son overrides públicos: no cambian nombre/slug/datos administrativos del negocio.
+- **Diez secciones:** portada, servicios, sobre nosotros, galería, equipo, promociones, testimonios, ubicación, invitación a reservar y pie de página. Activar/ocultar y reordenar con flechas; campos específicos para cada sección.
+- **Imágenes:** subir, reemplazar y quitar portada/logo/foto de nosotros; agregar/quitar fotografías de galería y editar descripciones.
+- **Mapa y redes:** consulta de Google Maps; Instagram, TikTok y Facebook con enlaces HTTP(S).
+- **Testimonios:** autor, texto y calificación; deben ser auténticos y contar con autorización.
+- **Servicios/equipo/promociones:** datos reales del catálogo con sus filtros de actividad y visibilidad; se administran en sus módulos, no mediante precios o trabajadores ficticios en el editor. Horario de sucursal principal, con fallback al legado por día sin duplicados.
 
-### Contenido por sección (content jsonb)
-- **HERO** — imagen de portada (subir/reemplazar/eliminar), título ("Tu estilo comienza aquí."),
-  subtítulo ("Reserva tu próxima experiencia."), CTA ("Reservar cita") + `cta_enabled`.
-- **SERVICES** — auto desde catálogo (`show_on_website`): nombre, descripción, duración, precio,
-  imagen, categoría, botón [Reservar].
-- **ABOUT** — texto de la casa + imagen.
-- **GALLERY** — grid drag & drop `[Foto 1][Foto 2][Foto 3]…`, principal, cantidad visible, descripción.
-- **TEAM** — profesionales públicos: foto, nombre, rol ("Andrea · Stylist").
-- **PROMOS** — promo con imagen, precio tachado, descuento, vigencia, [Reservar].
-- **TESTIMONIALS** — testimonios publicados con foto del cliente.
-- **LOCATION** — mapa (Google Maps link/embed), dirección, [Cómo llegar], WhatsApp, teléfono, horario.
-- **CTA** — cierre con botón de reserva.
-- **FOOTER** — redes (Instagram, TikTok, Facebook — links configurables hoy, embed en futuro),
-  legales, crédidos.
+No se incluye recorte de fotografías, drag-and-drop, duplicación de secciones ni restauración de releases desde la UI.
 
-## Branding seguro (§6)
+## Flujo real
 
-Presets profesionales (mismo engine, distintos tokens):
+1. Elegir plantilla.
+2. Editar y subir fotografías desde la aplicación.
+3. **Guardar borrador:** confirma persistencia mediante RPC, sin cambiar la web pública.
+4. **Previsualizar:** muestra los cambios actuales, incluso sin guardar, en escritorio/tablet/celular. No publica ni genera reservas. Escape cierra también desde el iframe y devuelve el foco al botón de apertura.
+5. **Publicar cambios:** guarda y crea el release en una sola transacción. Solo después de la confirmación del servidor se muestra éxito y el enlace para copiar/abrir.
 
-| Preset | Personalidad |
-|---|---|
-| **LUXURY** | serif elegante, negro/champán, mucho aire (spas, estética premium) |
-| **MODERN** | sans tight, alto contraste, energía (barberías, nails) |
-| **MINIMAL** | casi monocromo, tipografía protagonista |
-| **DARK** | negro espresso, acentos metálicos (barberías oscuras, studios) |
-| **SOFT** | tonos rosados/arena suaves, redondeado generoso |
-| **ELEGANT** | tonos vino/bronce, serif+small caps |
+Preview y sitio público comparten `SiteRenderer.tsx` y `site.css`. El sitio público usa `get_public_site` y el drawer existente de reservas; el preview no reserva. La URL se construye con el origen y la ruta base del despliegue abierto, seguida de `#/b/<slug-real>`. No se inventa un dominio comercial.
 
-El admin elige preset y ajusta fino (color principal, secundario, botones, fondo, tipografía
-**dentro de opciones predefinidas**). Zod valida contraste mínimo (AA) y prohíbe combinaciones
-que destruyan la UI (§6).
+## Persistencia y seguridad
 
-## Editor "Mi página" (`/app/website`)
+- `business_website`: `template_key`, `public_info`, `draft_revision`, mapa, redes y frase.
+- `business_branding`: logo, portada, fuente y colores.
+- `website_sections`: contenido, orden y visibilidad del borrador.
+- `website_releases.snapshot`: única versión mostrada al público; los releases anteriores se conservan.
+- El helper privado compone el snapshot desde catálogos del servidor. El cliente envía solo campos editables.
+- RPCs `get_website_editor`, `save_website_draft`, `publish_website_draft`: requieren permiso `website.manage` y capacidad `website`, con aislamiento por negocio y revisión optimista. Los rechazos no muestran éxito ni descartan los cambios locales.
+- Dos sesiones con la misma revisión no pueden sobrescribirse: una debe recargar. La publicación es atómica y conserva el release anterior si falla.
 
-Tres modos: **[EDITAR] [PREVISUALIZAR] [PUBLICAR]**
+## Fotografías y almacenamiento
 
-- Izquierda: lista de secciones con drag & drop (↕ activar/desactivar/duplicar contenido).
-- Centro: preview en vivo con switch **Desktop / Tablet / Mobile** (iframe del mismo renderer).
-- Derecha: panel de props de la sección seleccionada (campos guiados, upload con crop).
-- Barra superior: estado `Borrador · Guardar borrador · Publicar cambios` con diff resumido
-  ("3 secciones modificadas").
-- Los cambios en draft **nunca** tocan la página pública hasta `publish_website()` (§43):
-  crea `website_releases.snapshot` atómico + toast "Página publicada" + "Deshacer" (re-publicar
-  release anterior).
+Subida directa mediante el cliente Supabase Storage, con JWT del usuario y las políticas/cuotas existentes. JPG, PNG o WebP, máximo 10 MB por archivo, con comprobación de decodificación en el navegador. SVG no admitido.
 
-## Reserva desde la landing (§15) — mínima fricción, SIN cuenta
+- `brand-assets`: portada y logo.
+- `website-media`: foto de nosotros y galería.
+- Ruta: `<business_uuid>/website/<rol>/<uuid-archivo>.<extensión>`.
 
-```
-SERVICIO → PROFESIONAL → FECHA → HORA → NOMBRE → WHATSAPP → CONFIRMAR
-```
+Estos buckets son públicos en la instalación prevista: subir solo contenido autorizado para acceso público. **Borrador privado no significa archivo privado**: una fotografía subida puede ser accesible por su URL aunque aún no se haya publicado la página. No usar documentos ni fotos confidenciales.
 
-- Wizard en drawer/modal (mobile-first), barra de progreso, retroceso libre.
-- Upselling en paso 1 ("Completa tu servicio": Barba +S/15, Mascarilla +S/10) (§32).
-- Slots reales vía `get_public_availability`; bloquear doble booking en `create_booking`.
-- Confirmación con resumen + "Agregar al calendario" + recordatorio automático 24 h antes (WhatsApp).
-- Waitlist: si no hay hueco → "Avísame si se libera un horario" (§17) en un tap.
+Quitar una imagen del borrador no elimina el objeto de Storage: evita romper releases anteriores, pero el archivo sigue contando para la cuota. No hay recolección automática de archivos huérfanos. La UI no promete eliminación física.
 
-## Rendimiento del sitio público
+## Límites de esta entrega
 
-Snapshot JSON único → primer render rápido; imágenes del Storage con thumbnails AVIF/WebP +
-lazy loading; `aspect-ratio` para cero CLS; SEO: title/meta/OG desde el snapshot; prerender futuro
-si el SEO lo exige (DECISIÓN 12).
+Fuentes Google y mapas necesitan conectividad externa; las fuentes tienen fallback. La SPA hash no incorpora prerender/SEO social por negocio, conversión automática a AVIF ni un historial visual de versiones. El enlace de WhatsApp abre una conversación: no implementa envío automatizado, proveedor, worker ni recordatorios. La activación remota y la comprobación con Auth/Storage reales siguen siendo pasos de despliegue.

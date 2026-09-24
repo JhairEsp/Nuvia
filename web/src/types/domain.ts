@@ -299,9 +299,9 @@ export interface PlatformBusiness {
 
 /** Snapshot del sitio público (website_releases.snapshot) */
 export interface PublicSite {
-  business: { name: string; slug: string; description: string; phone: string; whatsapp: string; email: string; address: string };
-  branding: { preset: ThemePreset; colors: { primary?: string; button?: string }; font_key: string };
-  website: { tagline: string; socials: { instagram?: string; tiktok?: string; facebook?: string }; map_query: string };
+  business: { name: string; slug: string; type?: string; description: string; phone: string; whatsapp: string; email: string; address: string };
+  branding: { preset: ThemePreset; colors: { primary?: string; button?: string }; font_key: string; logo_url?: string; cover_url?: string };
+  website: { template_key?: string | null; tagline: string; socials: { instagram?: string; tiktok?: string; facebook?: string }; map_query: string };
   sections: Array<{ type: WebsiteSectionType; position: number; active: boolean; content: Record<string, unknown> }>;
   services: Service[];
   team: Employee[];

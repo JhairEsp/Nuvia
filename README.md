@@ -45,17 +45,18 @@ Solo las claves públicas de Supabase van en `VITE_*`. **Nunca** colocar `servic
 2. Confirmar que ya están instaladas las migraciones inicial y de administración. Si falta la segunda, aplicar **una vez** `supabase/ADMIN_CRUD.sql`.
 3. Revisar el [alcance y las reglas](docs/planes-alcance-migracion.md).
 4. Aplicar **una vez** `supabase/PLANES_Y_SUCURSALES.sql`. Es una copia exacta de la migración `20260924000003_two_plans.sql`: aplicar uno u otro, no ambos.
-5. Desplegar las funciones y el frontend según la guía de entrega.
+5. Para el editor «Mi página», aplicar **una vez** `supabase/EDITOR_WEB.sql` (migración 04), después de la 03. No ejecutar una migración que ya esté instalada.
+6. Volver a desplegar el frontend y, para los cambios de planes/IA, las funciones indicadas en la guía de entrega. Ver [activación del editor](docs/entrega-editor-web.md).
 
 **No ejecutar `SUPABASE.sql`, los tests ni `FIX_AUTH.sql` sobre el proyecto existente.** No insertar cuentas en `auth.users`/`auth.identities`; se administran mediante Supabase Auth API.
 
 ### Instalación nueva
 
-`supabase/SUPABASE.sql` incluye esquema, configuración RBAC, administración y migración de planes. **Solo para un proyecto sin Nuvia instalado; no es idempotente.** No contiene usuarios Auth, contraseñas ni registros operativos de demostración.
+`supabase/SUPABASE.sql` incluye esquema, configuración RBAC, administración, planes y editor web (migraciones 01–04). **Solo para un proyecto sin Nuvia instalado; no es idempotente.** No contiene usuarios Auth, contraseñas ni registros operativos de demostración.
 
 Crear la primera cuenta mediante Supabase Authentication. Con el propietario del proyecto y el UID verificado, establecer su rol inicial en `public.users` desde un contexto SQL administrativo de confianza. Después, los negocios y usuarios se gestionan desde el panel. No existe una cuenta ni una contraseña predeterminada.
 
-Alternativa con CLI: aplicar las tres migraciones en orden y la configuración RBAC de `seed.sql`. Este seed solo configura roles/permisos; no sirve para poblar una demo. No mezclar el paquete SQL completo con migraciones ya registradas/aplicadas.
+Alternativa con CLI: aplicar las cuatro migraciones en orden y la configuración RBAC de `seed.sql`. Este seed solo configura roles/permisos; no sirve para poblar una demo. No mezclar el paquete SQL completo con migraciones ya registradas/aplicadas.
 
 ## Rutas
 
@@ -83,3 +84,9 @@ Los paquetes SQL se regeneran sin conexión a bases de datos con `python3 supaba
 ## Integraciones externas
 
 La disponibilidad de un módulo en el plan no acredita una entrega externa: WhatsApp requiere proveedor y procesador de colas/automatizaciones; IA requiere despliegue y un secreto válido de Groq. Los cambios de plan generan solicitudes y asignaciones administrativas: no ejecutan cobros recurrentes ni simulan pagos.
+
+## Mi página · editor web
+
+Selector inicial de **Éditorial, Studio y Serene**, adaptadas al rubro. Subida de imágenes desde la aplicación, diez secciones editables, borrador persistente, previsualización privada en tres tamaños y publicación confirmada con URL del despliegue actual. El borrador no modifica el sitio público hasta publicar.
+
+[Funcionamiento](docs/website-builder.md) · [Instalación, pruebas y limitaciones](docs/entrega-editor-web.md). Los cambios locales no actualizan automáticamente un despliegue existente.

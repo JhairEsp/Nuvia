@@ -3,7 +3,7 @@
 set -euo pipefail
 cd /home/user
 sudo -u postgres dropdb -h /var/run/postgresql -p 55432 --if-exists beautyos_plans_test
-sudo -u postgres createdb -h /var/run/postgresql -p 55432 beautyos_plans_test
+sudo -u postgres createdb -h /var/run/postgresql -p 55432 -T template0 -E UTF8 --locale=C beautyos_plans_test
 psql_local() { sudo -u postgres psql -h /var/run/postgresql -p 55432 -d beautyos_plans_test -v ON_ERROR_STOP=1; }
 psql_local < .pgtest/stubs.sql > .pgtest/plans-setup.log 2>&1
 psql_local >> .pgtest/plans-setup.log 2>&1 <<'SQL'

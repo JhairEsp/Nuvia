@@ -1,0 +1,6 @@
+PASS: login Nuvia 1365px, marca visible y metadatos correctos
+PASS: login Nuvia 390px, marca visible y metadatos correctos
+PASS: favicon Nuvia disponible
+PASS: catálogo con nueva marca
+PASS: sitio público acredita Nuvia, conservando el nombre del negocio
+PASS: paquete Nuvia, clave de sesión compatible y sin errores React
