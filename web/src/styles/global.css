@@ -1,0 +1,136 @@
+/* ============================================================
+   💎 Nuvia — Design System "quiet luxury" (Tailwind v4 @theme)
+   Neutros cálidos (marfil/espresso) · un acento (bronce arcilla)
+   Skills aplicados: ui-apple-foundation · components · motion · polish
+   ============================================================ */
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* ---- Color · LIGHT (marfil) ---- */
+  --color-bg: #faf9f7;
+  --color-surface: #ffffff;
+  --color-subtle: #f3f0ec;
+  --color-inset: #ece7e0;
+  --color-ink: #191410;
+  --color-muted: #7d7268;
+  --color-faint: #a39a90;
+  --color-accent: #9a6248;
+  --color-accent-hover: #84523b;
+  --color-accent-soft: rgb(154 98 72 / 0.1);
+  --color-on-accent: #ffffff;
+  --color-hairline: #e8e2db;
+  --color-success: #3d8a5f;
+  --color-warning: #b7791f;
+  --color-danger: #b3402e;
+
+  /* ---- Tipografía ---- */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --font-display: "Playfair Display", "Georgia", "Times New Roman", serif;
+  --text-hero: clamp(2.6rem, 1.2rem + 5.5vw, 5.25rem);
+  --text-display: clamp(2rem, 1.3rem + 3vw, 3.25rem);
+  --text-title: clamp(1.5rem, 1.2rem + 1.4vw, 2.125rem);
+  --text-headline: clamp(1.15rem, 1rem + 0.7vw, 1.5rem);
+  --text-body: 0.9375rem;
+  --text-caption: 0.8125rem;
+  --text-micro: 0.75rem;
+
+  /* ---- Profundidad ---- */
+  --shadow-card: 0 1px 2px rgb(25 20 16 / 0.04), 0 8px 24px rgb(25 20 16 / 0.06);
+  --shadow-float: 0 24px 64px rgb(25 20 16 / 0.14);
+  --shadow-soft: 0 2px 8px rgb(25 20 16 / 0.05);
+
+  /* ---- Geometría ---- */
+  --radius-card: 18px;
+  --radius-tile: 14px;
+  --radius-control: 11px;
+
+  /* ---- Movimiento (skill ui-apple-motion) ---- */
+  --ease-emphasized: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --duration-fast: 150ms;
+  --duration-base: 240ms;
+  --duration-slow: 420ms;
+}
+
+/* ---- Color · DARK (espresso) ---- */
+.dark {
+  --color-bg: #14100e;
+  --color-surface: #1c1713;
+  --color-subtle: #251e19;
+  --color-inset: #2e2620;
+  --color-ink: #f3efeb;
+  --color-muted: #a89e94;
+  --color-faint: #7d7268;
+  --color-accent: #c98d6f;
+  --color-accent-hover: #d9a184;
+  --color-accent-soft: rgb(201 141 111 / 0.14);
+  --color-on-accent: #1a100c;
+  --color-hairline: rgb(243 239 235 / 0.1);
+  --color-success: #5cb583;
+  --color-warning: #d69e2e;
+  --color-danger: #e06c55;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+  --shadow-float: 0 24px 64px rgb(0 0 0 / 0.55);
+  --shadow-soft: 0 2px 8px rgb(0 0 0 / 0.25);
+}
+
+/* ---- Base ---- */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  letter-spacing: -0.003em;
+  color: var(--color-ink);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+::selection {
+  background: var(--color-accent-soft);
+}
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Glass (skill foundation §6) */
+.glass {
+  background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+  backdrop-filter: saturate(160%) blur(20px);
+  -webkit-backdrop-filter: saturate(160%) blur(20px);
+}
+
+/* Shimmer skeleton (§48) */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--color-subtle) 25%, var(--color-inset) 50%, var(--color-subtle) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* Scrollbars discretas */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--color-inset); border-radius: 980px; border: 3px solid var(--color-bg); }
+::-webkit-scrollbar-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

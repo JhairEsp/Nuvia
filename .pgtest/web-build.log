@@ -1,0 +1,18 @@
+
+> beautyos-web@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 3842 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                     1.06 kB │ gzip:   0.52 kB
+dist/assets/index-e_Ve8EXt.css     54.74 kB │ gzip:   9.96 kB
+dist/assets/index-Bnmyyp6f.js   1,401.11 kB │ gzip: 394.27 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 10.10s

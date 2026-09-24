@@ -1,0 +1,136 @@
+    where wr.business_id = b.id
+    order by wr.created_at desc limit 1
+  ) r on true
+  where b.slug = p_slug and b.status in ('ACTIVE','TRIAL');
+
+  return v_snapshot;  -- null si no hay release publicado
+end $$;
+
+create or replace function public.get_public_availability(
+  p_slug text, p_date date, p_service_ids uuid[], p_employee_id uuid default null
+) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare
+  v_business uuid; v_loc uuid; v_duration int := 0; v_slot int := 30;
+  v_dow int; v_result jsonb := '[]'::jsonb;
+  v_emp record; v_cursor timestamptz;
+  v_open_t time; v_close_t time; v_open timestamptz; v_close timestamptz;
+  v_busy boolean; v_closed boolean := false; v_lead int := 60;
+begin
+  select id into v_business from public.businesses where slug = p_slug and status in ('ACTIVE','TRIAL');
+  if v_business is null then return '[]'::jsonb; end if;
+
+  select coalesce(sum(s.duration_min), 30), coalesce(min(s.duration_min), 30)
+    into v_duration, v_slot
+  from public.services s
+  where s.id = any (p_service_ids) and s.business_id = v_business and s.active;
+
+  select l.id into v_loc from public.locations l
+  where l.business_id = v_business and l.is_default limit 1;
+
+  v_dow := extract(isodow from p_date)::int % 7;   -- 0 = domingo
+  select coalesce(bh.open_time, '09:00'::time), coalesce(bh.close_time, '20:00'::time),
+         coalesce(bh.is_closed, false)
+    into v_open_t, v_close_t, v_closed
+  from (select 1) one
+  left join public.business_hours bh
+    on bh.business_id = v_business and bh.weekday = v_dow
+   and (bh.location_id is null or bh.location_id = v_loc);
+  if v_closed then return '[]'::jsonb; end if;
+
+  -- muralla local del negocio → timestamptz (UTC interno)
+  v_open  := (p_date + v_open_t) at time zone 'America/Lima';
+  v_close := (p_date + v_close_t) at time zone 'America/Lima';
+  if v_open < now() + (v_lead || ' minutes')::interval then
+    v_open := date_trunc('hour', now() + (v_lead || ' minutes')::interval)
+              + interval '30 minutes';
+  end if;
+
+  for v_emp in
+    select e.id from public.employees e
+    where e.business_id = v_business and e.active
+      and (p_employee_id is null or e.id = p_employee_id)
+      and exists (select 1 from public.employee_services es
+                  where es.employee_id = e.id and es.service_id = any (p_service_ids))
+      and not exists (select 1 from public.time_off to2
+                      where to2.employee_id = e.id
+                        and to2.starts_at < v_close and to2.ends_at > v_open)
+  loop
+    v_cursor := v_open;
+    while v_cursor + (v_duration || ' minutes')::interval <= v_close loop
+      select exists (
+        select 1 from public.appointments a
+        where a.business_id = v_business
+          and a.employee_id = v_emp.id
+          and a.status not in ('CANCELLED','NO_SHOW')
+          and a.scheduled_start < v_cursor + (v_duration || ' minutes')::interval
+          and a.scheduled_end   > v_cursor
+      ) into v_busy;
+
+      if not v_busy then
+        v_result := v_result || jsonb_build_array(jsonb_build_object(
+          'starts_at', to_char(v_cursor at time zone 'America/Lima', 'YYYY-MM-DD"T"HH24:MI:SS'),
+          'employee_id', v_emp.id));
+      end if;
+      v_cursor := v_cursor + (v_slot || ' minutes')::interval;
+    end loop;
+  end loop;
+  return v_result;
+end $$;
+
+create or replace function public.create_booking(
+  p_slug text, p_service_ids uuid[], p_employee_id uuid,
+  p_start timestamptz, p_name text, p_phone text, p_notes text default ''
+) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_business uuid; v_customer uuid; v_appt uuid; v_end timestamptz;
+  v_total numeric(12,2) := 0; v_dur int := 0; s record; v_code text;
+begin
+  select id into v_business from public.businesses where slug = p_slug and status in ('ACTIVE','TRIAL');
+  if v_business is null then raise exception 'Negocio no disponible'; end if;
+  if p_phone is null or length(p_phone) < 6 then raise exception 'Teléfono inválido'; end if;
+
+  perform pg_advisory_xact_lock(hashtext(p_slug || p_start::text));  -- anti doble booking
+
+  select coalesce(sum(duration_min),0), coalesce(sum(price),0) into v_dur, v_total
+  from public.services where id = any (p_service_ids) and business_id = v_business and active;
+  if v_dur = 0 then raise exception 'Servicios inválidos'; end if;
+  v_end := p_start + (v_dur || ' minutes')::interval;
+
+  if exists (
+    select 1 from public.appointments a
+    where a.business_id = v_business and (p_employee_id is null or a.employee_id = p_employee_id)
+      and a.status not in ('CANCELLED','NO_SHOW')
+      and a.scheduled_start < v_end and a.scheduled_end > p_start) then
+    raise exception 'Ese horario ya no está disponible';
+  end if;
+
+  insert into public.customers (business_id, full_name, phone, referral_code)
+  values (v_business, p_name, p_phone,
+          upper(left(regexp_replace(p_name, '[^a-zA-Z]', '', 'g'), 6)) || '-' || lpad((random()*999)::int::text, 3, '0'))
+  on conflict (business_id, phone) do update set full_name = excluded.full_name
+  returning id into v_customer;
+
+  insert into public.appointments
+    (business_id, customer_id, employee_id, status, source, scheduled_start, scheduled_end, price_total, notes)
+  values (v_business, v_customer, p_employee_id, 'PENDING', 'LANDING', p_start, v_end, v_total, p_notes)
+  returning id into v_appt;
+
+  for s in select id, duration_min, price from public.services
+           where id = any (p_service_ids) and business_id = v_business loop
+    insert into public.appointment_items
+      (appointment_id, business_id, service_id, employee_id, unit_price, duration_min)
+    values (v_appt, v_business, s.id, p_employee_id, s.price, s.duration_min);
+  end loop;
+
+  return jsonb_build_object('appointment_id', v_appt, 'total', v_total,
+                            'starts_at', p_start, 'ends_at', v_end);
+end $$;
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- 15. RPCs DE NEGOCIO
+-- ────────────────────────────────────────────────────────────────────────────
+create or replace function public.publish_website(p_business_id uuid) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare v_snapshot jsonb; v_release uuid;

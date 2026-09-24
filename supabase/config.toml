@@ -1,0 +1,19 @@
+project_id = "beautyos"
+
+[functions.platform-users]
+# La función valida el JWT con auth.getUser() y consulta el rol en public.users.
+# No depende del verificador legado del gateway (compatible con nuevas signing keys).
+verify_jwt = false
+
+# Nombre usado por el despliegue existente del usuario; reutiliza el mismo código.
+[functions.quick-service]
+verify_jwt = false
+entrypoint = "./functions/platform-users/index.ts"
+
+[functions.ai-copilot]
+# Verifica el token con auth.getUser() y aplica RBAC + capacidades en cada RPC.
+verify_jwt = false
+
+[functions.ai-insights]
+# Job no accesible con token de usuario: exige INSIGHTS_CRON_SECRET en x-cron-secret.
+verify_jwt = false

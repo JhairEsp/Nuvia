@@ -1,0 +1,197 @@
+   code   |                  id                  |   name   | price_monthly |                                                  limits                                                  |                                        modules                                         | is_active 
+----------+--------------------------------------+----------+---------------+----------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------+-----------
+ BUSINESS | f0000000-0000-0000-0000-000000000003 | Business |        299.00 | {"max_branches": null, "max_employees": null, "max_storage_mb": 10240, "max_monthly_appointments": null} | {"ai": true, "loyalty": true, "website": true, "whatsapp": true, "multibranch": true}  | t
+ STARTER  | f0000000-0000-0000-0000-000000000001 | Starter  |         79.00 | {"max_branches": 1, "max_employees": 5, "max_storage_mb": 500, "max_monthly_appointments": 300}          | {"ai": true, "loyalty": true, "website": true, "whatsapp": true, "multibranch": false} | t
+(2 rows)
+
+  table_name   |     column_name      |        data_type         | is_nullable 
+---------------+----------------------+--------------------------+-------------
+ appointments  | id                   | uuid                     | NO
+ appointments  | business_id          | uuid                     | NO
+ appointments  | location_id          | uuid                     | YES
+ appointments  | customer_id          | uuid                     | NO
+ appointments  | employee_id          | uuid                     | YES
+ appointments  | status               | USER-DEFINED             | NO
+ appointments  | source               | USER-DEFINED             | NO
+ appointments  | scheduled_start      | timestamp with time zone | NO
+ appointments  | scheduled_end        | timestamp with time zone | NO
+ appointments  | price_total          | numeric                  | NO
+ appointments  | notes                | text                     | NO
+ appointments  | cancel_reason        | text                     | NO
+ appointments  | reminder_sent_at     | timestamp with time zone | YES
+ appointments  | created_by           | uuid                     | YES
+ appointments  | created_at           | timestamp with time zone | NO
+ appointments  | updated_at           | timestamp with time zone | NO
+ appointments  | was_completed        | boolean                  | NO
+ employees     | id                   | uuid                     | NO
+ employees     | business_id          | uuid                     | NO
+ employees     | location_id          | uuid                     | YES
+ employees     | full_name            | text                     | NO
+ employees     | role_label           | text                     | NO
+ employees     | specialty            | text                     | NO
+ employees     | bio                  | text                     | NO
+ employees     | photo_url            | text                     | YES
+ employees     | phone                | text                     | YES
+ employees     | commission_rate      | numeric                  | NO
+ employees     | active               | boolean                  | NO
+ employees     | show_on_website      | boolean                  | NO
+ employees     | created_at           | timestamp with time zone | NO
+ employees     | updated_at           | timestamp with time zone | NO
+ locations     | id                   | uuid                     | NO
+ locations     | business_id          | uuid                     | NO
+ locations     | name                 | text                     | NO
+ locations     | address              | text                     | YES
+ locations     | city                 | text                     | YES
+ locations     | phone                | text                     | YES
+ locations     | geo                  | jsonb                    | YES
+ locations     | is_default           | boolean                  | NO
+ locations     | created_at           | timestamp with time zone | NO
+ locations     | updated_at           | timestamp with time zone | NO
+ locations     | active               | boolean                  | NO
+ plans         | id                   | uuid                     | NO
+ plans         | code                 | text                     | NO
+ plans         | name                 | text                     | NO
+ plans         | description          | text                     | NO
+ plans         | price_monthly        | numeric                  | NO
+ plans         | currency             | text                     | NO
+ plans         | limits               | jsonb                    | NO
+ plans         | modules              | jsonb                    | NO
+ plans         | is_active            | boolean                  | NO
+ plans         | created_at           | timestamp with time zone | NO
+ plans         | updated_at           | timestamp with time zone | NO
+ products      | id                   | uuid                     | NO
+ products      | business_id          | uuid                     | NO
+ products      | name                 | text                     | NO
+ products      | sku                  | text                     | NO
+ products      | category             | text                     | NO
+ products      | price                | numeric                  | NO
+ products      | cost                 | numeric                  | NO
+ products      | stock                | integer                  | NO
+ products      | stock_min            | integer                  | NO
+ products      | active               | boolean                  | NO
+ products      | created_at           | timestamp with time zone | NO
+ products      | updated_at           | timestamp with time zone | NO
+ products      | location_id          | uuid                     | YES
+ sales         | id                   | uuid                     | NO
+ sales         | business_id          | uuid                     | NO
+ sales         | location_id          | uuid                     | YES
+ sales         | customer_id          | uuid                     | YES
+ sales         | employee_id          | uuid                     | YES
+ sales         | appointment_id       | uuid                     | YES
+ sales         | status               | USER-DEFINED             | NO
+ sales         | subtotal             | numeric                  | NO
+ sales         | discount_total       | numeric                  | NO
+ sales         | total                | numeric                  | NO
+ sales         | created_by           | uuid                     | YES
+ sales         | created_at           | timestamp with time zone | NO
+ sales         | updated_at           | timestamp with time zone | NO
+ services      | id                   | uuid                     | NO
+ services      | business_id          | uuid                     | NO
+ services      | category_id          | uuid                     | YES
+ services      | name                 | text                     | NO
+ services      | description          | text                     | NO
+ services      | duration_min         | integer                  | NO
+ services      | price                | numeric                  | NO
+ services      | image_url            | text                     | YES
+ services      | active               | boolean                  | NO
+ services      | show_on_website      | boolean                  | NO
+ services      | position             | integer                  | NO
+ services      | created_at           | timestamp with time zone | NO
+ services      | updated_at           | timestamp with time zone | NO
+ services      | location_id          | uuid                     | YES
+ subscriptions | id                   | uuid                     | NO
+ subscriptions | business_id          | uuid                     | NO
+ subscriptions | plan_id              | uuid                     | NO
+ subscriptions | status               | USER-DEFINED             | NO
+ subscriptions | trial_ends_at        | timestamp with time zone | YES
+ subscriptions | current_period_start | timestamp with time zone | NO
+ subscriptions | current_period_end   | timestamp with time zone | NO
+ subscriptions | cancel_at            | timestamp with time zone | YES
+ subscriptions | created_at           | timestamp with time zone | NO
+ subscriptions | updated_at           | timestamp with time zone | NO
+(103 rows)
+
+   code   |  status  | count 
+----------+----------+-------
+ BUSINESS | ACTIVE   |     1
+ STARTER  | TRIALING |     1
+ STARTER  | ACTIVE   |     1
+(3 rows)
+
+                  id                  |       name        |   code   | workers | branches | appointments_this_month | storage_bytes 
+--------------------------------------+-------------------+----------+---------+----------+-------------------------+---------------
+ b0000000-0000-0000-0000-000000000001 | Local Starter     | STARTER  |       5 |        1 |                     300 |     524288000
+ b0000000-0000-0000-0000-000000000002 | Local Business    | BUSINESS |       0 |        1 |                       0 |             0
+ b1000000-0000-0000-0000-000000000001 | Concurrent branch | STARTER  |       0 |        1 |                       0 |             0
+(3 rows)
+
+ schemaname |   tablename   |     policyname      |  cmd   |                                                                                        qual                                                                                         |                                                                                  with_check                                                                                   
+------------+---------------+---------------------+--------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ storage    | objects       | brand_read          | SELECT | ((bucket_id = ANY (ARRAY['brand-assets'::text, 'website-media'::text, 'client-photos'::text])) AND (((storage.foldername(name))[1] IN ( SELECT (b.business_id)::text AS business_id+| 
+            |               |                     |        |    FROM business_users b                                                                                                                                                           +| 
+            |               |                     |        |   WHERE ((b.user_id = auth.uid()) AND (b.status = 'ACTIVE'::business_user_status)))) OR is_super_admin()))                                                                          | 
+ storage    | objects       | brand_delete        | DELETE | ((bucket_id = ANY (ARRAY['brand-assets'::text, 'website-media'::text, 'client-photos'::text])) AND (((storage.foldername(name))[1] IN ( SELECT (b.business_id)::text AS business_id+| 
+            |               |                     |        |    FROM business_users b                                                                                                                                                           +| 
+            |               |                     |        |   WHERE ((b.user_id = auth.uid()) AND (b.status = 'ACTIVE'::business_user_status)))) OR is_super_admin()))                                                                          | 
+ storage    | objects       | plan_storage_insert | INSERT |                                                                                                                                                                                     | ((bucket_id = ANY (ARRAY['brand-assets'::text, 'website-media'::text, 'client-photos'::text])) AND (is_super_admin() OR has_permission(((storage.foldername(name))[1])::uuid,+
+            |               |                     |        |                                                                                                                                                                                     | CASE                                                                                                                                                                         +
+            |               |                     |        |                                                                                                                                                                                     |     WHEN (bucket_id = 'client-photos'::text) THEN 'clients.manage'::text                                                                                                     +
+            |               |                     |        |                                                                                                                                                                                     |     ELSE 'website.manage'::text                                                                                                                                              +
+            |               |                     |        |                                                                                                                                                                                     | END)))
+ storage    | objects       | plan_storage_update | UPDATE | ((bucket_id = ANY (ARRAY['brand-assets'::text, 'website-media'::text, 'client-photos'::text])) AND (is_super_admin() OR has_permission(((storage.foldername(name))[1])::uuid,      +| ((bucket_id = ANY (ARRAY['brand-assets'::text, 'website-media'::text, 'client-photos'::text])) AND (is_super_admin() OR has_permission(((storage.foldername(name))[1])::uuid,+
+            |               |                     |        | CASE                                                                                                                                                                               +| CASE                                                                                                                                                                         +
+            |               |                     |        |     WHEN (bucket_id = 'client-photos'::text) THEN 'clients.manage'::text                                                                                                           +|     WHEN (bucket_id = 'client-photos'::text) THEN 'clients.manage'::text                                                                                                     +
+            |               |                     |        |     ELSE 'website.manage'::text                                                                                                                                                    +|     ELSE 'website.manage'::text                                                                                                                                              +
+            |               |                     |        | END)))                                                                                                                                                                              | END)))
+ public     | locations     | sel                 | SELECT | (is_super_admin() OR (has_business_access(business_id) AND ((NULL::text IS NULL) OR has_permission(business_id, NULL::text))))                                                      | 
+ public     | locations     | ins                 | INSERT |                                                                                                                                                                                     | (is_super_admin() OR (has_business_access(business_id) AND has_permission(business_id, 'settings.manage'::text)))
+ public     | locations     | upd                 | UPDATE | (is_super_admin() OR (has_business_access(business_id) AND has_permission(business_id, 'settings.manage'::text)))                                                                   | (is_super_admin() OR (has_business_access(business_id) AND has_permission(business_id, 'settings.manage'::text)))
+ public     | locations     | del                 | DELETE | (is_super_admin() OR (has_business_access(business_id) AND (get_business_role(business_id) = 'BUSINESS_ADMIN'::text)))                                                              | 
+ public     | employees     | sel                 | SELECT | (is_super_admin() OR (has_business_access(business_id) AND (('team.view'::text IS NULL) OR has_permission(business_id, 'team.view'::text))))                                        | 
+ public     | employees     | ins                 | INSERT |                                                                                                                                                                                     | (is_super_admin() OR (has_business_access(business_id) AND has_permission(business_id, 'team.manage'::text)))
+ public     | employees     | upd                 | UPDATE | (is_super_admin() OR (has_business_access(business_id) AND has_permission(business_id, 'team.manage'::text)))                                                                       | (is_super_admin() OR (has_business_access(business_id) AND has_permission(business_id, 'team.manage'::text)))
+ public     | employees     | del                 | DELETE | (is_super_admin() OR (has_business_access(business_id) AND (get_business_role(business_id) = 'BUSINESS_ADMIN'::text)))                                                              | 
+ public     | appointments  | appt_sel            | SELECT | (is_super_admin() OR (has_business_access(business_id) AND (has_permission(business_id, 'calendar.view_all'::text) OR (employee_id = current_employee_id(business_id)))))           | 
+ public     | appointments  | appt_ins            | INSERT |                                                                                                                                                                                     | (is_super_admin() OR has_permission(business_id, 'calendar.manage'::text))
+ public     | appointments  | appt_upd            | UPDATE | (is_super_admin() OR has_permission(business_id, 'calendar.manage'::text))                                                                                                          | (is_super_admin() OR has_permission(business_id, 'calendar.manage'::text))
+ public     | appointments  | appt_del            | DELETE | (is_super_admin() OR (get_business_role(business_id) = 'BUSINESS_ADMIN'::text))                                                                                                     | 
+ public     | subscriptions | subs_sel            | SELECT | (is_super_admin() OR has_business_access(business_id))                                                                                                                              | 
+ public     | subscriptions | subs_ins            | INSERT |                                                                                                                                                                                     | is_super_admin()
+ public     | subscriptions | subs_upd            | UPDATE | is_super_admin()                                                                                                                                                                    | is_super_admin()
+ public     | plans         | plans_sel           | SELECT | true                                                                                                                                                                                | 
+ public     | plans         | plans_ins           | INSERT |                                                                                                                                                                                     | is_super_admin()
+ public     | plans         | plans_upd           | UPDATE | is_super_admin()                                                                                                                                                                    | is_super_admin()
+ public     | plans         | plans_del           | DELETE | is_super_admin()                                                                                                                                                                    | 
+(23 rows)
+
+ nspname |          proname           |                                                                      arguments                                                                       | security_definer 
+---------+----------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------+------------------
+ public  | ai_tool_revenue            | p_business_id uuid, p_from timestamp with time zone, p_to timestamp with time zone                                                                   | t
+ public  | ai_tool_top_services       | p_business_id uuid, p_from timestamp with time zone, p_to timestamp with time zone                                                                   | t
+ public  | require_plan_capability    | p_business_id uuid, p_capability text, p_permission text                                                                                             | t
+ public  | admin_delete_plan          | p_id uuid                                                                                                                                            | t
+ public  | request_plan_change        | p_business_id uuid, p_plan_id uuid                                                                                                                   | t
+ public  | get_plan_catalog           |                                                                                                                                                      | t
+ public  | admin_save_plan            | p_id uuid, p_data jsonb                                                                                                                              | t
+ public  | plan_module_enabled        | p_business_id uuid, p_module text                                                                                                                    | t
+ public  | get_plan_usage             | p_business_id uuid                                                                                                                                   | t
+ public  | ai_tool_staff_performance  | p_business_id uuid, p_from timestamp with time zone, p_to timestamp with time zone                                                                   | t
+ public  | ai_tool_empty_slots        | p_business_id uuid, p_from timestamp with time zone, p_to timestamp with time zone                                                                   | t
+ public  | ai_tool_at_risk_clients    | p_business_id uuid                                                                                                                                   | t
+ public  | ai_tool_new_vs_returning   | p_business_id uuid, p_from timestamp with time zone, p_to timestamp with time zone                                                                   | t
+ public  | ai_tool_loyalty_summary    | p_business_id uuid                                                                                                                                   | t
+ public  | create_booking             | p_slug text, p_service_ids uuid[], p_employee_id uuid, p_start timestamp with time zone, p_name text, p_phone text, p_notes text, p_location_id uuid | t
+ public  | admin_plan_businesses      | p_plan_id uuid                                                                                                                                       | t
+ public  | admin_resolve_plan_request | p_id uuid, p_approve boolean                                                                                                                         | t
+ public  | ai_tool_inventory          | p_business_id uuid                                                                                                                                   | t
+(18 rows)
+
+ business_id | name | period_month | appointments 
+-------------+------+--------------+--------------
+(0 rows)
+
+ migration_03_history_table | migration_03_usage_rpc 
+----------------------------+------------------------
+ subscription_plan_history  | get_plan_usage(uuid)
+(1 row)
+

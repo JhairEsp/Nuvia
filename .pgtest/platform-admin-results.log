@@ -1,0 +1,165 @@
+BEGIN
+CREATE FUNCTION
+INSERT 0 3
+UPDATE 1
+INSERT 0 2
+SET
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000001
+(1 row)
+
+  set_config   
+---------------
+ authenticated
+(1 row)
+
+NOTICE:  PASS: Crear negocio inicializa secciones
+ assert_ok 
+-----------
+ 
+(1 row)
+
+NOTICE:  PASS: Crear negocio inicializa configuración
+ assert_ok 
+-----------
+ 
+(1 row)
+
+         admin_save_business          
+--------------------------------------
+ 90215105-d45f-40ff-ad96-43c6cf7c5e2b
+(1 row)
+
+NOTICE:  PASS: Editar negocio persiste
+ assert_ok 
+-----------
+ 
+(1 row)
+
+NOTICE:  PASS: Editar suscripción no duplica
+ assert_ok 
+-----------
+ 
+(1 row)
+
+           admin_save_plan            
+--------------------------------------
+ e362bbd4-3754-4dc3-acb4-c5d70def7887
+(1 row)
+
+NOTICE:  PASS: Editar plan conserva límites adicionales
+ assert_ok 
+-----------
+ 
+(1 row)
+
+NOTICE:  PASS: transacción inválida rechazada
+NOTICE:  PASS: Rollback de negocio ante suscripción inválida
+NOTICE:  PASS: plan con suscripciones protegido
+DO
+ admin_save_user_profile 
+-------------------------
+ 
+(1 row)
+
+NOTICE:  PASS: Guardar perfil y membresía
+ assert_ok 
+-----------
+ 
+(1 row)
+
+NOTICE:  PASS: Membresía inválida no modifica perfil
+NOTICE:  PASS: autodegradación bloqueada
+DO
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000002
+(1 row)
+
+NOTICE:  PASS: RPC rechaza usuario normal
+NOTICE:  PASS: autoescalamiento bloqueado
+DO
+SET
+NOTICE:  PASS: anónimo bloqueado
+DO
+RESET
+ set_config 
+------------
+ 
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+INSERT 0 1
+INSERT 0 1
+CREATE ROLE
+GRANT
+GRANT
+SET
+DELETE 1
+NOTICE:  PASS: último Super Admin protegido en cascada Auth
+DO
+RESET
+NOTICE:  PASS: Eliminar Auth limpia membresías BUSINESS_ADMIN
+ assert_ok 
+-----------
+ 
+(1 row)
+
+NOTICE:  PASS: Eliminar usuario conserva notas con autor desvinculado
+ assert_ok 
+-----------
+ 
+(1 row)
+
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000001
+(1 row)
+
+  set_config   
+---------------
+ authenticated
+(1 row)
+
+SET
+ admin_delete_business 
+-----------------------
+ 
+(1 row)
+
+NOTICE:  PASS: Eliminar negocio real
+ assert_ok 
+-----------
+ 
+(1 row)
+
+NOTICE:  PASS: Eliminar negocio limpia dependencias
+ assert_ok 
+-----------
+ 
+(1 row)
+
+NOTICE:  PASS: Eliminar negocio conserva auditoría
+ assert_ok 
+-----------
+ 
+(1 row)
+
+ admin_delete_plan 
+-------------------
+ 
+(1 row)
+
+NOTICE:  PASS: Eliminar plan sin referencias
+ assert_ok 
+-----------
+ 
+(1 row)
+
+ROLLBACK
+Todos los tests locales pasaron. Sin cambios persistentes.

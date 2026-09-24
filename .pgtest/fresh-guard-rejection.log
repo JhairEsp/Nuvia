@@ -1,0 +1,2 @@
+ERROR:  BeautyOS ya existe. No ejecutar SUPABASE.sql: utilizar la migración incremental documentada.
+CONTEXT:  PL/pgSQL function inline_code_block line 3 at RAISE

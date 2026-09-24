@@ -1,0 +1,195 @@
+/* ============================================================
+   🍎 APPLE WEB UI — DESIGN TOKENS
+   Lenguaje visual de apple.com e iOS. Light + Dark incluidos.
+   Extraído y curado para ui-apple-foundation.
+   ============================================================ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---------- Tipografía ---------- */
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+                  "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-text: var(--font-display);
+  --font-mono: "SF Mono", ui-monospace, "JetBrains Mono", Menlo, monospace;
+
+  --text-hero:     clamp(2.75rem, 1.2rem + 6.5vw, 6rem);      /* 44 → 96  */
+  --text-display:  clamp(2.5rem, 1.4rem + 4.5vw, 4.5rem);     /* 40 → 72  */
+  --text-title:    clamp(2rem, 1.3rem + 2.8vw, 3.25rem);      /* 32 → 52  */
+  --text-headline: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);    /* 24 → 36  */
+  --text-subhead:  clamp(1.125rem, 1rem + 0.6vw, 1.5rem);     /* 18 → 24  */
+  --text-body:     clamp(1.0625rem, 1rem + 0.2vw, 1.25rem);   /* 17 → 20  */
+  --text-body-sm:  1.0625rem;                                  /* 17      */
+  --text-caption:  0.875rem;                                   /* 14      */
+  --text-micro:    0.75rem;                                    /* 12      */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --tracking-hero:    -0.022em;
+  --tracking-display: -0.018em;
+  --tracking-title:   -0.014em;
+  --tracking-body:    -0.003em;
+
+  --leading-hero:    1.05;
+  --leading-display: 1.07;
+  --leading-title:   1.10;
+  --leading-body:    1.47;
+
+  /* ---------- Color: LIGHT ---------- */
+  --bg:             #ffffff;
+  --bg-secondary:   #f5f5f7;
+  --bg-elevated:    #ffffff;
+  --bg-inset:       rgba(120, 120, 128, 0.12);   /* relleno de inputs iOS */
+  --text:           #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary:  #86868b;
+  --accent:         #0071e3;
+  --accent-hover:   #0077ed;
+  --accent-soft:    rgba(0, 113, 227, 0.08);
+  --on-accent:      #ffffff;
+  --link:           #0066cc;
+  --hairline:       rgba(0, 0, 0, 0.08);
+  --separator:      rgba(0, 0, 0, 0.12);
+  --glass:          rgba(255, 255, 255, 0.72);
+  --glass-strong:   rgba(255, 255, 255, 0.85);
+  --shadow-card:    0 4px 20px rgba(0, 0, 0, 0.06);
+  --shadow-float:   0 20px 60px rgba(0, 0, 0, 0.12);
+  --overlay:        rgba(0, 0, 0, 0.4);
+  --selection-bg:   rgba(0, 113, 227, 0.18);
+
+  /* ---------- Geometría ---------- */
+  --radius-pill:    980px;
+  --radius-card:    20px;
+  --radius-tile:    16px;
+  --radius-control: 12px;
+  --radius-small:   8px;
+  --hairline-w:     1px;
+
+  /* ---------- Espaciado (8pt) ---------- */
+  --space-1:  0.25rem;  /*  4 */
+  --space-2:  0.5rem;   /*  8 */
+  --space-3:  0.75rem;  /* 12 */
+  --space-4:  1rem;     /* 16 */
+  --space-5:  1.5rem;   /* 24 */
+  --space-6:  2rem;     /* 32 */
+  --space-7:  3rem;     /* 48 */
+  --space-8:  4rem;     /* 64 */
+  --space-9:  6rem;     /* 96 */
+  --space-10: 7.5rem;   /* 120 */
+  --space-11: 10rem;    /* 160 */
+
+  /* ---------- Layout ---------- */
+  --container-text: 61.25rem;                 /*  980 */
+  --container-wide: 73.75rem;                 /* 1180 */
+  --gutter:         clamp(1rem, 4vw, 2.5rem);
+  --section-y:      clamp(4.5rem, 9vw, 10rem);
+  --nav-h:          2.75rem;                  /* 44 — barra global Apple */
+  --tap:            2.75rem;                  /* 44 — objetivo táctil */
+
+  /* ---------- Movimiento ---------- */
+  --ease-standard:   cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-emphasized: cubic-bezier(0.32, 0.72, 0, 1);   /* firma Apple: entra rápido, aterriza suave */
+  --ease-exit:       cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring:     linear(0, 0.0033 0.32%, 0.0132 1.27%, 0.0516 2.53%,
+                           0.1045 3.8%, 0.2338 5.7%, 0.5 9.35%,
+                           0.6435 11.25%, 0.7214 12.68%, 0.7834 14.11%,
+                           0.8323 15.54%, 0.8749 17.44%, 0.9052 19.33%,
+                           0.9293 21.23%, 0.9486 23.12%, 0.9655 25.95%,
+                           0.9771 28.31%, 0.9853 31.14%, 0.9911 34.44%,
+                           0.9952 39.15%, 0.9978 45.26%, 0.9992 55.18%, 1);
+  --duration-fast:   180ms;
+  --duration-base:   320ms;
+  --duration-slow:   560ms;
+  --duration-hero:   900ms;
+
+  /* ---------- Capas ---------- */
+  --z-sticky: 50;
+  --z-nav:    100;
+  --z-modal:  200;
+  --z-toast:  300;
+}
+
+/* ---------- Color: DARK ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:             #000000;
+    --bg-secondary:   #161617;
+    --bg-elevated:    #1d1d1f;
+    --bg-inset:       rgba(120, 120, 128, 0.24);
+    --text:           #f5f5f7;
+    --text-secondary: #a1a1a6;
+    --text-tertiary:  #86868b;
+    --accent:         #2997ff;
+    --accent-hover:   #4fabff;
+    --accent-soft:    rgba(41, 151, 255, 0.14);
+    --on-accent:      #ffffff;
+    --link:           #2997ff;
+    --hairline:       rgba(255, 255, 255, 0.1);
+    --separator:      rgba(255, 255, 255, 0.16);
+    --glass:          rgba(22, 22, 23, 0.72);
+    --glass-strong:   rgba(22, 22, 23, 0.85);
+    --shadow-card:    0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-float:   0 20px 60px rgba(0, 0, 0, 0.55);
+    --overlay:        rgba(0, 0, 0, 0.6);
+    --selection-bg:   rgba(41, 151, 255, 0.28);
+  }
+}
+
+/* Override manual: <html class="theme-dark"> / <html class="theme-light"> */
+.theme-dark {
+  --bg: #000000; --bg-secondary: #161617; --bg-elevated: #1d1d1f;
+  --bg-inset: rgba(120, 120, 128, 0.24);
+  --text: #f5f5f7; --text-secondary: #a1a1a6; --text-tertiary: #86868b;
+  --accent: #2997ff; --accent-hover: #4fabff; --accent-soft: rgba(41, 151, 255, 0.14);
+  --link: #2997ff;
+  --hairline: rgba(255, 255, 255, 0.1); --separator: rgba(255, 255, 255, 0.16);
+  --glass: rgba(22, 22, 23, 0.72); --glass-strong: rgba(22, 22, 23, 0.85);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.55);
+  --selection-bg: rgba(41, 151, 255, 0.28);
+  color-scheme: dark;
+}
+.theme-light {
+  --bg: #ffffff; --bg-secondary: #f5f5f7; --bg-elevated: #ffffff;
+  --bg-inset: rgba(120, 120, 128, 0.12);
+  --text: #1d1d1f; --text-secondary: #6e6e73; --text-tertiary: #86868b;
+  --accent: #0071e3; --accent-hover: #0077ed; --accent-soft: rgba(0, 113, 227, 0.08);
+  --link: #0066cc;
+  --hairline: rgba(0, 0, 0, 0.08); --separator: rgba(0, 0, 0, 0.12);
+  --glass: rgba(255, 255, 255, 0.72); --glass-strong: rgba(255, 255, 255, 0.85);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.12);
+  --selection-bg: rgba(0, 113, 227, 0.18);
+  color-scheme: light;
+}
+
+/* ---------- Base mínima ---------- */
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: var(--selection-bg); }
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

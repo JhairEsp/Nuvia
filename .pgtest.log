@@ -1,0 +1,2524 @@
+2026-09-21 20:40:30.821 UTC [5482] LOG:  starting PostgreSQL 17.11 (Debian 17.11-0+deb13u1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-09-21 20:40:30.821 UTC [5482] LOG:  listening on IPv6 address "::1", port 55432
+2026-09-21 20:40:30.821 UTC [5482] LOG:  listening on IPv4 address "127.0.0.1", port 55432
+2026-09-21 20:40:30.822 UTC [5482] LOG:  listening on Unix socket "/tmp/.s.PGSQL.55432"
+2026-09-21 20:40:30.824 UTC [5485] LOG:  database system was shut down at 2026-09-21 20:40:30 UTC
+2026-09-21 20:40:30.827 UTC [5482] LOG:  database system is ready to accept connections
+2026-09-21 20:40:36.383 UTC [5507] ERROR:  DROP DATABASE cannot run inside a transaction block
+2026-09-21 20:40:36.383 UTC [5507] STATEMENT:  drop database if exists beautyos; create database beautyos;
+2026-09-21 20:40:54.069 UTC [5630] ERROR:  relation "public.users" does not exist at character 172
+2026-09-21 20:40:54.069 UTC [5630] STATEMENT:  create or replace function public.is_super_admin() returns boolean
+	language sql stable security definer set search_path = public as $$
+	  select exists (
+	    select 1 from public.users u
+	    where u.id = auth.uid() and u.platform_role = 'SUPER_ADMIN'
+	  );
+	$$;
+2026-09-21 20:42:14.580 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:42:14.588 UTC [5483] LOG:  checkpoint complete: wrote 51 buffers (0.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.001 s, total=0.008 s; sync files=18, longest=0.001 s, average=0.001 s; distance=4640 kB, estimate=4640 kB; lsn=0/1976A30, redo lsn=0/19769D8
+2026-09-21 20:42:14.640 UTC [5679] ERROR:  role "anon" already exists
+2026-09-21 20:42:14.640 UTC [5679] STATEMENT:  create role anon nologin;
+2026-09-21 20:42:26.953 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:42:26.977 UTC [5483] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 1 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.025 s; sync files=4, longest=0.001 s, average=0.001 s; distance=4360 kB, estimate=4612 kB; lsn=0/1DB8D98, redo lsn=0/1DB8D40
+2026-09-21 20:42:27.189 UTC [5700] ERROR:  column "business_id" does not exist
+2026-09-21 20:42:27.189 UTC [5700] CONTEXT:  SQL statement "create policy "sel" on public.employee_services for select to authenticated
+	    using (public.is_super_admin() or (public.has_business_access(business_id)
+	      and ('services.view'::text is null or public.has_permission(business_id, 'services.view'::text))))"
+	PL/pgSQL function _tpl(text,text,text) line 4 at EXECUTE
+2026-09-21 20:42:27.189 UTC [5700] STATEMENT:  select public._tpl('employee_services',   'services.view',      'team.manage');
+2026-09-21 20:42:34.880 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:42:34.885 UTC [5483] LOG:  checkpoint complete: wrote 9 buffers (0.1%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.002 s, sync=0.001 s, total=0.006 s; sync files=7, longest=0.001 s, average=0.001 s; distance=6243 kB, estimate=6243 kB; lsn=0/23D1BB8, redo lsn=0/23D1B60
+2026-09-21 20:42:35.153 UTC [5728] ERROR:  column b.id does not exist
+2026-09-21 20:42:35.153 UTC [5728] STATEMENT:  create policy "brand_upload" on storage.objects for insert to authenticated
+	  with check (bucket_id in ('brand-assets','website-media')
+	    and (storage.foldername(name))[1] in (
+	      select b.id::text from public.business_users b
+	      where b.user_id = auth.uid() and b.status = 'ACTIVE'));
+2026-09-21 20:42:39.586 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:42:39.590 UTC [5483] LOG:  checkpoint complete: wrote 8 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.005 s; sync files=8, longest=0.001 s, average=0.001 s; distance=6603 kB, estimate=6603 kB; lsn=0/2A44AA8, redo lsn=0/2A44A50
+2026-09-21 20:42:51.013 UTC [5755] ERROR:  record "new" has no field "business_id"
+2026-09-21 20:42:51.013 UTC [5755] CONTEXT:  SQL statement "SELECT public.log_audit(
+	    coalesce(new.business_id, old.business_id),
+	    tg_op,
+	    tg_table_name,
+	    coalesce(new.id, old.id),
+	    case when tg_op in ('UPDATE','DELETE') then to_jsonb(old) end,
+	    case when tg_op in ('INSERT','UPDATE') then to_jsonb(new) end
+	  )"
+	PL/pgSQL function audit_tg() line 3 at PERFORM
+	SQL statement "insert into public.plans (id, code, name, description, price_monthly, limits, modules)
+	  values
+	    (gen_random_uuid(), 'STARTER', 'Starter', 'Para quien recién comienza', 79.00,
+	     '{"max_employees": 5, "max_monthly_appointments": 300, "max_storage_mb": 500}'::jsonb,
+	     '{"website": true, "loyalty": false, "ai": false, "whatsapp": false}'::jsonb),
+	    (gen_random_uuid(), 'PRO', 'Pro', 'El favorito de los negocios en crecimiento', 149.00,
+	     '{"max_employees": 12, "max_monthly_appointments": 2000, "max_storage_mb": 2000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true}'::jsonb),
+	    (gen_random_uuid(), 'BUSINESS', 'Business', 'Multi-sucursal sin límites', 299.00,
+	     '{"max_employees": 50, "max_monthly_appointments": 20000, "max_storage_mb": 10000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true, "multibranch": true}'::jsonb)
+	  on conflict (code) do nothing"
+	PL/pgSQL function inline_code_block line 59 at SQL statement
+2026-09-21 20:42:51.013 UTC [5755] STATEMENT:  do $$
+	declare
+	  v_business uuid; v_loc uuid; v_super uuid; v_admin uuid; v_carlos_user uuid; v_andrea_user uuid;
+	  v_plan uuid; v_cat_cortes uuid; v_cat_barba uuid;
+	  v_s_corte uuid; v_s_barba uuid; v_s_combo uuid; v_s_diseno uuid;
+	  v_e_carlos uuid; v_e_andrea uuid; v_e_luis uuid;
+	  v_customer uuid; v_appt uuid; v_sale uuid; v_acct uuid;
+	  v_cust_ids uuid[] := '{}'; v_names text[] := array[
+	    'María Fernández','José Castillo','Ana Torres','Luis Ramírez','Carmen Rojas',
+	    'Pedro Salazar','Lucía Mendoza','Diego Vargas','Rosa Paredes','Miguel Ángel Soto',
+	    'Elena Quispe','Jorge Chávez','Valeria Cárdenas','Renzo Gutiérrez','Daniela Ponce',
+	    'Andrés Loayza','Camila Herrera','Raúl Montoya','Gabriela Núñez','Sergio Ibáñez',
+	    'Paola Ríos','Mateo Farfán','Isabel Prado','Hugo Espinoza','Nicole Vergara',
+	    'Alonso Mejía','Fernanda Castro','Óscar Villanueva','Teresa Linares','Bruno Sandoval'];
+	  v_phones text[] := array[
+	    '987654321','912345678','933445566','944556677','955667788','966778899','977889900',
+	    '988990011','900112233','911223344','922334455','933556677','944667788','955778899',
+	    '966889900','977990011','988001122','999112233','901223344','912334455','923445566',
+	    '934556677','945667788','956778899','967889900','978990011','989001122','900011223',
+	    '910122334','920233445'];
+	  i int; d int; h int; v_status appointment_status; v_method payment_method;
+	  v_total numeric(12,2); v_name text; v_slug_exists boolean;
+	begin
+	  -- ── Usuarios auth + profiles ──────────────────────────────────────────────
+	  if not exists (select 1 from auth.users where email = 'super@beautyapp.pe') then
+	    insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	    values (gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	      'super@beautyapp.pe', crypt('Demo123!', gen_salt('bf')), now(),
+	      '{"provider":"email","providers":["email"]}'::jsonb, '{"full_name":"Súper Admin"}'::jsonb, now(), now());
+	  end if;
+	  insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	  select gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	    e.mail, crypt('Demo123!', gen_salt('bf')), now(),
+	    '{"provider":"email","providers":["email"]}'::jsonb,
+	    jsonb_build_object('full_name', e.nm), now(), now()
+	  from (values
+	    ('admin@blackhouse.pe','Ricardo Peña'),
+	    ('carlos@blackhouse.pe','Carlos Mendoza'),
+	    ('andrea@blackhouse.pe','Andrea Ruiz')
+	  ) as e(mail, nm)
+	  where not exists (select 1 from auth.users u where u.email = e.mail);
+	
+	  select id into v_super from auth.users where email = 'super@beautyapp.pe';
+	  select id into v_admin from auth.users where email = 'admin@blackhouse.pe';
+	  select id into v_carlos_user from auth.users where email = 'carlos@blackhouse.pe';
+	  select id into v_andrea_user from auth.users where email = 'andrea@blackhouse.pe';
+	
+	  update public.users set platform_role = 'SUPER_ADMIN' where id = v_super;
+	  update public.users set full_name = 'Ricardo Peña'  where id = v_admin;
+	  update public.users set full_name = 'Carlos Mendoza' where id = v_carlos_user;
+	  update public.users set full_name = 'Andrea Ruiz'    where id = v_andrea_user;
+	
+	  -- Contexto de Super Admin para triggers/funciones con auth.uid() durante la siembra
+	  perform set_config('request.jwt.claim.sub', v_super::text, true);
+	
+	  -- ── Planes (Super Admin) ─────────────────────────────────────────────────
+	  insert into public.plans (id, code, name, description, price_monthly, limits, modules)
+	  values
+	    (gen_random_uuid(), 'STARTER', 'Starter', 'Para quien recién comienza', 79.00,
+	     '{"max_employees": 5, "max_monthly_appointments": 300, "max_storage_mb": 500}'::jsonb,
+	     '{"website": true, "loyalty": false, "ai": false, "whatsapp": false}'::jsonb),
+	    (gen_random_uuid(), 'PRO', 'Pro', 'El favorito de los negocios en crecimiento', 149.00,
+	     '{"max_employees": 12, "max_monthly_appointments": 2000, "max_storage_mb": 2000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true}'::jsonb),
+	    (gen_random_uuid(), 'BUSINESS', 'Business', 'Multi-sucursal sin límites', 299.00,
+	     '{"max_employees": 50, "max_monthly_appointments": 20000, "max_storage_mb": 10000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true, "multibranch": true}'::jsonb)
+	  on conflict (code) do nothing;
+	  select id into v_plan from public.plans where code = 'PRO';
+	
+	  -- ── Negocio + sucursal + settings + branding + website ───────────────────
+	  select exists (select 1 from public.businesses where slug = 'barberia-black') into v_slug_exists;
+	  if not v_slug_exists then
+	    insert into public.businesses (id, name, slug, type, status, description, phone, whatsapp, email, address)
+	    values (gen_random_uuid(), 'Black House Barber', 'barberia-black', 'BARBERSHOP', 'ACTIVE',
+	      'Barbería premium en el corazón de Miraflores. Cortes clásicos y modernos, barba de precisión y una experiencia que se siente como en casa.',
+	      '+51 987 654 321', '+51 987 654 321', 'hola@blackhouse.pe', 'Av. La Paz 450, Miraflores, Lima')
+	    returning id into v_business;
+	  else
+	    select id into v_business from public.businesses where slug = 'barberia-black';
+	  end if;
+	
+	  insert into public.locations (business_id, name, address, city, geo, is_default)
+	  values (v_business, 'Miraflores', 'Av. La Paz 450, Miraflores', 'Lima',
+	          '{"lat": -12.1222, "lng": -77.0300}'::jsonb, true)
+	  on conflict do nothing;
+	  select id into v_loc from public.locations where business_id = v_business and is_default limit 1;
+	
+	  insert into public.business_settings (business_id) values (v_business) on conflict do nothing;
+	  insert into public.business_branding (business_id, preset, colors, font_key)
+	  values (v_business, 'DARK', '{"primary":"#c9a227","button":"#c9a227"}'::jsonb, 'sans')
+	  on conflict do nothing;
+	  insert into public.business_website (business_id, tagline, socials, map_query)
+	  values (v_business, 'Tu estilo comienza aquí.',
+	          '{"instagram": "https://instagram.com/blackhouse.barber", "tiktok": "https://tiktok.com/@blackhouse.barber", "facebook": ""}'::jsonb,
+	          'Av. La Paz 450, Miraflores, Lima')
+	  on conflict do nothing;
+	
+	  insert into public.subscriptions (business_id, plan_id, status, trial_ends_at)
+	  values (v_business, v_plan, 'ACTIVE', now() + interval '14 days')
+	  on conflict do nothing;
+	
+	  -- Horarios: mar–sáb 9–20, dom 9–14, lun cerrado
+	  insert into public.business_hours (business_id, location_id, weekday, open_time, close_time, is_closed)
+	  select v_business, v_loc, w.d, w.o::time, w.c::time, w.closed
+	  from (values (0,'09:00','14:00',false),(1,'09:00','20:00',true),(2,'09:00','20:00',false),
+	               (3,'09:00','20:00',false),(4,'09:00','20:00',false),(5,'09:00','21:00',false),
+	               (6,'08:00','21:00',false)) as w(d,o,c,closed)
+	  where not exists (select 1 from public.business_hours bh
+	                    where bh.business_id = v_business and bh.weekday = w.d);
+	
+	  -- ── Equipo (5 máx. hoy) ─────────────────────────────────────────────────
+	  insert into public.employees (id, business_id, location_id, full_name, role_label, specialty, bio, commission_rate, show_on_website)
+	  values (gen_random_uuid(), v_business, v_loc, 'Carlos Mendoza', 'Barber', 'Fades y cortes clásicos',
+	          '10 años perfeccionando el degradado perfecto.', 10, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Andrea Ruiz', 'Stylist', 'Color y estilismo',
+	          'Especialista en colorimetría y looks de tendencia.', 12, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Luis Fernández', 'Barber', 'Barba y afeitado clásico',
+	          'Toalla caliente y precisión de bisturí.', 10, true)
+	  on conflict do nothing;
+	  select id into v_e_carlos from public.employees where business_id = v_business and full_name = 'Carlos Mendoza';
+	  select id into v_e_andrea from public.employees where business_id = v_business and full_name = 'Andrea Ruiz';
+	  select id into v_e_luis from public.employees where business_id = v_business and full_name = 'Luis Fernández';
+	
+	  insert into public.business_users (business_id, user_id, role_code, employee_id, status)
+	  values (v_business, v_admin, 'BUSINESS_ADMIN', null, 'ACTIVE'),
+	         (v_business, v_carlos_user, 'BARBER', v_e_carlos, 'ACTIVE'),
+	         (v_business, v_andrea_user, 'STYLIST', v_e_andrea, 'ACTIVE')
+	  on conflict (business_id, user_id) do nothing;
+	
+	  -- ── Categorías + servicios ──────────────────────────────────────────────
+	  insert into public.service_categories (id, business_id, name, position)
+	  values (gen_random_uuid(), v_business, 'Cortes', 0), (gen_random_uuid(), v_business, 'Barba', 1)
+	  on conflict do nothing;
+	  select id into v_cat_cortes from public.service_categories where business_id = v_business and name = 'Cortes';
+	  select id into v_cat_barba  from public.service_categories where business_id = v_business and name = 'Barba';
+	
+	  insert into public.services (id, business_id, category_id, name, description, duration_min, price, position, show_on_website)
+	  values (gen_random_uuid(), v_business, v_cat_cortes, 'Corte Premium', 'Corte personalizado con lavado, styling y acabado premium.', 45, 35, 0, true),
+	         (gen_random_uuid(), v_business, v_cat_barba, 'Barba', 'Perfilado y arreglo de barba con toalla caliente.', 30, 20, 1, true),
+	         (gen_random_uuid(), v_business, null, 'Corte + Barba', 'El combo completo. Sale como nuevo.', 60, 50, 2, true),
+	         (gen_random_uuid(), v_business, v_cat_cortes, 'Diseño', 'Diseños y líneas a cuchilla. Arte en tu corte.', 45, 40, 3, true),
+	         (gen_random_uuid(), v_business, null, 'Mascarilla Facial', 'Limpieza e hidratación express.', 20, 15, 4, true)
+	  on conflict do nothing;
+	  select id into v_s_corte  from public.services where business_id = v_business and name = 'Corte Premium';
+	  select id into v_s_barba  from public.services where business_id = v_business and name = 'Barba';
+	  select id into v_s_combo  from public.services where business_id = v_business and name = 'Corte + Barba';
+	  select id into v_s_diseno from public.services where business_id = v_business and name = 'Diseño';
+	
+	  insert into public.employee_services (employee_id, service_id, business_id)
+	  values (v_e_carlos, v_s_corte, v_business), (v_e_carlos, v_s_barba, v_business), (v_e_carlos, v_s_combo, v_business), (v_e_carlos, v_s_diseno, v_business),
+	         (v_e_andrea, v_s_corte, v_business), (v_e_andrea, v_s_diseno, v_business),
+	         (v_e_luis, v_s_barba, v_business), (v_e_luis, v_s_combo, v_business), (v_e_luis, v_s_corte, v_business)
+	  on conflict do nothing;
+	
+	  -- ── Secciones del website (draft) ───────────────────────────────────────
+	  insert into public.website_sections (business_id, type, position, active, content)
+	  values
+	    (v_business, 'HERO', 0, true,
+	     '{"title":"Tu estilo comienza aquí.","subtitle":"Reserva tu próxima experiencia en Black House Barber.","cta":"Reservar cita","cta_enabled":true}'::jsonb),
+	    (v_business, 'SERVICES', 1, true, '{"title":"Nuestros servicios"}'::jsonb),
+	    (v_business, 'ABOUT', 2, true,
+	     '{"title":"Más que una barbería","body":"Desde 2018 cuidamos el estilo de Miraflores con obsesión por el detalle."}'::jsonb),
+	    (v_business, 'GALLERY', 3, true, '{"title":"Nuestro trabajo","visible_count":6}'::jsonb),
+	    (v_business, 'TEAM', 4, true, '{"title":"Nuestro equipo"}'::jsonb),
+	    (v_business, 'PROMOTIONS', 5, true, '{"title":"Promociones"}'::jsonb),
+	    (v_business, 'TESTIMONIALS', 6, true, '{"title":"Lo que dicen de nosotros"}'::jsonb),
+	    (v_business, 'LOCATION', 7, true, '{"title":"Visítanos"}'::jsonb),
+	    (v_business, 'CTA', 8, true, '{"title":"¿Listo para tu próximo look?","cta":"Reservar cita"}'::jsonb),
+	    (v_business, 'FOOTER', 9, true, '{}'::jsonb)
+	  on conflict (business_id, type) do nothing;
+	
+	  -- ── Clientes (30) + fidelización ────────────────────────────────────────
+	  for i in 1..30 loop
+	    insert into public.customers (business_id, full_name, phone, referral_code, birth_date, created_at)
+	    values (v_business, v_names[i], v_phones[i],
+	            upper(left(regexp_replace(v_names[i], '[^a-zA-Z]', '', 'g'), 4)) || '-' || lpad(i::text, 3, '0'),
+	            (date '1985-01-01' + ((i * 37) % 12000)),
+	            now() - ((60 - i) || ' days')::interval)
+	    on conflict (business_id, phone) do nothing;
+	  end loop;
+	  select array_agg(id order by created_at) into v_cust_ids
+	  from public.customers where business_id = v_business;
+	
+	  insert into public.loyalty_accounts (business_id, customer_id, points, lifetime_points, tier)
+	  select v_business, c.id,
+	         (random() * 450)::int, (random() * 900)::int,
+	         case when random() > 0.85 then 'GOLD' when random() > 0.6 then 'SILVER' else 'STARTER' end
+	  from public.customers c where c.business_id = v_business
+	  and not exists (select 1 from public.loyalty_accounts la where la.customer_id = c.id);
+	
+	  -- ── Citas históricas (6 semanas) + ventas ───────────────────────────────
+	  for i in 1..90 loop
+	    v_customer := v_cust_ids[1 + (i * 7) % array_length(v_cust_ids, 1)];
+	    d := (i * 3) % 42;                       -- días atrás
+	    h := 9 + (i * 5) % 11;                   -- 9:00–19:00
+	    v_status := case (i % 10)
+	      when 0 then 'CANCELLED'::appointment_status
+	      when 1 then 'NO_SHOW'::appointment_status
+	      when 2 then 'CONFIRMED'::appointment_status
+	      else 'COMPLETED'::appointment_status end;
+	    if d = 0 and h > 12 then v_status := 'CONFIRMED'; end if;
+	
+	    v_total := case (i % 4) when 0 then 35 when 1 then 20 when 2 then 50 else 40 end;
+	
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_at)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            v_status, case (i % 3) when 0 then 'LANDING'::appointment_source when 1 then 'WHATSAPP'::appointment_source else 'WALK_IN'::appointment_source end,
+	            now() - (d || ' days')::interval + ((h - extract(hour from now())) || ' hours')::interval,
+	            now() - (d || ' days')::interval + ((h + 1 - extract(hour from now())) || ' hours')::interval,
+	            v_total, now() - ((d + 2) || ' days')::interval)
+	    returning id into v_appt;
+	
+	    insert into public.appointment_items (appointment_id, business_id, service_id, employee_id, unit_price, duration_min)
+	    select v_appt, v_business, s.id,
+	           case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	           s.price, s.duration_min
+	    from public.services s
+	    where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	    if v_status = 'COMPLETED' then
+	      v_method := case (i % 4) when 0 then 'CASH' when 1 then 'YAPE' when 2 then 'PLIN' else 'CARD' end;
+	      insert into public.sales (business_id, location_id, customer_id, employee_id, appointment_id, status,
+	        subtotal, discount_total, total, created_by, created_at)
+	      values (v_business, v_loc, v_customer,
+	              case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	              v_appt, 'PAID', v_total, 0, v_total, v_admin, now() - (d || ' days')::interval)
+	      returning id into v_sale;
+	
+	      insert into public.sale_items (sale_id, business_id, item_type, service_id, description, qty, unit_price, total, employee_id)
+	      select v_sale, v_business, 'SERVICE', s.id, s.name, 1, s.price, s.price,
+	             case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end
+	      from public.services s
+	      where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	      insert into public.payments (sale_id, business_id, method, amount, reference, created_by)
+	      values (v_sale, v_business, v_method, v_total,
+	              case when v_method in ('YAPE','PLIN') then 'OP-' || lpad(i::text, 6, '0') else '' end, v_admin);
+	
+	      insert into public.commissions (business_id, employee_id, sale_item_id, base_amount, rate, amount, status)
+	      select v_business, si.employee_id, si.id, si.total,
+	             coalesce(e.commission_rate, 10), round(si.total * coalesce(e.commission_rate, 10) / 100.0, 2),
+	             case when d > 7 then 'PAID' else 'PENDING' end
+	      from public.sale_items si
+	      left join public.employees e on e.id = si.employee_id
+	      where si.sale_id = v_sale;
+	    end if;
+	  end loop;
+	
+	  -- Citas futuras (próximos 7 días)
+	  for i in 1..12 loop
+	    v_customer := v_cust_ids[1 + (i * 11) % array_length(v_cust_ids, 1)];
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_by)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            case when i % 2 = 0 then 'CONFIRMED' else 'PENDING' end,
+	            case (i % 2) when 0 then 'LANDING' else 'WHATSAPP' end,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) || ' hours')::interval,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) + 1 || ' hours')::interval,
+	            case (i % 3) when 0 then 35 when 1 then 50 else 20 end, v_admin);
+	  end loop;
+	
+	  -- ── Inventario ───────────────────────────────────────────────────────────
+	  insert into public.products (business_id, name, sku, category, price, cost, stock, stock_min)
+	  values (v_business, 'Pomada Mate Black House', 'BH-POM-001', 'Styling', 65, 32, 18, 5),
+	         (v_business, 'Cera Texturizadora', 'BH-CER-002', 'Styling', 55, 26, 4, 5),
+	         (v_business, 'Aceiente para Barba', 'BH-ACE-003', 'Barba', 48, 22, 12, 4),
+	         (v_business, 'Shampoo Fortalecedor', 'BH-SHA-004', 'Cuidado', 42, 19, 0, 3)
+	  on conflict (business_id, sku) do nothing;
+	
+	  -- ── Fidelización · referidos · promos · testimonios ──────────────────────
+	  insert into public.loyalty_transactions (business_id, account_id, type, points, reason)
+	  select v_business, la.id, 'EARN', 50, 'Cita completada'
+	  from public.loyalty_accounts la where la.business_id = v_business
+	  limit 15;
+	
+	  insert into public.referrals (business_id, code, referrer_customer_id, referred_customer_id, status, reward_points, completed_at)
+	  values (v_business, 'MARIA-458', v_cust_ids[1], v_cust_ids[2], 'REWARDED', 100, now() - interval '10 days'),
+	         (v_business, 'JOSE-212', v_cust_ids[3], v_cust_ids[4], 'COMPLETED', 100, now() - interval '3 days')
+	  on conflict (business_id, code) do nothing;
+	
+	  insert into public.promotions (business_id, service_id, name, description, price, discount_percent, starts_at, ends_at, show_on_website)
+	  values (v_business, v_s_combo, 'Martes Beauty', 'Corte + Barba + Mascarilla a precio especial.',
+	          70, 17, current_date - 7, current_date + 30, true),
+	         (v_business, v_s_corte, 'Padre e hijo', 'Dos cortes premium. Padre e hijo juntos.',
+	          60, 14, current_date - 7, current_date + 30, true)
+	  on conflict do nothing;
+	
+	  insert into public.reviews (business_id, customer_id, author_name, rating, content, is_published)
+	  values (v_business, v_cust_ids[1], 'María F.', 5, 'El mejor servicio de Lima. Salí como nuevo y la atención es de otro nivel.', true),
+	         (v_business, v_cust_ids[5], 'Jorge C.', 5, 'Carlos entiende exactamente lo que quieres. Ya no voy a otro lado.', true),
+	         (v_business, null, 'Renzo G.', 4, 'Ambiente increíble y precios justos. Recomendadísimo.', true)
+	  on conflict do nothing;
+	
+	  -- ── Automatizaciones WhatsApp ────────────────────────────────────────────
+	  insert into public.automation_rules (business_id, name, trigger_event, channel, template, delay_minutes)
+	  values (v_business, 'Confirmación de cita', 'APPOINTMENT_CREATED', 'WHATSAPP',
+	          'Hola {{cliente}}, tu cita de {{servicio}} está registrada para el {{fecha}} a las {{hora}}. ¡Te esperamos!', 5),
+	         (v_business, 'Recordatorio 24 h', 'REMINDER_24H', 'WHATSAPP',
+	          'Hola {{cliente}}, te recordamos tu cita mañana a las {{hora}}. ¿Confirmamos?', 0),
+	         (v_business, 'Gracias post-visita', 'APPOINTMENT_COMPLETED', 'WHATSAPP',
+	          'Gracias por visitarnos, {{cliente}}. ¡Nos vemos la próxima!', 60),
+	         (v_business, 'Rebooking 28 días', 'CUSTOMER_AT_RISK', 'WHATSAPP',
+	          'Hola {{cliente}}, ¿ya es momento de tu próxima visita? Reserva aquí: {{link}}', 0),
+	         (v_business, 'Hueco liberado', 'WAITLIST_SLOT_OPENED', 'WHATSAPP',
+	          '¡Hola {{cliente}}! Se liberó un horario compatible: {{fecha}} a las {{hora}}. ¿Lo tomamos?', 0)
+	  on conflict do nothing;
+	
+	  -- ── Waitlist + at-risk de ejemplo + insights IA sembrados ────────────────
+	  insert into public.waitlist (business_id, customer_id, service_id, employee_id, preferred_date, time_start, time_end, priority)
+	  values (v_business, v_cust_ids[7], v_s_corte, v_e_carlos, current_date + 3, '17:00', '20:00', 1),
+	         (v_business, v_cust_ids[9], v_s_combo, null, current_date + 3, '16:00', '21:00', 0),
+	         (v_business, v_cust_ids[12], v_s_barba, v_e_luis, null, null, null, 0)
+	  on conflict do nothing;
+	
+	  insert into public.ai_insights (business_id, type, severity, title, body, data)
+	  values (v_business, 'AT_RISK', 'warning',
+	          '6 clientes fuera de su frecuencia habitual',
+	          'Detectamos 6 clientes que suelen regresar entre 21 y 30 días y actualmente están fuera de su frecuencia. Recomendamos enviarles un recordatorio personalizado.',
+	          '{"customer_ids": ["..."], "action": "view_clients"}'::jsonb),
+	         (v_business, 'WEAK_SLOTS', 'info',
+	          'Los martes tienen menor ocupación (41%)',
+	          'Los martes entre 2:00 y 5:00 PM son los huecos más débiles. Una promo express podría levantar la ocupación un 15%.',
+	          '{"dow": 2, "hours": [14,15,16,17]}'::jsonb),
+	         (v_business, 'OPPORTUNITY', 'info',
+	          'Corte + Barba es tu combo más rentable',
+	          'Representa el 38% de los ingresos. Sugiere ofrecerlo como upsell automático al reservar solo corte.',
+	          '{"service": "Corte + Barba"}'::jsonb);
+	
+	  -- Publicar el sitio con la RPC real (snapshot completo) como el Business Admin
+	  if not exists (select 1 from public.website_releases wr where wr.business_id = v_business) then
+	    perform set_config('request.jwt.claim.sub', v_admin::text, true);
+	    perform public.publish_website(v_business);
+	    perform set_config('request.jwt.claim.sub', v_super::text, true);
+	  end if;
+	
+	  -- Stats de clientes
+	  perform public.refresh_customer_stats(v_business);
+	
+	  raise notice '✅ Seed BLACK HOUSE BARBER completado (negocio: %)', v_business;
+	end $$;
+2026-09-21 20:42:55.101 UTC [5765] ERROR:  record "new" has no field "business_id"
+2026-09-21 20:42:55.101 UTC [5765] CONTEXT:  SQL statement "SELECT public.log_audit(
+	    coalesce(new.business_id, old.business_id),
+	    tg_op,
+	    tg_table_name,
+	    coalesce(new.id, old.id),
+	    case when tg_op in ('UPDATE','DELETE') then to_jsonb(old) end,
+	    case when tg_op in ('INSERT','UPDATE') then to_jsonb(new) end
+	  )"
+	PL/pgSQL function audit_tg() line 3 at PERFORM
+	SQL statement "insert into public.plans (id, code, name, description, price_monthly, limits, modules)
+	  values
+	    (gen_random_uuid(), 'STARTER', 'Starter', 'Para quien recién comienza', 79.00,
+	     '{"max_employees": 5, "max_monthly_appointments": 300, "max_storage_mb": 500}'::jsonb,
+	     '{"website": true, "loyalty": false, "ai": false, "whatsapp": false}'::jsonb),
+	    (gen_random_uuid(), 'PRO', 'Pro', 'El favorito de los negocios en crecimiento', 149.00,
+	     '{"max_employees": 12, "max_monthly_appointments": 2000, "max_storage_mb": 2000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true}'::jsonb),
+	    (gen_random_uuid(), 'BUSINESS', 'Business', 'Multi-sucursal sin límites', 299.00,
+	     '{"max_employees": 50, "max_monthly_appointments": 20000, "max_storage_mb": 10000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true, "multibranch": true}'::jsonb)
+	  on conflict (code) do nothing"
+	PL/pgSQL function inline_code_block line 59 at SQL statement
+2026-09-21 20:42:55.101 UTC [5765] STATEMENT:  do $$
+	declare
+	  v_business uuid; v_loc uuid; v_super uuid; v_admin uuid; v_carlos_user uuid; v_andrea_user uuid;
+	  v_plan uuid; v_cat_cortes uuid; v_cat_barba uuid;
+	  v_s_corte uuid; v_s_barba uuid; v_s_combo uuid; v_s_diseno uuid;
+	  v_e_carlos uuid; v_e_andrea uuid; v_e_luis uuid;
+	  v_customer uuid; v_appt uuid; v_sale uuid; v_acct uuid;
+	  v_cust_ids uuid[] := '{}'; v_names text[] := array[
+	    'María Fernández','José Castillo','Ana Torres','Luis Ramírez','Carmen Rojas',
+	    'Pedro Salazar','Lucía Mendoza','Diego Vargas','Rosa Paredes','Miguel Ángel Soto',
+	    'Elena Quispe','Jorge Chávez','Valeria Cárdenas','Renzo Gutiérrez','Daniela Ponce',
+	    'Andrés Loayza','Camila Herrera','Raúl Montoya','Gabriela Núñez','Sergio Ibáñez',
+	    'Paola Ríos','Mateo Farfán','Isabel Prado','Hugo Espinoza','Nicole Vergara',
+	    'Alonso Mejía','Fernanda Castro','Óscar Villanueva','Teresa Linares','Bruno Sandoval'];
+	  v_phones text[] := array[
+	    '987654321','912345678','933445566','944556677','955667788','966778899','977889900',
+	    '988990011','900112233','911223344','922334455','933556677','944667788','955778899',
+	    '966889900','977990011','988001122','999112233','901223344','912334455','923445566',
+	    '934556677','945667788','956778899','967889900','978990011','989001122','900011223',
+	    '910122334','920233445'];
+	  i int; d int; h int; v_status appointment_status; v_method payment_method;
+	  v_total numeric(12,2); v_name text; v_slug_exists boolean;
+	begin
+	  -- ── Usuarios auth + profiles ──────────────────────────────────────────────
+	  if not exists (select 1 from auth.users where email = 'super@beautyapp.pe') then
+	    insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	    values (gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	      'super@beautyapp.pe', crypt('Demo123!', gen_salt('bf')), now(),
+	      '{"provider":"email","providers":["email"]}'::jsonb, '{"full_name":"Súper Admin"}'::jsonb, now(), now());
+	  end if;
+	  insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	  select gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	    e.mail, crypt('Demo123!', gen_salt('bf')), now(),
+	    '{"provider":"email","providers":["email"]}'::jsonb,
+	    jsonb_build_object('full_name', e.nm), now(), now()
+	  from (values
+	    ('admin@blackhouse.pe','Ricardo Peña'),
+	    ('carlos@blackhouse.pe','Carlos Mendoza'),
+	    ('andrea@blackhouse.pe','Andrea Ruiz')
+	  ) as e(mail, nm)
+	  where not exists (select 1 from auth.users u where u.email = e.mail);
+	
+	  select id into v_super from auth.users where email = 'super@beautyapp.pe';
+	  select id into v_admin from auth.users where email = 'admin@blackhouse.pe';
+	  select id into v_carlos_user from auth.users where email = 'carlos@blackhouse.pe';
+	  select id into v_andrea_user from auth.users where email = 'andrea@blackhouse.pe';
+	
+	  update public.users set platform_role = 'SUPER_ADMIN' where id = v_super;
+	  update public.users set full_name = 'Ricardo Peña'  where id = v_admin;
+	  update public.users set full_name = 'Carlos Mendoza' where id = v_carlos_user;
+	  update public.users set full_name = 'Andrea Ruiz'    where id = v_andrea_user;
+	
+	  -- Contexto de Super Admin para triggers/funciones con auth.uid() durante la siembra
+	  perform set_config('request.jwt.claim.sub', v_super::text, true);
+	
+	  -- ── Planes (Super Admin) ─────────────────────────────────────────────────
+	  insert into public.plans (id, code, name, description, price_monthly, limits, modules)
+	  values
+	    (gen_random_uuid(), 'STARTER', 'Starter', 'Para quien recién comienza', 79.00,
+	     '{"max_employees": 5, "max_monthly_appointments": 300, "max_storage_mb": 500}'::jsonb,
+	     '{"website": true, "loyalty": false, "ai": false, "whatsapp": false}'::jsonb),
+	    (gen_random_uuid(), 'PRO', 'Pro', 'El favorito de los negocios en crecimiento', 149.00,
+	     '{"max_employees": 12, "max_monthly_appointments": 2000, "max_storage_mb": 2000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true}'::jsonb),
+	    (gen_random_uuid(), 'BUSINESS', 'Business', 'Multi-sucursal sin límites', 299.00,
+	     '{"max_employees": 50, "max_monthly_appointments": 20000, "max_storage_mb": 10000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true, "multibranch": true}'::jsonb)
+	  on conflict (code) do nothing;
+	  select id into v_plan from public.plans where code = 'PRO';
+	
+	  -- ── Negocio + sucursal + settings + branding + website ───────────────────
+	  select exists (select 1 from public.businesses where slug = 'barberia-black') into v_slug_exists;
+	  if not v_slug_exists then
+	    insert into public.businesses (id, name, slug, type, status, description, phone, whatsapp, email, address)
+	    values (gen_random_uuid(), 'Black House Barber', 'barberia-black', 'BARBERSHOP', 'ACTIVE',
+	      'Barbería premium en el corazón de Miraflores. Cortes clásicos y modernos, barba de precisión y una experiencia que se siente como en casa.',
+	      '+51 987 654 321', '+51 987 654 321', 'hola@blackhouse.pe', 'Av. La Paz 450, Miraflores, Lima')
+	    returning id into v_business;
+	  else
+	    select id into v_business from public.businesses where slug = 'barberia-black';
+	  end if;
+	
+	  insert into public.locations (business_id, name, address, city, geo, is_default)
+	  values (v_business, 'Miraflores', 'Av. La Paz 450, Miraflores', 'Lima',
+	          '{"lat": -12.1222, "lng": -77.0300}'::jsonb, true)
+	  on conflict do nothing;
+	  select id into v_loc from public.locations where business_id = v_business and is_default limit 1;
+	
+	  insert into public.business_settings (business_id) values (v_business) on conflict do nothing;
+	  insert into public.business_branding (business_id, preset, colors, font_key)
+	  values (v_business, 'DARK', '{"primary":"#c9a227","button":"#c9a227"}'::jsonb, 'sans')
+	  on conflict do nothing;
+	  insert into public.business_website (business_id, tagline, socials, map_query)
+	  values (v_business, 'Tu estilo comienza aquí.',
+	          '{"instagram": "https://instagram.com/blackhouse.barber", "tiktok": "https://tiktok.com/@blackhouse.barber", "facebook": ""}'::jsonb,
+	          'Av. La Paz 450, Miraflores, Lima')
+	  on conflict do nothing;
+	
+	  insert into public.subscriptions (business_id, plan_id, status, trial_ends_at)
+	  values (v_business, v_plan, 'ACTIVE', now() + interval '14 days')
+	  on conflict do nothing;
+	
+	  -- Horarios: mar–sáb 9–20, dom 9–14, lun cerrado
+	  insert into public.business_hours (business_id, location_id, weekday, open_time, close_time, is_closed)
+	  select v_business, v_loc, w.d, w.o::time, w.c::time, w.closed
+	  from (values (0,'09:00','14:00',false),(1,'09:00','20:00',true),(2,'09:00','20:00',false),
+	               (3,'09:00','20:00',false),(4,'09:00','20:00',false),(5,'09:00','21:00',false),
+	               (6,'08:00','21:00',false)) as w(d,o,c,closed)
+	  where not exists (select 1 from public.business_hours bh
+	                    where bh.business_id = v_business and bh.weekday = w.d);
+	
+	  -- ── Equipo (5 máx. hoy) ─────────────────────────────────────────────────
+	  insert into public.employees (id, business_id, location_id, full_name, role_label, specialty, bio, commission_rate, show_on_website)
+	  values (gen_random_uuid(), v_business, v_loc, 'Carlos Mendoza', 'Barber', 'Fades y cortes clásicos',
+	          '10 años perfeccionando el degradado perfecto.', 10, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Andrea Ruiz', 'Stylist', 'Color y estilismo',
+	          'Especialista en colorimetría y looks de tendencia.', 12, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Luis Fernández', 'Barber', 'Barba y afeitado clásico',
+	          'Toalla caliente y precisión de bisturí.', 10, true)
+	  on conflict do nothing;
+	  select id into v_e_carlos from public.employees where business_id = v_business and full_name = 'Carlos Mendoza';
+	  select id into v_e_andrea from public.employees where business_id = v_business and full_name = 'Andrea Ruiz';
+	  select id into v_e_luis from public.employees where business_id = v_business and full_name = 'Luis Fernández';
+	
+	  insert into public.business_users (business_id, user_id, role_code, employee_id, status)
+	  values (v_business, v_admin, 'BUSINESS_ADMIN', null, 'ACTIVE'),
+	         (v_business, v_carlos_user, 'BARBER', v_e_carlos, 'ACTIVE'),
+	         (v_business, v_andrea_user, 'STYLIST', v_e_andrea, 'ACTIVE')
+	  on conflict (business_id, user_id) do nothing;
+	
+	  -- ── Categorías + servicios ──────────────────────────────────────────────
+	  insert into public.service_categories (id, business_id, name, position)
+	  values (gen_random_uuid(), v_business, 'Cortes', 0), (gen_random_uuid(), v_business, 'Barba', 1)
+	  on conflict do nothing;
+	  select id into v_cat_cortes from public.service_categories where business_id = v_business and name = 'Cortes';
+	  select id into v_cat_barba  from public.service_categories where business_id = v_business and name = 'Barba';
+	
+	  insert into public.services (id, business_id, category_id, name, description, duration_min, price, position, show_on_website)
+	  values (gen_random_uuid(), v_business, v_cat_cortes, 'Corte Premium', 'Corte personalizado con lavado, styling y acabado premium.', 45, 35, 0, true),
+	         (gen_random_uuid(), v_business, v_cat_barba, 'Barba', 'Perfilado y arreglo de barba con toalla caliente.', 30, 20, 1, true),
+	         (gen_random_uuid(), v_business, null, 'Corte + Barba', 'El combo completo. Sale como nuevo.', 60, 50, 2, true),
+	         (gen_random_uuid(), v_business, v_cat_cortes, 'Diseño', 'Diseños y líneas a cuchilla. Arte en tu corte.', 45, 40, 3, true),
+	         (gen_random_uuid(), v_business, null, 'Mascarilla Facial', 'Limpieza e hidratación express.', 20, 15, 4, true)
+	  on conflict do nothing;
+	  select id into v_s_corte  from public.services where business_id = v_business and name = 'Corte Premium';
+	  select id into v_s_barba  from public.services where business_id = v_business and name = 'Barba';
+	  select id into v_s_combo  from public.services where business_id = v_business and name = 'Corte + Barba';
+	  select id into v_s_diseno from public.services where business_id = v_business and name = 'Diseño';
+	
+	  insert into public.employee_services (employee_id, service_id, business_id)
+	  values (v_e_carlos, v_s_corte, v_business), (v_e_carlos, v_s_barba, v_business), (v_e_carlos, v_s_combo, v_business), (v_e_carlos, v_s_diseno, v_business),
+	         (v_e_andrea, v_s_corte, v_business), (v_e_andrea, v_s_diseno, v_business),
+	         (v_e_luis, v_s_barba, v_business), (v_e_luis, v_s_combo, v_business), (v_e_luis, v_s_corte, v_business)
+	  on conflict do nothing;
+	
+	  -- ── Secciones del website (draft) ───────────────────────────────────────
+	  insert into public.website_sections (business_id, type, position, active, content)
+	  values
+	    (v_business, 'HERO', 0, true,
+	     '{"title":"Tu estilo comienza aquí.","subtitle":"Reserva tu próxima experiencia en Black House Barber.","cta":"Reservar cita","cta_enabled":true}'::jsonb),
+	    (v_business, 'SERVICES', 1, true, '{"title":"Nuestros servicios"}'::jsonb),
+	    (v_business, 'ABOUT', 2, true,
+	     '{"title":"Más que una barbería","body":"Desde 2018 cuidamos el estilo de Miraflores con obsesión por el detalle."}'::jsonb),
+	    (v_business, 'GALLERY', 3, true, '{"title":"Nuestro trabajo","visible_count":6}'::jsonb),
+	    (v_business, 'TEAM', 4, true, '{"title":"Nuestro equipo"}'::jsonb),
+	    (v_business, 'PROMOTIONS', 5, true, '{"title":"Promociones"}'::jsonb),
+	    (v_business, 'TESTIMONIALS', 6, true, '{"title":"Lo que dicen de nosotros"}'::jsonb),
+	    (v_business, 'LOCATION', 7, true, '{"title":"Visítanos"}'::jsonb),
+	    (v_business, 'CTA', 8, true, '{"title":"¿Listo para tu próximo look?","cta":"Reservar cita"}'::jsonb),
+	    (v_business, 'FOOTER', 9, true, '{}'::jsonb)
+	  on conflict (business_id, type) do nothing;
+	
+	  -- ── Clientes (30) + fidelización ────────────────────────────────────────
+	  for i in 1..30 loop
+	    insert into public.customers (business_id, full_name, phone, referral_code, birth_date, created_at)
+	    values (v_business, v_names[i], v_phones[i],
+	            upper(left(regexp_replace(v_names[i], '[^a-zA-Z]', '', 'g'), 4)) || '-' || lpad(i::text, 3, '0'),
+	            (date '1985-01-01' + ((i * 37) % 12000)),
+	            now() - ((60 - i) || ' days')::interval)
+	    on conflict (business_id, phone) do nothing;
+	  end loop;
+	  select array_agg(id order by created_at) into v_cust_ids
+	  from public.customers where business_id = v_business;
+	
+	  insert into public.loyalty_accounts (business_id, customer_id, points, lifetime_points, tier)
+	  select v_business, c.id,
+	         (random() * 450)::int, (random() * 900)::int,
+	         case when random() > 0.85 then 'GOLD' when random() > 0.6 then 'SILVER' else 'STARTER' end
+	  from public.customers c where c.business_id = v_business
+	  and not exists (select 1 from public.loyalty_accounts la where la.customer_id = c.id);
+	
+	  -- ── Citas históricas (6 semanas) + ventas ───────────────────────────────
+	  for i in 1..90 loop
+	    v_customer := v_cust_ids[1 + (i * 7) % array_length(v_cust_ids, 1)];
+	    d := (i * 3) % 42;                       -- días atrás
+	    h := 9 + (i * 5) % 11;                   -- 9:00–19:00
+	    v_status := case (i % 10)
+	      when 0 then 'CANCELLED'::appointment_status
+	      when 1 then 'NO_SHOW'::appointment_status
+	      when 2 then 'CONFIRMED'::appointment_status
+	      else 'COMPLETED'::appointment_status end;
+	    if d = 0 and h > 12 then v_status := 'CONFIRMED'; end if;
+	
+	    v_total := case (i % 4) when 0 then 35 when 1 then 20 when 2 then 50 else 40 end;
+	
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_at)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            v_status, case (i % 3) when 0 then 'LANDING'::appointment_source when 1 then 'WHATSAPP'::appointment_source else 'WALK_IN'::appointment_source end,
+	            now() - (d || ' days')::interval + ((h - extract(hour from now())) || ' hours')::interval,
+	            now() - (d || ' days')::interval + ((h + 1 - extract(hour from now())) || ' hours')::interval,
+	            v_total, now() - ((d + 2) || ' days')::interval)
+	    returning id into v_appt;
+	
+	    insert into public.appointment_items (appointment_id, business_id, service_id, employee_id, unit_price, duration_min)
+	    select v_appt, v_business, s.id,
+	           case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	           s.price, s.duration_min
+	    from public.services s
+	    where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	    if v_status = 'COMPLETED' then
+	      v_method := case (i % 4) when 0 then 'CASH' when 1 then 'YAPE' when 2 then 'PLIN' else 'CARD' end;
+	      insert into public.sales (business_id, location_id, customer_id, employee_id, appointment_id, status,
+	        subtotal, discount_total, total, created_by, created_at)
+	      values (v_business, v_loc, v_customer,
+	              case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	              v_appt, 'PAID', v_total, 0, v_total, v_admin, now() - (d || ' days')::interval)
+	      returning id into v_sale;
+	
+	      insert into public.sale_items (sale_id, business_id, item_type, service_id, description, qty, unit_price, total, employee_id)
+	      select v_sale, v_business, 'SERVICE', s.id, s.name, 1, s.price, s.price,
+	             case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end
+	      from public.services s
+	      where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	      insert into public.payments (sale_id, business_id, method, amount, reference, created_by)
+	      values (v_sale, v_business, v_method, v_total,
+	              case when v_method in ('YAPE','PLIN') then 'OP-' || lpad(i::text, 6, '0') else '' end, v_admin);
+	
+	      insert into public.commissions (business_id, employee_id, sale_item_id, base_amount, rate, amount, status)
+	      select v_business, si.employee_id, si.id, si.total,
+	             coalesce(e.commission_rate, 10), round(si.total * coalesce(e.commission_rate, 10) / 100.0, 2),
+	             case when d > 7 then 'PAID' else 'PENDING' end
+	      from public.sale_items si
+	      left join public.employees e on e.id = si.employee_id
+	      where si.sale_id = v_sale;
+	    end if;
+	  end loop;
+	
+	  -- Citas futuras (próximos 7 días)
+	  for i in 1..12 loop
+	    v_customer := v_cust_ids[1 + (i * 11) % array_length(v_cust_ids, 1)];
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_by)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            case when i % 2 = 0 then 'CONFIRMED' else 'PENDING' end,
+	            case (i % 2) when 0 then 'LANDING' else 'WHATSAPP' end,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) || ' hours')::interval,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) + 1 || ' hours')::interval,
+	            case (i % 3) when 0 then 35 when 1 then 50 else 20 end, v_admin);
+	  end loop;
+	
+	  -- ── Inventario ───────────────────────────────────────────────────────────
+	  insert into public.products (business_id, name, sku, category, price, cost, stock, stock_min)
+	  values (v_business, 'Pomada Mate Black House', 'BH-POM-001', 'Styling', 65, 32, 18, 5),
+	         (v_business, 'Cera Texturizadora', 'BH-CER-002', 'Styling', 55, 26, 4, 5),
+	         (v_business, 'Aceiente para Barba', 'BH-ACE-003', 'Barba', 48, 22, 12, 4),
+	         (v_business, 'Shampoo Fortalecedor', 'BH-SHA-004', 'Cuidado', 42, 19, 0, 3)
+	  on conflict (business_id, sku) do nothing;
+	
+	  -- ── Fidelización · referidos · promos · testimonios ──────────────────────
+	  insert into public.loyalty_transactions (business_id, account_id, type, points, reason)
+	  select v_business, la.id, 'EARN', 50, 'Cita completada'
+	  from public.loyalty_accounts la where la.business_id = v_business
+	  limit 15;
+	
+	  insert into public.referrals (business_id, code, referrer_customer_id, referred_customer_id, status, reward_points, completed_at)
+	  values (v_business, 'MARIA-458', v_cust_ids[1], v_cust_ids[2], 'REWARDED', 100, now() - interval '10 days'),
+	         (v_business, 'JOSE-212', v_cust_ids[3], v_cust_ids[4], 'COMPLETED', 100, now() - interval '3 days')
+	  on conflict (business_id, code) do nothing;
+	
+	  insert into public.promotions (business_id, service_id, name, description, price, discount_percent, starts_at, ends_at, show_on_website)
+	  values (v_business, v_s_combo, 'Martes Beauty', 'Corte + Barba + Mascarilla a precio especial.',
+	          70, 17, current_date - 7, current_date + 30, true),
+	         (v_business, v_s_corte, 'Padre e hijo', 'Dos cortes premium. Padre e hijo juntos.',
+	          60, 14, current_date - 7, current_date + 30, true)
+	  on conflict do nothing;
+	
+	  insert into public.reviews (business_id, customer_id, author_name, rating, content, is_published)
+	  values (v_business, v_cust_ids[1], 'María F.', 5, 'El mejor servicio de Lima. Salí como nuevo y la atención es de otro nivel.', true),
+	         (v_business, v_cust_ids[5], 'Jorge C.', 5, 'Carlos entiende exactamente lo que quieres. Ya no voy a otro lado.', true),
+	         (v_business, null, 'Renzo G.', 4, 'Ambiente increíble y precios justos. Recomendadísimo.', true)
+	  on conflict do nothing;
+	
+	  -- ── Automatizaciones WhatsApp ────────────────────────────────────────────
+	  insert into public.automation_rules (business_id, name, trigger_event, channel, template, delay_minutes)
+	  values (v_business, 'Confirmación de cita', 'APPOINTMENT_CREATED', 'WHATSAPP',
+	          'Hola {{cliente}}, tu cita de {{servicio}} está registrada para el {{fecha}} a las {{hora}}. ¡Te esperamos!', 5),
+	         (v_business, 'Recordatorio 24 h', 'REMINDER_24H', 'WHATSAPP',
+	          'Hola {{cliente}}, te recordamos tu cita mañana a las {{hora}}. ¿Confirmamos?', 0),
+	         (v_business, 'Gracias post-visita', 'APPOINTMENT_COMPLETED', 'WHATSAPP',
+	          'Gracias por visitarnos, {{cliente}}. ¡Nos vemos la próxima!', 60),
+	         (v_business, 'Rebooking 28 días', 'CUSTOMER_AT_RISK', 'WHATSAPP',
+	          'Hola {{cliente}}, ¿ya es momento de tu próxima visita? Reserva aquí: {{link}}', 0),
+	         (v_business, 'Hueco liberado', 'WAITLIST_SLOT_OPENED', 'WHATSAPP',
+	          '¡Hola {{cliente}}! Se liberó un horario compatible: {{fecha}} a las {{hora}}. ¿Lo tomamos?', 0)
+	  on conflict do nothing;
+	
+	  -- ── Waitlist + at-risk de ejemplo + insights IA sembrados ────────────────
+	  insert into public.waitlist (business_id, customer_id, service_id, employee_id, preferred_date, time_start, time_end, priority)
+	  values (v_business, v_cust_ids[7], v_s_corte, v_e_carlos, current_date + 3, '17:00', '20:00', 1),
+	         (v_business, v_cust_ids[9], v_s_combo, null, current_date + 3, '16:00', '21:00', 0),
+	         (v_business, v_cust_ids[12], v_s_barba, v_e_luis, null, null, null, 0)
+	  on conflict do nothing;
+	
+	  insert into public.ai_insights (business_id, type, severity, title, body, data)
+	  values (v_business, 'AT_RISK', 'warning',
+	          '6 clientes fuera de su frecuencia habitual',
+	          'Detectamos 6 clientes que suelen regresar entre 21 y 30 días y actualmente están fuera de su frecuencia. Recomendamos enviarles un recordatorio personalizado.',
+	          '{"customer_ids": ["..."], "action": "view_clients"}'::jsonb),
+	         (v_business, 'WEAK_SLOTS', 'info',
+	          'Los martes tienen menor ocupación (41%)',
+	          'Los martes entre 2:00 y 5:00 PM son los huecos más débiles. Una promo express podría levantar la ocupación un 15%.',
+	          '{"dow": 2, "hours": [14,15,16,17]}'::jsonb),
+	         (v_business, 'OPPORTUNITY', 'info',
+	          'Corte + Barba es tu combo más rentable',
+	          'Representa el 38% de los ingresos. Sugiere ofrecerlo como upsell automático al reservar solo corte.',
+	          '{"service": "Corte + Barba"}'::jsonb);
+	
+	  -- Publicar el sitio con la RPC real (snapshot completo) como el Business Admin
+	  if not exists (select 1 from public.website_releases wr where wr.business_id = v_business) then
+	    perform set_config('request.jwt.claim.sub', v_admin::text, true);
+	    perform public.publish_website(v_business);
+	    perform set_config('request.jwt.claim.sub', v_super::text, true);
+	  end if;
+	
+	  -- Stats de clientes
+	  perform public.refresh_customer_stats(v_business);
+	
+	  raise notice '✅ Seed BLACK HOUSE BARBER completado (negocio: %)', v_business;
+	end $$;
+2026-09-21 20:43:06.076 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:43:06.081 UTC [5483] LOG:  checkpoint complete: wrote 17 buffers (0.1%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.002 s, sync=0.001 s, total=0.005 s; sync files=9, longest=0.001 s, average=0.001 s; distance=6769 kB, estimate=6769 kB; lsn=0/30E11A0, redo lsn=0/30E1148
+2026-09-21 20:43:06.369 UTC [5788] ERROR:  insert or update on table "business_users" violates foreign key constraint "business_users_role_code_fkey"
+2026-09-21 20:43:06.369 UTC [5788] DETAIL:  Key (role_code)=(BUSINESS_ADMIN) is not present in table "roles".
+2026-09-21 20:43:06.369 UTC [5788] CONTEXT:  SQL statement "insert into public.business_users (business_id, user_id, role_code, employee_id, status)
+	  values (v_business, v_admin, 'BUSINESS_ADMIN', null, 'ACTIVE'),
+	         (v_business, v_carlos_user, 'BARBER', v_e_carlos, 'ACTIVE'),
+	         (v_business, v_andrea_user, 'STYLIST', v_e_andrea, 'ACTIVE')
+	  on conflict (business_id, user_id) do nothing"
+	PL/pgSQL function inline_code_block line 127 at SQL statement
+2026-09-21 20:43:06.369 UTC [5788] STATEMENT:  do $$
+	declare
+	  v_business uuid; v_loc uuid; v_super uuid; v_admin uuid; v_carlos_user uuid; v_andrea_user uuid;
+	  v_plan uuid; v_cat_cortes uuid; v_cat_barba uuid;
+	  v_s_corte uuid; v_s_barba uuid; v_s_combo uuid; v_s_diseno uuid;
+	  v_e_carlos uuid; v_e_andrea uuid; v_e_luis uuid;
+	  v_customer uuid; v_appt uuid; v_sale uuid; v_acct uuid;
+	  v_cust_ids uuid[] := '{}'; v_names text[] := array[
+	    'María Fernández','José Castillo','Ana Torres','Luis Ramírez','Carmen Rojas',
+	    'Pedro Salazar','Lucía Mendoza','Diego Vargas','Rosa Paredes','Miguel Ángel Soto',
+	    'Elena Quispe','Jorge Chávez','Valeria Cárdenas','Renzo Gutiérrez','Daniela Ponce',
+	    'Andrés Loayza','Camila Herrera','Raúl Montoya','Gabriela Núñez','Sergio Ibáñez',
+	    'Paola Ríos','Mateo Farfán','Isabel Prado','Hugo Espinoza','Nicole Vergara',
+	    'Alonso Mejía','Fernanda Castro','Óscar Villanueva','Teresa Linares','Bruno Sandoval'];
+	  v_phones text[] := array[
+	    '987654321','912345678','933445566','944556677','955667788','966778899','977889900',
+	    '988990011','900112233','911223344','922334455','933556677','944667788','955778899',
+	    '966889900','977990011','988001122','999112233','901223344','912334455','923445566',
+	    '934556677','945667788','956778899','967889900','978990011','989001122','900011223',
+	    '910122334','920233445'];
+	  i int; d int; h int; v_status appointment_status; v_method payment_method;
+	  v_total numeric(12,2); v_name text; v_slug_exists boolean;
+	begin
+	  -- ── Usuarios auth + profiles ──────────────────────────────────────────────
+	  if not exists (select 1 from auth.users where email = 'super@beautyapp.pe') then
+	    insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	    values (gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	      'super@beautyapp.pe', crypt('Demo123!', gen_salt('bf')), now(),
+	      '{"provider":"email","providers":["email"]}'::jsonb, '{"full_name":"Súper Admin"}'::jsonb, now(), now());
+	  end if;
+	  insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	  select gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	    e.mail, crypt('Demo123!', gen_salt('bf')), now(),
+	    '{"provider":"email","providers":["email"]}'::jsonb,
+	    jsonb_build_object('full_name', e.nm), now(), now()
+	  from (values
+	    ('admin@blackhouse.pe','Ricardo Peña'),
+	    ('carlos@blackhouse.pe','Carlos Mendoza'),
+	    ('andrea@blackhouse.pe','Andrea Ruiz')
+	  ) as e(mail, nm)
+	  where not exists (select 1 from auth.users u where u.email = e.mail);
+	
+	  select id into v_super from auth.users where email = 'super@beautyapp.pe';
+	  select id into v_admin from auth.users where email = 'admin@blackhouse.pe';
+	  select id into v_carlos_user from auth.users where email = 'carlos@blackhouse.pe';
+	  select id into v_andrea_user from auth.users where email = 'andrea@blackhouse.pe';
+	
+	  update public.users set platform_role = 'SUPER_ADMIN' where id = v_super;
+	  update public.users set full_name = 'Ricardo Peña'  where id = v_admin;
+	  update public.users set full_name = 'Carlos Mendoza' where id = v_carlos_user;
+	  update public.users set full_name = 'Andrea Ruiz'    where id = v_andrea_user;
+	
+	  -- Contexto de Super Admin para triggers/funciones con auth.uid() durante la siembra
+	  perform set_config('request.jwt.claim.sub', v_super::text, true);
+	
+	  -- ── Planes (Super Admin) ─────────────────────────────────────────────────
+	  insert into public.plans (id, code, name, description, price_monthly, limits, modules)
+	  values
+	    (gen_random_uuid(), 'STARTER', 'Starter', 'Para quien recién comienza', 79.00,
+	     '{"max_employees": 5, "max_monthly_appointments": 300, "max_storage_mb": 500}'::jsonb,
+	     '{"website": true, "loyalty": false, "ai": false, "whatsapp": false}'::jsonb),
+	    (gen_random_uuid(), 'PRO', 'Pro', 'El favorito de los negocios en crecimiento', 149.00,
+	     '{"max_employees": 12, "max_monthly_appointments": 2000, "max_storage_mb": 2000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true}'::jsonb),
+	    (gen_random_uuid(), 'BUSINESS', 'Business', 'Multi-sucursal sin límites', 299.00,
+	     '{"max_employees": 50, "max_monthly_appointments": 20000, "max_storage_mb": 10000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true, "multibranch": true}'::jsonb)
+	  on conflict (code) do nothing;
+	  select id into v_plan from public.plans where code = 'PRO';
+	
+	  -- ── Negocio + sucursal + settings + branding + website ───────────────────
+	  select exists (select 1 from public.businesses where slug = 'barberia-black') into v_slug_exists;
+	  if not v_slug_exists then
+	    insert into public.businesses (id, name, slug, type, status, description, phone, whatsapp, email, address)
+	    values (gen_random_uuid(), 'Black House Barber', 'barberia-black', 'BARBERSHOP', 'ACTIVE',
+	      'Barbería premium en el corazón de Miraflores. Cortes clásicos y modernos, barba de precisión y una experiencia que se siente como en casa.',
+	      '+51 987 654 321', '+51 987 654 321', 'hola@blackhouse.pe', 'Av. La Paz 450, Miraflores, Lima')
+	    returning id into v_business;
+	  else
+	    select id into v_business from public.businesses where slug = 'barberia-black';
+	  end if;
+	
+	  insert into public.locations (business_id, name, address, city, geo, is_default)
+	  values (v_business, 'Miraflores', 'Av. La Paz 450, Miraflores', 'Lima',
+	          '{"lat": -12.1222, "lng": -77.0300}'::jsonb, true)
+	  on conflict do nothing;
+	  select id into v_loc from public.locations where business_id = v_business and is_default limit 1;
+	
+	  insert into public.business_settings (business_id) values (v_business) on conflict do nothing;
+	  insert into public.business_branding (business_id, preset, colors, font_key)
+	  values (v_business, 'DARK', '{"primary":"#c9a227","button":"#c9a227"}'::jsonb, 'sans')
+	  on conflict do nothing;
+	  insert into public.business_website (business_id, tagline, socials, map_query)
+	  values (v_business, 'Tu estilo comienza aquí.',
+	          '{"instagram": "https://instagram.com/blackhouse.barber", "tiktok": "https://tiktok.com/@blackhouse.barber", "facebook": ""}'::jsonb,
+	          'Av. La Paz 450, Miraflores, Lima')
+	  on conflict do nothing;
+	
+	  insert into public.subscriptions (business_id, plan_id, status, trial_ends_at)
+	  values (v_business, v_plan, 'ACTIVE', now() + interval '14 days')
+	  on conflict do nothing;
+	
+	  -- Horarios: mar–sáb 9–20, dom 9–14, lun cerrado
+	  insert into public.business_hours (business_id, location_id, weekday, open_time, close_time, is_closed)
+	  select v_business, v_loc, w.d, w.o::time, w.c::time, w.closed
+	  from (values (0,'09:00','14:00',false),(1,'09:00','20:00',true),(2,'09:00','20:00',false),
+	               (3,'09:00','20:00',false),(4,'09:00','20:00',false),(5,'09:00','21:00',false),
+	               (6,'08:00','21:00',false)) as w(d,o,c,closed)
+	  where not exists (select 1 from public.business_hours bh
+	                    where bh.business_id = v_business and bh.weekday = w.d);
+	
+	  -- ── Equipo (5 máx. hoy) ─────────────────────────────────────────────────
+	  insert into public.employees (id, business_id, location_id, full_name, role_label, specialty, bio, commission_rate, show_on_website)
+	  values (gen_random_uuid(), v_business, v_loc, 'Carlos Mendoza', 'Barber', 'Fades y cortes clásicos',
+	          '10 años perfeccionando el degradado perfecto.', 10, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Andrea Ruiz', 'Stylist', 'Color y estilismo',
+	          'Especialista en colorimetría y looks de tendencia.', 12, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Luis Fernández', 'Barber', 'Barba y afeitado clásico',
+	          'Toalla caliente y precisión de bisturí.', 10, true)
+	  on conflict do nothing;
+	  select id into v_e_carlos from public.employees where business_id = v_business and full_name = 'Carlos Mendoza';
+	  select id into v_e_andrea from public.employees where business_id = v_business and full_name = 'Andrea Ruiz';
+	  select id into v_e_luis from public.employees where business_id = v_business and full_name = 'Luis Fernández';
+	
+	  insert into public.business_users (business_id, user_id, role_code, employee_id, status)
+	  values (v_business, v_admin, 'BUSINESS_ADMIN', null, 'ACTIVE'),
+	         (v_business, v_carlos_user, 'BARBER', v_e_carlos, 'ACTIVE'),
+	         (v_business, v_andrea_user, 'STYLIST', v_e_andrea, 'ACTIVE')
+	  on conflict (business_id, user_id) do nothing;
+	
+	  -- ── Categorías + servicios ──────────────────────────────────────────────
+	  insert into public.service_categories (id, business_id, name, position)
+	  values (gen_random_uuid(), v_business, 'Cortes', 0), (gen_random_uuid(), v_business, 'Barba', 1)
+	  on conflict do nothing;
+	  select id into v_cat_cortes from public.service_categories where business_id = v_business and name = 'Cortes';
+	  select id into v_cat_barba  from public.service_categories where business_id = v_business and name = 'Barba';
+	
+	  insert into public.services (id, business_id, category_id, name, description, duration_min, price, position, show_on_website)
+	  values (gen_random_uuid(), v_business, v_cat_cortes, 'Corte Premium', 'Corte personalizado con lavado, styling y acabado premium.', 45, 35, 0, true),
+	         (gen_random_uuid(), v_business, v_cat_barba, 'Barba', 'Perfilado y arreglo de barba con toalla caliente.', 30, 20, 1, true),
+	         (gen_random_uuid(), v_business, null, 'Corte + Barba', 'El combo completo. Sale como nuevo.', 60, 50, 2, true),
+	         (gen_random_uuid(), v_business, v_cat_cortes, 'Diseño', 'Diseños y líneas a cuchilla. Arte en tu corte.', 45, 40, 3, true),
+	         (gen_random_uuid(), v_business, null, 'Mascarilla Facial', 'Limpieza e hidratación express.', 20, 15, 4, true)
+	  on conflict do nothing;
+	  select id into v_s_corte  from public.services where business_id = v_business and name = 'Corte Premium';
+	  select id into v_s_barba  from public.services where business_id = v_business and name = 'Barba';
+	  select id into v_s_combo  from public.services where business_id = v_business and name = 'Corte + Barba';
+	  select id into v_s_diseno from public.services where business_id = v_business and name = 'Diseño';
+	
+	  insert into public.employee_services (employee_id, service_id, business_id)
+	  values (v_e_carlos, v_s_corte, v_business), (v_e_carlos, v_s_barba, v_business), (v_e_carlos, v_s_combo, v_business), (v_e_carlos, v_s_diseno, v_business),
+	         (v_e_andrea, v_s_corte, v_business), (v_e_andrea, v_s_diseno, v_business),
+	         (v_e_luis, v_s_barba, v_business), (v_e_luis, v_s_combo, v_business), (v_e_luis, v_s_corte, v_business)
+	  on conflict do nothing;
+	
+	  -- ── Secciones del website (draft) ───────────────────────────────────────
+	  insert into public.website_sections (business_id, type, position, active, content)
+	  values
+	    (v_business, 'HERO', 0, true,
+	     '{"title":"Tu estilo comienza aquí.","subtitle":"Reserva tu próxima experiencia en Black House Barber.","cta":"Reservar cita","cta_enabled":true}'::jsonb),
+	    (v_business, 'SERVICES', 1, true, '{"title":"Nuestros servicios"}'::jsonb),
+	    (v_business, 'ABOUT', 2, true,
+	     '{"title":"Más que una barbería","body":"Desde 2018 cuidamos el estilo de Miraflores con obsesión por el detalle."}'::jsonb),
+	    (v_business, 'GALLERY', 3, true, '{"title":"Nuestro trabajo","visible_count":6}'::jsonb),
+	    (v_business, 'TEAM', 4, true, '{"title":"Nuestro equipo"}'::jsonb),
+	    (v_business, 'PROMOTIONS', 5, true, '{"title":"Promociones"}'::jsonb),
+	    (v_business, 'TESTIMONIALS', 6, true, '{"title":"Lo que dicen de nosotros"}'::jsonb),
+	    (v_business, 'LOCATION', 7, true, '{"title":"Visítanos"}'::jsonb),
+	    (v_business, 'CTA', 8, true, '{"title":"¿Listo para tu próximo look?","cta":"Reservar cita"}'::jsonb),
+	    (v_business, 'FOOTER', 9, true, '{}'::jsonb)
+	  on conflict (business_id, type) do nothing;
+	
+	  -- ── Clientes (30) + fidelización ────────────────────────────────────────
+	  for i in 1..30 loop
+	    insert into public.customers (business_id, full_name, phone, referral_code, birth_date, created_at)
+	    values (v_business, v_names[i], v_phones[i],
+	            upper(left(regexp_replace(v_names[i], '[^a-zA-Z]', '', 'g'), 4)) || '-' || lpad(i::text, 3, '0'),
+	            (date '1985-01-01' + ((i * 37) % 12000)),
+	            now() - ((60 - i) || ' days')::interval)
+	    on conflict (business_id, phone) do nothing;
+	  end loop;
+	  select array_agg(id order by created_at) into v_cust_ids
+	  from public.customers where business_id = v_business;
+	
+	  insert into public.loyalty_accounts (business_id, customer_id, points, lifetime_points, tier)
+	  select v_business, c.id,
+	         (random() * 450)::int, (random() * 900)::int,
+	         case when random() > 0.85 then 'GOLD' when random() > 0.6 then 'SILVER' else 'STARTER' end
+	  from public.customers c where c.business_id = v_business
+	  and not exists (select 1 from public.loyalty_accounts la where la.customer_id = c.id);
+	
+	  -- ── Citas históricas (6 semanas) + ventas ───────────────────────────────
+	  for i in 1..90 loop
+	    v_customer := v_cust_ids[1 + (i * 7) % array_length(v_cust_ids, 1)];
+	    d := (i * 3) % 42;                       -- días atrás
+	    h := 9 + (i * 5) % 11;                   -- 9:00–19:00
+	    v_status := case (i % 10)
+	      when 0 then 'CANCELLED'::appointment_status
+	      when 1 then 'NO_SHOW'::appointment_status
+	      when 2 then 'CONFIRMED'::appointment_status
+	      else 'COMPLETED'::appointment_status end;
+	    if d = 0 and h > 12 then v_status := 'CONFIRMED'; end if;
+	
+	    v_total := case (i % 4) when 0 then 35 when 1 then 20 when 2 then 50 else 40 end;
+	
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_at)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            v_status, case (i % 3) when 0 then 'LANDING'::appointment_source when 1 then 'WHATSAPP'::appointment_source else 'WALK_IN'::appointment_source end,
+	            now() - (d || ' days')::interval + ((h - extract(hour from now())) || ' hours')::interval,
+	            now() - (d || ' days')::interval + ((h + 1 - extract(hour from now())) || ' hours')::interval,
+	            v_total, now() - ((d + 2) || ' days')::interval)
+	    returning id into v_appt;
+	
+	    insert into public.appointment_items (appointment_id, business_id, service_id, employee_id, unit_price, duration_min)
+	    select v_appt, v_business, s.id,
+	           case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	           s.price, s.duration_min
+	    from public.services s
+	    where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	    if v_status = 'COMPLETED' then
+	      v_method := case (i % 4) when 0 then 'CASH' when 1 then 'YAPE' when 2 then 'PLIN' else 'CARD' end;
+	      insert into public.sales (business_id, location_id, customer_id, employee_id, appointment_id, status,
+	        subtotal, discount_total, total, created_by, created_at)
+	      values (v_business, v_loc, v_customer,
+	              case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	              v_appt, 'PAID', v_total, 0, v_total, v_admin, now() - (d || ' days')::interval)
+	      returning id into v_sale;
+	
+	      insert into public.sale_items (sale_id, business_id, item_type, service_id, description, qty, unit_price, total, employee_id)
+	      select v_sale, v_business, 'SERVICE', s.id, s.name, 1, s.price, s.price,
+	             case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end
+	      from public.services s
+	      where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	      insert into public.payments (sale_id, business_id, method, amount, reference, created_by)
+	      values (v_sale, v_business, v_method, v_total,
+	              case when v_method in ('YAPE','PLIN') then 'OP-' || lpad(i::text, 6, '0') else '' end, v_admin);
+	
+	      insert into public.commissions (business_id, employee_id, sale_item_id, base_amount, rate, amount, status)
+	      select v_business, si.employee_id, si.id, si.total,
+	             coalesce(e.commission_rate, 10), round(si.total * coalesce(e.commission_rate, 10) / 100.0, 2),
+	             case when d > 7 then 'PAID' else 'PENDING' end
+	      from public.sale_items si
+	      left join public.employees e on e.id = si.employee_id
+	      where si.sale_id = v_sale;
+	    end if;
+	  end loop;
+	
+	  -- Citas futuras (próximos 7 días)
+	  for i in 1..12 loop
+	    v_customer := v_cust_ids[1 + (i * 11) % array_length(v_cust_ids, 1)];
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_by)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            case when i % 2 = 0 then 'CONFIRMED' else 'PENDING' end,
+	            case (i % 2) when 0 then 'LANDING' else 'WHATSAPP' end,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) || ' hours')::interval,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) + 1 || ' hours')::interval,
+	            case (i % 3) when 0 then 35 when 1 then 50 else 20 end, v_admin);
+	  end loop;
+	
+	  -- ── Inventario ───────────────────────────────────────────────────────────
+	  insert into public.products (business_id, name, sku, category, price, cost, stock, stock_min)
+	  values (v_business, 'Pomada Mate Black House', 'BH-POM-001', 'Styling', 65, 32, 18, 5),
+	         (v_business, 'Cera Texturizadora', 'BH-CER-002', 'Styling', 55, 26, 4, 5),
+	         (v_business, 'Aceiente para Barba', 'BH-ACE-003', 'Barba', 48, 22, 12, 4),
+	         (v_business, 'Shampoo Fortalecedor', 'BH-SHA-004', 'Cuidado', 42, 19, 0, 3)
+	  on conflict (business_id, sku) do nothing;
+	
+	  -- ── Fidelización · referidos · promos · testimonios ──────────────────────
+	  insert into public.loyalty_transactions (business_id, account_id, type, points, reason)
+	  select v_business, la.id, 'EARN', 50, 'Cita completada'
+	  from public.loyalty_accounts la where la.business_id = v_business
+	  limit 15;
+	
+	  insert into public.referrals (business_id, code, referrer_customer_id, referred_customer_id, status, reward_points, completed_at)
+	  values (v_business, 'MARIA-458', v_cust_ids[1], v_cust_ids[2], 'REWARDED', 100, now() - interval '10 days'),
+	         (v_business, 'JOSE-212', v_cust_ids[3], v_cust_ids[4], 'COMPLETED', 100, now() - interval '3 days')
+	  on conflict (business_id, code) do nothing;
+	
+	  insert into public.promotions (business_id, service_id, name, description, price, discount_percent, starts_at, ends_at, show_on_website)
+	  values (v_business, v_s_combo, 'Martes Beauty', 'Corte + Barba + Mascarilla a precio especial.',
+	          70, 17, current_date - 7, current_date + 30, true),
+	         (v_business, v_s_corte, 'Padre e hijo', 'Dos cortes premium. Padre e hijo juntos.',
+	          60, 14, current_date - 7, current_date + 30, true)
+	  on conflict do nothing;
+	
+	  insert into public.reviews (business_id, customer_id, author_name, rating, content, is_published)
+	  values (v_business, v_cust_ids[1], 'María F.', 5, 'El mejor servicio de Lima. Salí como nuevo y la atención es de otro nivel.', true),
+	         (v_business, v_cust_ids[5], 'Jorge C.', 5, 'Carlos entiende exactamente lo que quieres. Ya no voy a otro lado.', true),
+	         (v_business, null, 'Renzo G.', 4, 'Ambiente increíble y precios justos. Recomendadísimo.', true)
+	  on conflict do nothing;
+	
+	  -- ── Automatizaciones WhatsApp ────────────────────────────────────────────
+	  insert into public.automation_rules (business_id, name, trigger_event, channel, template, delay_minutes)
+	  values (v_business, 'Confirmación de cita', 'APPOINTMENT_CREATED', 'WHATSAPP',
+	          'Hola {{cliente}}, tu cita de {{servicio}} está registrada para el {{fecha}} a las {{hora}}. ¡Te esperamos!', 5),
+	         (v_business, 'Recordatorio 24 h', 'REMINDER_24H', 'WHATSAPP',
+	          'Hola {{cliente}}, te recordamos tu cita mañana a las {{hora}}. ¿Confirmamos?', 0),
+	         (v_business, 'Gracias post-visita', 'APPOINTMENT_COMPLETED', 'WHATSAPP',
+	          'Gracias por visitarnos, {{cliente}}. ¡Nos vemos la próxima!', 60),
+	         (v_business, 'Rebooking 28 días', 'CUSTOMER_AT_RISK', 'WHATSAPP',
+	          'Hola {{cliente}}, ¿ya es momento de tu próxima visita? Reserva aquí: {{link}}', 0),
+	         (v_business, 'Hueco liberado', 'WAITLIST_SLOT_OPENED', 'WHATSAPP',
+	          '¡Hola {{cliente}}! Se liberó un horario compatible: {{fecha}} a las {{hora}}. ¿Lo tomamos?', 0)
+	  on conflict do nothing;
+	
+	  -- ── Waitlist + at-risk de ejemplo + insights IA sembrados ────────────────
+	  insert into public.waitlist (business_id, customer_id, service_id, employee_id, preferred_date, time_start, time_end, priority)
+	  values (v_business, v_cust_ids[7], v_s_corte, v_e_carlos, current_date + 3, '17:00', '20:00', 1),
+	         (v_business, v_cust_ids[9], v_s_combo, null, current_date + 3, '16:00', '21:00', 0),
+	         (v_business, v_cust_ids[12], v_s_barba, v_e_luis, null, null, null, 0)
+	  on conflict do nothing;
+	
+	  insert into public.ai_insights (business_id, type, severity, title, body, data)
+	  values (v_business, 'AT_RISK', 'warning',
+	          '6 clientes fuera de su frecuencia habitual',
+	          'Detectamos 6 clientes que suelen regresar entre 21 y 30 días y actualmente están fuera de su frecuencia. Recomendamos enviarles un recordatorio personalizado.',
+	          '{"customer_ids": ["..."], "action": "view_clients"}'::jsonb),
+	         (v_business, 'WEAK_SLOTS', 'info',
+	          'Los martes tienen menor ocupación (41%)',
+	          'Los martes entre 2:00 y 5:00 PM son los huecos más débiles. Una promo express podría levantar la ocupación un 15%.',
+	          '{"dow": 2, "hours": [14,15,16,17]}'::jsonb),
+	         (v_business, 'OPPORTUNITY', 'info',
+	          'Corte + Barba es tu combo más rentable',
+	          'Representa el 38% de los ingresos. Sugiere ofrecerlo como upsell automático al reservar solo corte.',
+	          '{"service": "Corte + Barba"}'::jsonb);
+	
+	  -- Publicar el sitio con la RPC real (snapshot completo) como el Business Admin
+	  if not exists (select 1 from public.website_releases wr where wr.business_id = v_business) then
+	    perform set_config('request.jwt.claim.sub', v_admin::text, true);
+	    perform public.publish_website(v_business);
+	    perform set_config('request.jwt.claim.sub', v_super::text, true);
+	  end if;
+	
+	  -- Stats de clientes
+	  perform public.refresh_customer_stats(v_business);
+	
+	  raise notice '✅ Seed BLACK HOUSE BARBER completado (negocio: %)', v_business;
+	end $$;
+2026-09-21 20:43:22.508 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:43:22.513 UTC [5483] LOG:  checkpoint complete: wrote 16 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.005 s; sync files=9, longest=0.001 s, average=0.001 s; distance=6767 kB, estimate=6769 kB; lsn=0/377D198, redo lsn=0/377D140
+2026-09-21 20:43:22.808 UTC [5812] ERROR:  column "tier" is of type loyalty_tier but expression is of type text at character 186
+2026-09-21 20:43:22.808 UTC [5812] HINT:  You will need to rewrite or cast the expression.
+2026-09-21 20:43:22.808 UTC [5812] QUERY:  insert into public.loyalty_accounts (business_id, customer_id, points, lifetime_points, tier)
+	  select v_business, c.id,
+	         (random() * 450)::int, (random() * 900)::int,
+	         case when random() > 0.85 then 'GOLD' when random() > 0.6 then 'SILVER' else 'STARTER' end
+	  from public.customers c where c.business_id = v_business
+	  and not exists (select 1 from public.loyalty_accounts la where la.customer_id = c.id)
+2026-09-21 20:43:22.808 UTC [5812] CONTEXT:  PL/pgSQL function inline_code_block line 254 at SQL statement
+2026-09-21 20:43:22.808 UTC [5812] STATEMENT:  do $$
+	declare
+	  v_business uuid; v_loc uuid; v_super uuid; v_admin uuid; v_carlos_user uuid; v_andrea_user uuid;
+	  v_plan uuid; v_cat_cortes uuid; v_cat_barba uuid;
+	  v_s_corte uuid; v_s_barba uuid; v_s_combo uuid; v_s_diseno uuid;
+	  v_e_carlos uuid; v_e_andrea uuid; v_e_luis uuid;
+	  v_customer uuid; v_appt uuid; v_sale uuid; v_acct uuid;
+	  v_cust_ids uuid[] := '{}'; v_names text[] := array[
+	    'María Fernández','José Castillo','Ana Torres','Luis Ramírez','Carmen Rojas',
+	    'Pedro Salazar','Lucía Mendoza','Diego Vargas','Rosa Paredes','Miguel Ángel Soto',
+	    'Elena Quispe','Jorge Chávez','Valeria Cárdenas','Renzo Gutiérrez','Daniela Ponce',
+	    'Andrés Loayza','Camila Herrera','Raúl Montoya','Gabriela Núñez','Sergio Ibáñez',
+	    'Paola Ríos','Mateo Farfán','Isabel Prado','Hugo Espinoza','Nicole Vergara',
+	    'Alonso Mejía','Fernanda Castro','Óscar Villanueva','Teresa Linares','Bruno Sandoval'];
+	  v_phones text[] := array[
+	    '987654321','912345678','933445566','944556677','955667788','966778899','977889900',
+	    '988990011','900112233','911223344','922334455','933556677','944667788','955778899',
+	    '966889900','977990011','988001122','999112233','901223344','912334455','923445566',
+	    '934556677','945667788','956778899','967889900','978990011','989001122','900011223',
+	    '910122334','920233445'];
+	  i int; d int; h int; v_status appointment_status; v_method payment_method;
+	  v_total numeric(12,2); v_name text; v_slug_exists boolean;
+	begin
+	  -- ── Usuarios auth + profiles ──────────────────────────────────────────────
+	  if not exists (select 1 from auth.users where email = 'super@beautyapp.pe') then
+	    insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	    values (gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	      'super@beautyapp.pe', crypt('Demo123!', gen_salt('bf')), now(),
+	      '{"provider":"email","providers":["email"]}'::jsonb, '{"full_name":"Súper Admin"}'::jsonb, now(), now());
+	  end if;
+	  insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	  select gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	    e.mail, crypt('Demo123!', gen_salt('bf')), now(),
+	    '{"provider":"email","providers":["email"]}'::jsonb,
+	    jsonb_build_object('full_name', e.nm), now(), now()
+	  from (values
+	    ('admin@blackhouse.pe','Ricardo Peña'),
+	    ('carlos@blackhouse.pe','Carlos Mendoza'),
+	    ('andrea@blackhouse.pe','Andrea Ruiz')
+	  ) as e(mail, nm)
+	  where not exists (select 1 from auth.users u where u.email = e.mail);
+	
+	  select id into v_super from auth.users where email = 'super@beautyapp.pe';
+	  select id into v_admin from auth.users where email = 'admin@blackhouse.pe';
+	  select id into v_carlos_user from auth.users where email = 'carlos@blackhouse.pe';
+	  select id into v_andrea_user from auth.users where email = 'andrea@blackhouse.pe';
+	
+	  update public.users set platform_role = 'SUPER_ADMIN' where id = v_super;
+	  update public.users set full_name = 'Ricardo Peña'  where id = v_admin;
+	  update public.users set full_name = 'Carlos Mendoza' where id = v_carlos_user;
+	  update public.users set full_name = 'Andrea Ruiz'    where id = v_andrea_user;
+	
+	  -- Contexto de Super Admin para triggers/funciones con auth.uid() durante la siembra
+	  perform set_config('request.jwt.claim.sub', v_super::text, true);
+	
+	  -- ── Planes (Super Admin) ─────────────────────────────────────────────────
+	  insert into public.plans (id, code, name, description, price_monthly, limits, modules)
+	  values
+	    (gen_random_uuid(), 'STARTER', 'Starter', 'Para quien recién comienza', 79.00,
+	     '{"max_employees": 5, "max_monthly_appointments": 300, "max_storage_mb": 500}'::jsonb,
+	     '{"website": true, "loyalty": false, "ai": false, "whatsapp": false}'::jsonb),
+	    (gen_random_uuid(), 'PRO', 'Pro', 'El favorito de los negocios en crecimiento', 149.00,
+	     '{"max_employees": 12, "max_monthly_appointments": 2000, "max_storage_mb": 2000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true}'::jsonb),
+	    (gen_random_uuid(), 'BUSINESS', 'Business', 'Multi-sucursal sin límites', 299.00,
+	     '{"max_employees": 50, "max_monthly_appointments": 20000, "max_storage_mb": 10000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true, "multibranch": true}'::jsonb)
+	  on conflict (code) do nothing;
+	  select id into v_plan from public.plans where code = 'PRO';
+	
+	  -- ── RBAC: roles + permisos + matriz (espejo de docs/permisos.md) ──────────
+	  insert into public.roles (code, name, description) values
+	    ('BUSINESS_ADMIN', 'Administrador', 'Administrador principal del negocio'),
+	    ('RECEPTIONIST', 'Recepción', 'Agenda, clientes y ventas'),
+	    ('BARBER', 'Barbero', 'Trabajador de barbería'),
+	    ('STYLIST', 'Estilista', 'Trabajador de estilismo'),
+	    ('THERAPIST', 'Terapeuta', 'Trabajador de spa/masaje'),
+	    ('CASHIER', 'Caja', 'Cobros y ventas')
+	  on conflict (code) do nothing;
+	
+	  insert into public.permissions (key, name, category) values
+	    ('dashboard.view', 'Ver panel', 'Trabajo'),
+	    ('calendar.view_all', 'Ver agenda completa', 'Trabajo'),
+	    ('calendar.view_own', 'Ver agenda propia', 'Trabajo'),
+	    ('calendar.manage', 'Gestionar citas', 'Trabajo'),
+	    ('clients.view', 'Ver clientes', 'Trabajo'),
+	    ('clients.manage', 'Gestionar clientes', 'Trabajo'),
+	    ('services.view', 'Ver servicios', 'Negocio'),
+	    ('services.manage', 'Gestionar servicios', 'Negocio'),
+	    ('team.view', 'Ver equipo', 'Negocio'),
+	    ('team.manage', 'Gestionar equipo', 'Negocio'),
+	    ('sales.view', 'Ver ventas', 'Ventas'),
+	    ('sales.manage', 'Operar ventas/POS', 'Ventas'),
+	    ('cash.manage', 'Gestionar caja', 'Ventas'),
+	    ('inventory.view', 'Ver inventario', 'Ventas'),
+	    ('inventory.manage', 'Gestionar inventario', 'Ventas'),
+	    ('loyalty.manage', 'Gestionar fidelización', 'Crecimiento'),
+	    ('commissions.view_own', 'Ver comisiones propias', 'Ventas'),
+	    ('commissions.view_all', 'Ver todas las comisiones', 'Ventas'),
+	    ('website.manage', 'Gestionar página web', 'Negocio'),
+	    ('reports.view', 'Ver reportes', 'Negocio'),
+	    ('ai.use', 'Usar Copiloto IA', 'Crecimiento'),
+	    ('whatsapp.manage', 'Gestionar WhatsApp', 'Crecimiento'),
+	    ('settings.manage', 'Gestionar ajustes', 'Negocio')
+	  on conflict (key) do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on true
+	  where r.code = 'BUSINESS_ADMIN'
+	  on conflict do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on p.key in (
+	    'dashboard.view', 'calendar.view_all', 'calendar.manage', 'clients.view', 'clients.manage',
+	    'services.view', 'team.view', 'sales.view', 'sales.manage', 'cash.manage',
+	    'inventory.view', 'loyalty.manage', 'whatsapp.manage')
+	  where r.code = 'RECEPTIONIST'
+	  on conflict do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on p.key in (
+	    'dashboard.view', 'calendar.view_own', 'calendar.manage', 'clients.view', 'clients.manage',
+	    'services.view', 'team.view', 'sales.view', 'sales.manage', 'commissions.view_own')
+	  where r.code in ('BARBER', 'STYLIST', 'THERAPIST')
+	  on conflict do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on p.key in (
+	    'dashboard.view', 'clients.view', 'services.view', 'team.view',
+	    'sales.view', 'sales.manage', 'cash.manage', 'inventory.view', 'inventory.manage')
+	  where r.code = 'CASHIER'
+	  on conflict do nothing;
+	
+	  -- ── Negocio + sucursal + settings + branding + website ───────────────────
+	  select exists (select 1 from public.businesses where slug = 'barberia-black') into v_slug_exists;
+	  if not v_slug_exists then
+	    insert into public.businesses (id, name, slug, type, status, description, phone, whatsapp, email, address)
+	    values (gen_random_uuid(), 'Black House Barber', 'barberia-black', 'BARBERSHOP', 'ACTIVE',
+	      'Barbería premium en el corazón de Miraflores. Cortes clásicos y modernos, barba de precisión y una experiencia que se siente como en casa.',
+	      '+51 987 654 321', '+51 987 654 321', 'hola@blackhouse.pe', 'Av. La Paz 450, Miraflores, Lima')
+	    returning id into v_business;
+	  else
+	    select id into v_business from public.businesses where slug = 'barberia-black';
+	  end if;
+	
+	  insert into public.locations (business_id, name, address, city, geo, is_default)
+	  values (v_business, 'Miraflores', 'Av. La Paz 450, Miraflores', 'Lima',
+	          '{"lat": -12.1222, "lng": -77.0300}'::jsonb, true)
+	  on conflict do nothing;
+	  select id into v_loc from public.locations where business_id = v_business and is_default limit 1;
+	
+	  insert into public.business_settings (business_id) values (v_business) on conflict do nothing;
+	  insert into public.business_branding (business_id, preset, colors, font_key)
+	  values (v_business, 'DARK', '{"primary":"#c9a227","button":"#c9a227"}'::jsonb, 'sans')
+	  on conflict do nothing;
+	  insert into public.business_website (business_id, tagline, socials, map_query)
+	  values (v_business, 'Tu estilo comienza aquí.',
+	          '{"instagram": "https://instagram.com/blackhouse.barber", "tiktok": "https://tiktok.com/@blackhouse.barber", "facebook": ""}'::jsonb,
+	          'Av. La Paz 450, Miraflores, Lima')
+	  on conflict do nothing;
+	
+	  insert into public.subscriptions (business_id, plan_id, status, trial_ends_at)
+	  values (v_business, v_plan, 'ACTIVE', now() + interval '14 days')
+	  on conflict do nothing;
+	
+	  -- Horarios: mar–sáb 9–20, dom 9–14, lun cerrado
+	  insert into public.business_hours (business_id, location_id, weekday, open_time, close_time, is_closed)
+	  select v_business, v_loc, w.d, w.o::time, w.c::time, w.closed
+	  from (values (0,'09:00','14:00',false),(1,'09:00','20:00',true),(2,'09:00','20:00',false),
+	               (3,'09:00','20:00',false),(4,'09:00','20:00',false),(5,'09:00','21:00',false),
+	               (6,'08:00','21:00',false)) as w(d,o,c,closed)
+	  where not exists (select 1 from public.business_hours bh
+	                    where bh.business_id = v_business and bh.weekday = w.d);
+	
+	  -- ── Equipo (5 máx. hoy) ─────────────────────────────────────────────────
+	  insert into public.employees (id, business_id, location_id, full_name, role_label, specialty, bio, commission_rate, show_on_website)
+	  values (gen_random_uuid(), v_business, v_loc, 'Carlos Mendoza', 'Barber', 'Fades y cortes clásicos',
+	          '10 años perfeccionando el degradado perfecto.', 10, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Andrea Ruiz', 'Stylist', 'Color y estilismo',
+	          'Especialista en colorimetría y looks de tendencia.', 12, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Luis Fernández', 'Barber', 'Barba y afeitado clásico',
+	          'Toalla caliente y precisión de bisturí.', 10, true)
+	  on conflict do nothing;
+	  select id into v_e_carlos from public.employees where business_id = v_business and full_name = 'Carlos Mendoza';
+	  select id into v_e_andrea from public.employees where business_id = v_business and full_name = 'Andrea Ruiz';
+	  select id into v_e_luis from public.employees where business_id = v_business and full_name = 'Luis Fernández';
+	
+	  insert into public.business_users (business_id, user_id, role_code, employee_id, status)
+	  values (v_business, v_admin, 'BUSINESS_ADMIN', null, 'ACTIVE'),
+	         (v_business, v_carlos_user, 'BARBER', v_e_carlos, 'ACTIVE'),
+	         (v_business, v_andrea_user, 'STYLIST', v_e_andrea, 'ACTIVE')
+	  on conflict (business_id, user_id) do nothing;
+	
+	  -- ── Categorías + servicios ──────────────────────────────────────────────
+	  insert into public.service_categories (id, business_id, name, position)
+	  values (gen_random_uuid(), v_business, 'Cortes', 0), (gen_random_uuid(), v_business, 'Barba', 1)
+	  on conflict do nothing;
+	  select id into v_cat_cortes from public.service_categories where business_id = v_business and name = 'Cortes';
+	  select id into v_cat_barba  from public.service_categories where business_id = v_business and name = 'Barba';
+	
+	  insert into public.services (id, business_id, category_id, name, description, duration_min, price, position, show_on_website)
+	  values (gen_random_uuid(), v_business, v_cat_cortes, 'Corte Premium', 'Corte personalizado con lavado, styling y acabado premium.', 45, 35, 0, true),
+	         (gen_random_uuid(), v_business, v_cat_barba, 'Barba', 'Perfilado y arreglo de barba con toalla caliente.', 30, 20, 1, true),
+	         (gen_random_uuid(), v_business, null, 'Corte + Barba', 'El combo completo. Sale como nuevo.', 60, 50, 2, true),
+	         (gen_random_uuid(), v_business, v_cat_cortes, 'Diseño', 'Diseños y líneas a cuchilla. Arte en tu corte.', 45, 40, 3, true),
+	         (gen_random_uuid(), v_business, null, 'Mascarilla Facial', 'Limpieza e hidratación express.', 20, 15, 4, true)
+	  on conflict do nothing;
+	  select id into v_s_corte  from public.services where business_id = v_business and name = 'Corte Premium';
+	  select id into v_s_barba  from public.services where business_id = v_business and name = 'Barba';
+	  select id into v_s_combo  from public.services where business_id = v_business and name = 'Corte + Barba';
+	  select id into v_s_diseno from public.services where business_id = v_business and name = 'Diseño';
+	
+	  insert into public.employee_services (employee_id, service_id, business_id)
+	  values (v_e_carlos, v_s_corte, v_business), (v_e_carlos, v_s_barba, v_business), (v_e_carlos, v_s_combo, v_business), (v_e_carlos, v_s_diseno, v_business),
+	         (v_e_andrea, v_s_corte, v_business), (v_e_andrea, v_s_diseno, v_business),
+	         (v_e_luis, v_s_barba, v_business), (v_e_luis, v_s_combo, v_business), (v_e_luis, v_s_corte, v_business)
+	  on conflict do nothing;
+	
+	  -- ── Secciones del website (draft) ───────────────────────────────────────
+	  insert into public.website_sections (business_id, type, position, active, content)
+	  values
+	    (v_business, 'HERO', 0, true,
+	     '{"title":"Tu estilo comienza aquí.","subtitle":"Reserva tu próxima experiencia en Black House Barber.","cta":"Reservar cita","cta_enabled":true}'::jsonb),
+	    (v_business, 'SERVICES', 1, true, '{"title":"Nuestros servicios"}'::jsonb),
+	    (v_business, 'ABOUT', 2, true,
+	     '{"title":"Más que una barbería","body":"Desde 2018 cuidamos el estilo de Miraflores con obsesión por el detalle."}'::jsonb),
+	    (v_business, 'GALLERY', 3, true, '{"title":"Nuestro trabajo","visible_count":6}'::jsonb),
+	    (v_business, 'TEAM', 4, true, '{"title":"Nuestro equipo"}'::jsonb),
+	    (v_business, 'PROMOTIONS', 5, true, '{"title":"Promociones"}'::jsonb),
+	    (v_business, 'TESTIMONIALS', 6, true, '{"title":"Lo que dicen de nosotros"}'::jsonb),
+	    (v_business, 'LOCATION', 7, true, '{"title":"Visítanos"}'::jsonb),
+	    (v_business, 'CTA', 8, true, '{"title":"¿Listo para tu próximo look?","cta":"Reservar cita"}'::jsonb),
+	    (v_business, 'FOOTER', 9, true, '{}'::jsonb)
+	  on conflict (business_id, type) do nothing;
+	
+	  -- ── Clientes (30) + fidelización ────────────────────────────────────────
+	  for i in 1..30 loop
+	    insert into public.customers (business_id, full_name, phone, referral_code, birth_date, created_at)
+	    values (v_business, v_names[i], v_phones[i],
+	            upper(left(regexp_replace(v_names[i], '[^a-zA-Z]', '', 'g'), 4)) || '-' || lpad(i::text, 3, '0'),
+	            (date '1985-01-01' + ((i * 37) % 12000)),
+	            now() - ((60 - i) || ' days')::interval)
+	    on conflict (business_id, phone) do nothing;
+	  end loop;
+	  select array_agg(id order by created_at) into v_cust_ids
+	  from public.customers where business_id = v_business;
+	
+	  insert into public.loyalty_accounts (business_id, customer_id, points, lifetime_points, tier)
+	  select v_business, c.id,
+	         (random() * 450)::int, (random() * 900)::int,
+	         case when random() > 0.85 then 'GOLD' when random() > 0.6 then 'SILVER' else 'STARTER' end
+	  from public.customers c where c.business_id = v_business
+	  and not exists (select 1 from public.loyalty_accounts la where la.customer_id = c.id);
+	
+	  -- ── Citas históricas (6 semanas) + ventas ───────────────────────────────
+	  for i in 1..90 loop
+	    v_customer := v_cust_ids[1 + (i * 7) % array_length(v_cust_ids, 1)];
+	    d := (i * 3) % 42;                       -- días atrás
+	    h := 9 + (i * 5) % 11;                   -- 9:00–19:00
+	    v_status := case (i % 10)
+	      when 0 then 'CANCELLED'::appointment_status
+	      when 1 then 'NO_SHOW'::appointment_status
+	      when 2 then 'CONFIRMED'::appointment_status
+	      else 'COMPLETED'::appointment_status end;
+	    if d = 0 and h > 12 then v_status := 'CONFIRMED'; end if;
+	
+	    v_total := case (i % 4) when 0 then 35 when 1 then 20 when 2 then 50 else 40 end;
+	
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_at)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            v_status, case (i % 3) when 0 then 'LANDING'::appointment_source when 1 then 'WHATSAPP'::appointment_source else 'WALK_IN'::appointment_source end,
+	            now() - (d || ' days')::interval + ((h - extract(hour from now())) || ' hours')::interval,
+	            now() - (d || ' days')::interval + ((h + 1 - extract(hour from now())) || ' hours')::interval,
+	            v_total, now() - ((d + 2) || ' days')::interval)
+	    returning id into v_appt;
+	
+	    insert into public.appointment_items (appointment_id, business_id, service_id, employee_id, unit_price, duration_min)
+	    select v_appt, v_business, s.id,
+	           case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	           s.price, s.duration_min
+	    from public.services s
+	    where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	    if v_status = 'COMPLETED' then
+	      v_method := case (i % 4) when 0 then 'CASH' when 1 then 'YAPE' when 2 then 'PLIN' else 'CARD' end;
+	      insert into public.sales (business_id, location_id, customer_id, employee_id, appointment_id, status,
+	        subtotal, discount_total, total, created_by, created_at)
+	      values (v_business, v_loc, v_customer,
+	              case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	              v_appt, 'PAID', v_total, 0, v_total, v_admin, now() - (d || ' days')::interval)
+	      returning id into v_sale;
+	
+	      insert into public.sale_items (sale_id, business_id, item_type, service_id, description, qty, unit_price, total, employee_id)
+	      select v_sale, v_business, 'SERVICE', s.id, s.name, 1, s.price, s.price,
+	             case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end
+	      from public.services s
+	      where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	      insert into public.payments (sale_id, business_id, method, amount, reference, created_by)
+	      values (v_sale, v_business, v_method, v_total,
+	              case when v_method in ('YAPE','PLIN') then 'OP-' || lpad(i::text, 6, '0') else '' end, v_admin);
+	
+	      insert into public.commissions (business_id, employee_id, sale_item_id, base_amount, rate, amount, status)
+	      select v_business, si.employee_id, si.id, si.total,
+	             coalesce(e.commission_rate, 10), round(si.total * coalesce(e.commission_rate, 10) / 100.0, 2),
+	             case when d > 7 then 'PAID' else 'PENDING' end
+	      from public.sale_items si
+	      left join public.employees e on e.id = si.employee_id
+	      where si.sale_id = v_sale;
+	    end if;
+	  end loop;
+	
+	  -- Citas futuras (próximos 7 días)
+	  for i in 1..12 loop
+	    v_customer := v_cust_ids[1 + (i * 11) % array_length(v_cust_ids, 1)];
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_by)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            case when i % 2 = 0 then 'CONFIRMED' else 'PENDING' end,
+	            case (i % 2) when 0 then 'LANDING' else 'WHATSAPP' end,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) || ' hours')::interval,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) + 1 || ' hours')::interval,
+	            case (i % 3) when 0 then 35 when 1 then 50 else 20 end, v_admin);
+	  end loop;
+	
+	  -- ── Inventario ───────────────────────────────────────────────────────────
+	  insert into public.products (business_id, name, sku, category, price, cost, stock, stock_min)
+	  values (v_business, 'Pomada Mate Black House', 'BH-POM-001', 'Styling', 65, 32, 18, 5),
+	         (v_business, 'Cera Texturizadora', 'BH-CER-002', 'Styling', 55, 26, 4, 5),
+	         (v_business, 'Aceiente para Barba', 'BH-ACE-003', 'Barba', 48, 22, 12, 4),
+	         (v_business, 'Shampoo Fortalecedor', 'BH-SHA-004', 'Cuidado', 42, 19, 0, 3)
+	  on conflict (business_id, sku) do nothing;
+	
+	  -- ── Fidelización · referidos · promos · testimonios ──────────────────────
+	  insert into public.loyalty_transactions (business_id, account_id, type, points, reason)
+	  select v_business, la.id, 'EARN', 50, 'Cita completada'
+	  from public.loyalty_accounts la where la.business_id = v_business
+	  limit 15;
+	
+	  insert into public.referrals (business_id, code, referrer_customer_id, referred_customer_id, status, reward_points, completed_at)
+	  values (v_business, 'MARIA-458', v_cust_ids[1], v_cust_ids[2], 'REWARDED', 100, now() - interval '10 days'),
+	         (v_business, 'JOSE-212', v_cust_ids[3], v_cust_ids[4], 'COMPLETED', 100, now() - interval '3 days')
+	  on conflict (business_id, code) do nothing;
+	
+	  insert into public.promotions (business_id, service_id, name, description, price, discount_percent, starts_at, ends_at, show_on_website)
+	  values (v_business, v_s_combo, 'Martes Beauty', 'Corte + Barba + Mascarilla a precio especial.',
+	          70, 17, current_date - 7, current_date + 30, true),
+	         (v_business, v_s_corte, 'Padre e hijo', 'Dos cortes premium. Padre e hijo juntos.',
+	          60, 14, current_date - 7, current_date + 30, true)
+	  on conflict do nothing;
+	
+	  insert into public.reviews (business_id, customer_id, author_name, rating, content, is_published)
+	  values (v_business, v_cust_ids[1], 'María F.', 5, 'El mejor servicio de Lima. Salí como nuevo y la atención es de otro nivel.', true),
+	         (v_business, v_cust_ids[5], 'Jorge C.', 5, 'Carlos entiende exactamente lo que quieres. Ya no voy a otro lado.', true),
+	         (v_business, null, 'Renzo G.', 4, 'Ambiente increíble y precios justos. Recomendadísimo.', true)
+	  on conflict do nothing;
+	
+	  -- ── Automatizaciones WhatsApp ────────────────────────────────────────────
+	  insert into public.automation_rules (business_id, name, trigger_event, channel, template, delay_minutes)
+	  values (v_business, 'Confirmación de cita', 'APPOINTMENT_CREATED', 'WHATSAPP',
+	          'Hola {{cliente}}, tu cita de {{servicio}} está registrada para el {{fecha}} a las {{hora}}. ¡Te esperamos!', 5),
+	         (v_business, 'Recordatorio 24 h', 'REMINDER_24H', 'WHATSAPP',
+	          'Hola {{cliente}}, te recordamos tu cita mañana a las {{hora}}. ¿Confirmamos?', 0),
+	         (v_business, 'Gracias post-visita', 'APPOINTMENT_COMPLETED', 'WHATSAPP',
+	          'Gracias por visitarnos, {{cliente}}. ¡Nos vemos la próxima!', 60),
+	         (v_business, 'Rebooking 28 días', 'CUSTOMER_AT_RISK', 'WHATSAPP',
+	          'Hola {{cliente}}, ¿ya es momento de tu próxima visita? Reserva aquí: {{link}}', 0),
+	         (v_business, 'Hueco liberado', 'WAITLIST_SLOT_OPENED', 'WHATSAPP',
+	          '¡Hola {{cliente}}! Se liberó un horario compatible: {{fecha}} a las {{hora}}. ¿Lo tomamos?', 0)
+	  on conflict do nothing;
+	
+	  -- ── Waitlist + at-risk de ejemplo + insights IA sembrados ────────────────
+	  insert into public.waitlist (business_id, customer_id, service_id, employee_id, preferred_date, time_start, time_end, priority)
+	  values (v_business, v_cust_ids[7], v_s_corte, v_e_carlos, current_date + 3, '17:00', '20:00', 1),
+	         (v_business, v_cust_ids[9], v_s_combo, null, current_date + 3, '16:00', '21:00', 0),
+	         (v_business, v_cust_ids[12], v_s_barba, v_e_luis, null, null, null, 0)
+	  on conflict do nothing;
+	
+	  insert into public.ai_insights (business_id, type, severity, title, body, data)
+	  values (v_business, 'AT_RISK', 'warning',
+	          '6 clientes fuera de su frecuencia habitual',
+	          'Detectamos 6 clientes que suelen regresar entre 21 y 30 días y actualmente están fuera de su frecuencia. Recomendamos enviarles un recordatorio personalizado.',
+	          '{"customer_ids": ["..."], "action": "view_clients"}'::jsonb),
+	         (v_business, 'WEAK_SLOTS', 'info',
+	          'Los martes tienen menor ocupación (41%)',
+	          'Los martes entre 2:00 y 5:00 PM son los huecos más débiles. Una promo express podría levantar la ocupación un 15%.',
+	          '{"dow": 2, "hours": [14,15,16,17]}'::jsonb),
+	         (v_business, 'OPPORTUNITY', 'info',
+	          'Corte + Barba es tu combo más rentable',
+	          'Representa el 38% de los ingresos. Sugiere ofrecerlo como upsell automático al reservar solo corte.',
+	          '{"service": "Corte + Barba"}'::jsonb);
+	
+	  -- Publicar el sitio con la RPC real (snapshot completo) como el Business Admin
+	  if not exists (select 1 from public.website_releases wr where wr.business_id = v_business) then
+	    perform set_config('request.jwt.claim.sub', v_admin::text, true);
+	    perform public.publish_website(v_business);
+	    perform set_config('request.jwt.claim.sub', v_super::text, true);
+	  end if;
+	
+	  -- Stats de clientes
+	  perform public.refresh_customer_stats(v_business);
+	
+	  raise notice '✅ Seed BLACK HOUSE BARBER completado (negocio: %)', v_business;
+	end $$;
+2026-09-21 20:43:26.173 UTC [5822] ERROR:  column "tier" is of type loyalty_tier but expression is of type text at character 186
+2026-09-21 20:43:26.173 UTC [5822] HINT:  You will need to rewrite or cast the expression.
+2026-09-21 20:43:26.173 UTC [5822] QUERY:  insert into public.loyalty_accounts (business_id, customer_id, points, lifetime_points, tier)
+	  select v_business, c.id,
+	         (random() * 450)::int, (random() * 900)::int,
+	         case when random() > 0.85 then 'GOLD' when random() > 0.6 then 'SILVER' else 'STARTER' end
+	  from public.customers c where c.business_id = v_business
+	  and not exists (select 1 from public.loyalty_accounts la where la.customer_id = c.id)
+2026-09-21 20:43:26.173 UTC [5822] CONTEXT:  PL/pgSQL function inline_code_block line 254 at SQL statement
+2026-09-21 20:43:26.173 UTC [5822] STATEMENT:  do $$
+	declare
+	  v_business uuid; v_loc uuid; v_super uuid; v_admin uuid; v_carlos_user uuid; v_andrea_user uuid;
+	  v_plan uuid; v_cat_cortes uuid; v_cat_barba uuid;
+	  v_s_corte uuid; v_s_barba uuid; v_s_combo uuid; v_s_diseno uuid;
+	  v_e_carlos uuid; v_e_andrea uuid; v_e_luis uuid;
+	  v_customer uuid; v_appt uuid; v_sale uuid; v_acct uuid;
+	  v_cust_ids uuid[] := '{}'; v_names text[] := array[
+	    'María Fernández','José Castillo','Ana Torres','Luis Ramírez','Carmen Rojas',
+	    'Pedro Salazar','Lucía Mendoza','Diego Vargas','Rosa Paredes','Miguel Ángel Soto',
+	    'Elena Quispe','Jorge Chávez','Valeria Cárdenas','Renzo Gutiérrez','Daniela Ponce',
+	    'Andrés Loayza','Camila Herrera','Raúl Montoya','Gabriela Núñez','Sergio Ibáñez',
+	    'Paola Ríos','Mateo Farfán','Isabel Prado','Hugo Espinoza','Nicole Vergara',
+	    'Alonso Mejía','Fernanda Castro','Óscar Villanueva','Teresa Linares','Bruno Sandoval'];
+	  v_phones text[] := array[
+	    '987654321','912345678','933445566','944556677','955667788','966778899','977889900',
+	    '988990011','900112233','911223344','922334455','933556677','944667788','955778899',
+	    '966889900','977990011','988001122','999112233','901223344','912334455','923445566',
+	    '934556677','945667788','956778899','967889900','978990011','989001122','900011223',
+	    '910122334','920233445'];
+	  i int; d int; h int; v_status appointment_status; v_method payment_method;
+	  v_total numeric(12,2); v_name text; v_slug_exists boolean;
+	begin
+	  -- ── Usuarios auth + profiles ──────────────────────────────────────────────
+	  if not exists (select 1 from auth.users where email = 'super@beautyapp.pe') then
+	    insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	    values (gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	      'super@beautyapp.pe', crypt('Demo123!', gen_salt('bf')), now(),
+	      '{"provider":"email","providers":["email"]}'::jsonb, '{"full_name":"Súper Admin"}'::jsonb, now(), now());
+	  end if;
+	  insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	  select gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	    e.mail, crypt('Demo123!', gen_salt('bf')), now(),
+	    '{"provider":"email","providers":["email"]}'::jsonb,
+	    jsonb_build_object('full_name', e.nm), now(), now()
+	  from (values
+	    ('admin@blackhouse.pe','Ricardo Peña'),
+	    ('carlos@blackhouse.pe','Carlos Mendoza'),
+	    ('andrea@blackhouse.pe','Andrea Ruiz')
+	  ) as e(mail, nm)
+	  where not exists (select 1 from auth.users u where u.email = e.mail);
+	
+	  select id into v_super from auth.users where email = 'super@beautyapp.pe';
+	  select id into v_admin from auth.users where email = 'admin@blackhouse.pe';
+	  select id into v_carlos_user from auth.users where email = 'carlos@blackhouse.pe';
+	  select id into v_andrea_user from auth.users where email = 'andrea@blackhouse.pe';
+	
+	  update public.users set platform_role = 'SUPER_ADMIN' where id = v_super;
+	  update public.users set full_name = 'Ricardo Peña'  where id = v_admin;
+	  update public.users set full_name = 'Carlos Mendoza' where id = v_carlos_user;
+	  update public.users set full_name = 'Andrea Ruiz'    where id = v_andrea_user;
+	
+	  -- Contexto de Super Admin para triggers/funciones con auth.uid() durante la siembra
+	  perform set_config('request.jwt.claim.sub', v_super::text, true);
+	
+	  -- ── Planes (Super Admin) ─────────────────────────────────────────────────
+	  insert into public.plans (id, code, name, description, price_monthly, limits, modules)
+	  values
+	    (gen_random_uuid(), 'STARTER', 'Starter', 'Para quien recién comienza', 79.00,
+	     '{"max_employees": 5, "max_monthly_appointments": 300, "max_storage_mb": 500}'::jsonb,
+	     '{"website": true, "loyalty": false, "ai": false, "whatsapp": false}'::jsonb),
+	    (gen_random_uuid(), 'PRO', 'Pro', 'El favorito de los negocios en crecimiento', 149.00,
+	     '{"max_employees": 12, "max_monthly_appointments": 2000, "max_storage_mb": 2000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true}'::jsonb),
+	    (gen_random_uuid(), 'BUSINESS', 'Business', 'Multi-sucursal sin límites', 299.00,
+	     '{"max_employees": 50, "max_monthly_appointments": 20000, "max_storage_mb": 10000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true, "multibranch": true}'::jsonb)
+	  on conflict (code) do nothing;
+	  select id into v_plan from public.plans where code = 'PRO';
+	
+	  -- ── RBAC: roles + permisos + matriz (espejo de docs/permisos.md) ──────────
+	  insert into public.roles (code, name, description) values
+	    ('BUSINESS_ADMIN', 'Administrador', 'Administrador principal del negocio'),
+	    ('RECEPTIONIST', 'Recepción', 'Agenda, clientes y ventas'),
+	    ('BARBER', 'Barbero', 'Trabajador de barbería'),
+	    ('STYLIST', 'Estilista', 'Trabajador de estilismo'),
+	    ('THERAPIST', 'Terapeuta', 'Trabajador de spa/masaje'),
+	    ('CASHIER', 'Caja', 'Cobros y ventas')
+	  on conflict (code) do nothing;
+	
+	  insert into public.permissions (key, name, category) values
+	    ('dashboard.view', 'Ver panel', 'Trabajo'),
+	    ('calendar.view_all', 'Ver agenda completa', 'Trabajo'),
+	    ('calendar.view_own', 'Ver agenda propia', 'Trabajo'),
+	    ('calendar.manage', 'Gestionar citas', 'Trabajo'),
+	    ('clients.view', 'Ver clientes', 'Trabajo'),
+	    ('clients.manage', 'Gestionar clientes', 'Trabajo'),
+	    ('services.view', 'Ver servicios', 'Negocio'),
+	    ('services.manage', 'Gestionar servicios', 'Negocio'),
+	    ('team.view', 'Ver equipo', 'Negocio'),
+	    ('team.manage', 'Gestionar equipo', 'Negocio'),
+	    ('sales.view', 'Ver ventas', 'Ventas'),
+	    ('sales.manage', 'Operar ventas/POS', 'Ventas'),
+	    ('cash.manage', 'Gestionar caja', 'Ventas'),
+	    ('inventory.view', 'Ver inventario', 'Ventas'),
+	    ('inventory.manage', 'Gestionar inventario', 'Ventas'),
+	    ('loyalty.manage', 'Gestionar fidelización', 'Crecimiento'),
+	    ('commissions.view_own', 'Ver comisiones propias', 'Ventas'),
+	    ('commissions.view_all', 'Ver todas las comisiones', 'Ventas'),
+	    ('website.manage', 'Gestionar página web', 'Negocio'),
+	    ('reports.view', 'Ver reportes', 'Negocio'),
+	    ('ai.use', 'Usar Copiloto IA', 'Crecimiento'),
+	    ('whatsapp.manage', 'Gestionar WhatsApp', 'Crecimiento'),
+	    ('settings.manage', 'Gestionar ajustes', 'Negocio')
+	  on conflict (key) do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on true
+	  where r.code = 'BUSINESS_ADMIN'
+	  on conflict do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on p.key in (
+	    'dashboard.view', 'calendar.view_all', 'calendar.manage', 'clients.view', 'clients.manage',
+	    'services.view', 'team.view', 'sales.view', 'sales.manage', 'cash.manage',
+	    'inventory.view', 'loyalty.manage', 'whatsapp.manage')
+	  where r.code = 'RECEPTIONIST'
+	  on conflict do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on p.key in (
+	    'dashboard.view', 'calendar.view_own', 'calendar.manage', 'clients.view', 'clients.manage',
+	    'services.view', 'team.view', 'sales.view', 'sales.manage', 'commissions.view_own')
+	  where r.code in ('BARBER', 'STYLIST', 'THERAPIST')
+	  on conflict do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on p.key in (
+	    'dashboard.view', 'clients.view', 'services.view', 'team.view',
+	    'sales.view', 'sales.manage', 'cash.manage', 'inventory.view', 'inventory.manage')
+	  where r.code = 'CASHIER'
+	  on conflict do nothing;
+	
+	  -- ── Negocio + sucursal + settings + branding + website ───────────────────
+	  select exists (select 1 from public.businesses where slug = 'barberia-black') into v_slug_exists;
+	  if not v_slug_exists then
+	    insert into public.businesses (id, name, slug, type, status, description, phone, whatsapp, email, address)
+	    values (gen_random_uuid(), 'Black House Barber', 'barberia-black', 'BARBERSHOP', 'ACTIVE',
+	      'Barbería premium en el corazón de Miraflores. Cortes clásicos y modernos, barba de precisión y una experiencia que se siente como en casa.',
+	      '+51 987 654 321', '+51 987 654 321', 'hola@blackhouse.pe', 'Av. La Paz 450, Miraflores, Lima')
+	    returning id into v_business;
+	  else
+	    select id into v_business from public.businesses where slug = 'barberia-black';
+	  end if;
+	
+	  insert into public.locations (business_id, name, address, city, geo, is_default)
+	  values (v_business, 'Miraflores', 'Av. La Paz 450, Miraflores', 'Lima',
+	          '{"lat": -12.1222, "lng": -77.0300}'::jsonb, true)
+	  on conflict do nothing;
+	  select id into v_loc from public.locations where business_id = v_business and is_default limit 1;
+	
+	  insert into public.business_settings (business_id) values (v_business) on conflict do nothing;
+	  insert into public.business_branding (business_id, preset, colors, font_key)
+	  values (v_business, 'DARK', '{"primary":"#c9a227","button":"#c9a227"}'::jsonb, 'sans')
+	  on conflict do nothing;
+	  insert into public.business_website (business_id, tagline, socials, map_query)
+	  values (v_business, 'Tu estilo comienza aquí.',
+	          '{"instagram": "https://instagram.com/blackhouse.barber", "tiktok": "https://tiktok.com/@blackhouse.barber", "facebook": ""}'::jsonb,
+	          'Av. La Paz 450, Miraflores, Lima')
+	  on conflict do nothing;
+	
+	  insert into public.subscriptions (business_id, plan_id, status, trial_ends_at)
+	  values (v_business, v_plan, 'ACTIVE', now() + interval '14 days')
+	  on conflict do nothing;
+	
+	  -- Horarios: mar–sáb 9–20, dom 9–14, lun cerrado
+	  insert into public.business_hours (business_id, location_id, weekday, open_time, close_time, is_closed)
+	  select v_business, v_loc, w.d, w.o::time, w.c::time, w.closed
+	  from (values (0,'09:00','14:00',false),(1,'09:00','20:00',true),(2,'09:00','20:00',false),
+	               (3,'09:00','20:00',false),(4,'09:00','20:00',false),(5,'09:00','21:00',false),
+	               (6,'08:00','21:00',false)) as w(d,o,c,closed)
+	  where not exists (select 1 from public.business_hours bh
+	                    where bh.business_id = v_business and bh.weekday = w.d);
+	
+	  -- ── Equipo (5 máx. hoy) ─────────────────────────────────────────────────
+	  insert into public.employees (id, business_id, location_id, full_name, role_label, specialty, bio, commission_rate, show_on_website)
+	  values (gen_random_uuid(), v_business, v_loc, 'Carlos Mendoza', 'Barber', 'Fades y cortes clásicos',
+	          '10 años perfeccionando el degradado perfecto.', 10, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Andrea Ruiz', 'Stylist', 'Color y estilismo',
+	          'Especialista en colorimetría y looks de tendencia.', 12, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Luis Fernández', 'Barber', 'Barba y afeitado clásico',
+	          'Toalla caliente y precisión de bisturí.', 10, true)
+	  on conflict do nothing;
+	  select id into v_e_carlos from public.employees where business_id = v_business and full_name = 'Carlos Mendoza';
+	  select id into v_e_andrea from public.employees where business_id = v_business and full_name = 'Andrea Ruiz';
+	  select id into v_e_luis from public.employees where business_id = v_business and full_name = 'Luis Fernández';
+	
+	  insert into public.business_users (business_id, user_id, role_code, employee_id, status)
+	  values (v_business, v_admin, 'BUSINESS_ADMIN', null, 'ACTIVE'),
+	         (v_business, v_carlos_user, 'BARBER', v_e_carlos, 'ACTIVE'),
+	         (v_business, v_andrea_user, 'STYLIST', v_e_andrea, 'ACTIVE')
+	  on conflict (business_id, user_id) do nothing;
+	
+	  -- ── Categorías + servicios ──────────────────────────────────────────────
+	  insert into public.service_categories (id, business_id, name, position)
+	  values (gen_random_uuid(), v_business, 'Cortes', 0), (gen_random_uuid(), v_business, 'Barba', 1)
+	  on conflict do nothing;
+	  select id into v_cat_cortes from public.service_categories where business_id = v_business and name = 'Cortes';
+	  select id into v_cat_barba  from public.service_categories where business_id = v_business and name = 'Barba';
+	
+	  insert into public.services (id, business_id, category_id, name, description, duration_min, price, position, show_on_website)
+	  values (gen_random_uuid(), v_business, v_cat_cortes, 'Corte Premium', 'Corte personalizado con lavado, styling y acabado premium.', 45, 35, 0, true),
+	         (gen_random_uuid(), v_business, v_cat_barba, 'Barba', 'Perfilado y arreglo de barba con toalla caliente.', 30, 20, 1, true),
+	         (gen_random_uuid(), v_business, null, 'Corte + Barba', 'El combo completo. Sale como nuevo.', 60, 50, 2, true),
+	         (gen_random_uuid(), v_business, v_cat_cortes, 'Diseño', 'Diseños y líneas a cuchilla. Arte en tu corte.', 45, 40, 3, true),
+	         (gen_random_uuid(), v_business, null, 'Mascarilla Facial', 'Limpieza e hidratación express.', 20, 15, 4, true)
+	  on conflict do nothing;
+	  select id into v_s_corte  from public.services where business_id = v_business and name = 'Corte Premium';
+	  select id into v_s_barba  from public.services where business_id = v_business and name = 'Barba';
+	  select id into v_s_combo  from public.services where business_id = v_business and name = 'Corte + Barba';
+	  select id into v_s_diseno from public.services where business_id = v_business and name = 'Diseño';
+	
+	  insert into public.employee_services (employee_id, service_id, business_id)
+	  values (v_e_carlos, v_s_corte, v_business), (v_e_carlos, v_s_barba, v_business), (v_e_carlos, v_s_combo, v_business), (v_e_carlos, v_s_diseno, v_business),
+	         (v_e_andrea, v_s_corte, v_business), (v_e_andrea, v_s_diseno, v_business),
+	         (v_e_luis, v_s_barba, v_business), (v_e_luis, v_s_combo, v_business), (v_e_luis, v_s_corte, v_business)
+	  on conflict do nothing;
+	
+	  -- ── Secciones del website (draft) ───────────────────────────────────────
+	  insert into public.website_sections (business_id, type, position, active, content)
+	  values
+	    (v_business, 'HERO', 0, true,
+	     '{"title":"Tu estilo comienza aquí.","subtitle":"Reserva tu próxima experiencia en Black House Barber.","cta":"Reservar cita","cta_enabled":true}'::jsonb),
+	    (v_business, 'SERVICES', 1, true, '{"title":"Nuestros servicios"}'::jsonb),
+	    (v_business, 'ABOUT', 2, true,
+	     '{"title":"Más que una barbería","body":"Desde 2018 cuidamos el estilo de Miraflores con obsesión por el detalle."}'::jsonb),
+	    (v_business, 'GALLERY', 3, true, '{"title":"Nuestro trabajo","visible_count":6}'::jsonb),
+	    (v_business, 'TEAM', 4, true, '{"title":"Nuestro equipo"}'::jsonb),
+	    (v_business, 'PROMOTIONS', 5, true, '{"title":"Promociones"}'::jsonb),
+	    (v_business, 'TESTIMONIALS', 6, true, '{"title":"Lo que dicen de nosotros"}'::jsonb),
+	    (v_business, 'LOCATION', 7, true, '{"title":"Visítanos"}'::jsonb),
+	    (v_business, 'CTA', 8, true, '{"title":"¿Listo para tu próximo look?","cta":"Reservar cita"}'::jsonb),
+	    (v_business, 'FOOTER', 9, true, '{}'::jsonb)
+	  on conflict (business_id, type) do nothing;
+	
+	  -- ── Clientes (30) + fidelización ────────────────────────────────────────
+	  for i in 1..30 loop
+	    insert into public.customers (business_id, full_name, phone, referral_code, birth_date, created_at)
+	    values (v_business, v_names[i], v_phones[i],
+	            upper(left(regexp_replace(v_names[i], '[^a-zA-Z]', '', 'g'), 4)) || '-' || lpad(i::text, 3, '0'),
+	            (date '1985-01-01' + ((i * 37) % 12000)),
+	            now() - ((60 - i) || ' days')::interval)
+	    on conflict (business_id, phone) do nothing;
+	  end loop;
+	  select array_agg(id order by created_at) into v_cust_ids
+	  from public.customers where business_id = v_business;
+	
+	  insert into public.loyalty_accounts (business_id, customer_id, points, lifetime_points, tier)
+	  select v_business, c.id,
+	         (random() * 450)::int, (random() * 900)::int,
+	         case when random() > 0.85 then 'GOLD' when random() > 0.6 then 'SILVER' else 'STARTER' end
+	  from public.customers c where c.business_id = v_business
+	  and not exists (select 1 from public.loyalty_accounts la where la.customer_id = c.id);
+	
+	  -- ── Citas históricas (6 semanas) + ventas ───────────────────────────────
+	  for i in 1..90 loop
+	    v_customer := v_cust_ids[1 + (i * 7) % array_length(v_cust_ids, 1)];
+	    d := (i * 3) % 42;                       -- días atrás
+	    h := 9 + (i * 5) % 11;                   -- 9:00–19:00
+	    v_status := case (i % 10)
+	      when 0 then 'CANCELLED'::appointment_status
+	      when 1 then 'NO_SHOW'::appointment_status
+	      when 2 then 'CONFIRMED'::appointment_status
+	      else 'COMPLETED'::appointment_status end;
+	    if d = 0 and h > 12 then v_status := 'CONFIRMED'; end if;
+	
+	    v_total := case (i % 4) when 0 then 35 when 1 then 20 when 2 then 50 else 40 end;
+	
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_at)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            v_status, case (i % 3) when 0 then 'LANDING'::appointment_source when 1 then 'WHATSAPP'::appointment_source else 'WALK_IN'::appointment_source end,
+	            now() - (d || ' days')::interval + ((h - extract(hour from now())) || ' hours')::interval,
+	            now() - (d || ' days')::interval + ((h + 1 - extract(hour from now())) || ' hours')::interval,
+	            v_total, now() - ((d + 2) || ' days')::interval)
+	    returning id into v_appt;
+	
+	    insert into public.appointment_items (appointment_id, business_id, service_id, employee_id, unit_price, duration_min)
+	    select v_appt, v_business, s.id,
+	           case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	           s.price, s.duration_min
+	    from public.services s
+	    where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	    if v_status = 'COMPLETED' then
+	      v_method := case (i % 4) when 0 then 'CASH' when 1 then 'YAPE' when 2 then 'PLIN' else 'CARD' end;
+	      insert into public.sales (business_id, location_id, customer_id, employee_id, appointment_id, status,
+	        subtotal, discount_total, total, created_by, created_at)
+	      values (v_business, v_loc, v_customer,
+	              case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	              v_appt, 'PAID', v_total, 0, v_total, v_admin, now() - (d || ' days')::interval)
+	      returning id into v_sale;
+	
+	      insert into public.sale_items (sale_id, business_id, item_type, service_id, description, qty, unit_price, total, employee_id)
+	      select v_sale, v_business, 'SERVICE', s.id, s.name, 1, s.price, s.price,
+	             case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end
+	      from public.services s
+	      where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	      insert into public.payments (sale_id, business_id, method, amount, reference, created_by)
+	      values (v_sale, v_business, v_method, v_total,
+	              case when v_method in ('YAPE','PLIN') then 'OP-' || lpad(i::text, 6, '0') else '' end, v_admin);
+	
+	      insert into public.commissions (business_id, employee_id, sale_item_id, base_amount, rate, amount, status)
+	      select v_business, si.employee_id, si.id, si.total,
+	             coalesce(e.commission_rate, 10), round(si.total * coalesce(e.commission_rate, 10) / 100.0, 2),
+	             case when d > 7 then 'PAID' else 'PENDING' end
+	      from public.sale_items si
+	      left join public.employees e on e.id = si.employee_id
+	      where si.sale_id = v_sale;
+	    end if;
+	  end loop;
+	
+	  -- Citas futuras (próximos 7 días)
+	  for i in 1..12 loop
+	    v_customer := v_cust_ids[1 + (i * 11) % array_length(v_cust_ids, 1)];
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_by)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            case when i % 2 = 0 then 'CONFIRMED' else 'PENDING' end,
+	            case (i % 2) when 0 then 'LANDING' else 'WHATSAPP' end,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) || ' hours')::interval,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) + 1 || ' hours')::interval,
+	            case (i % 3) when 0 then 35 when 1 then 50 else 20 end, v_admin);
+	  end loop;
+	
+	  -- ── Inventario ───────────────────────────────────────────────────────────
+	  insert into public.products (business_id, name, sku, category, price, cost, stock, stock_min)
+	  values (v_business, 'Pomada Mate Black House', 'BH-POM-001', 'Styling', 65, 32, 18, 5),
+	         (v_business, 'Cera Texturizadora', 'BH-CER-002', 'Styling', 55, 26, 4, 5),
+	         (v_business, 'Aceiente para Barba', 'BH-ACE-003', 'Barba', 48, 22, 12, 4),
+	         (v_business, 'Shampoo Fortalecedor', 'BH-SHA-004', 'Cuidado', 42, 19, 0, 3)
+	  on conflict (business_id, sku) do nothing;
+	
+	  -- ── Fidelización · referidos · promos · testimonios ──────────────────────
+	  insert into public.loyalty_transactions (business_id, account_id, type, points, reason)
+	  select v_business, la.id, 'EARN', 50, 'Cita completada'
+	  from public.loyalty_accounts la where la.business_id = v_business
+	  limit 15;
+	
+	  insert into public.referrals (business_id, code, referrer_customer_id, referred_customer_id, status, reward_points, completed_at)
+	  values (v_business, 'MARIA-458', v_cust_ids[1], v_cust_ids[2], 'REWARDED', 100, now() - interval '10 days'),
+	         (v_business, 'JOSE-212', v_cust_ids[3], v_cust_ids[4], 'COMPLETED', 100, now() - interval '3 days')
+	  on conflict (business_id, code) do nothing;
+	
+	  insert into public.promotions (business_id, service_id, name, description, price, discount_percent, starts_at, ends_at, show_on_website)
+	  values (v_business, v_s_combo, 'Martes Beauty', 'Corte + Barba + Mascarilla a precio especial.',
+	          70, 17, current_date - 7, current_date + 30, true),
+	         (v_business, v_s_corte, 'Padre e hijo', 'Dos cortes premium. Padre e hijo juntos.',
+	          60, 14, current_date - 7, current_date + 30, true)
+	  on conflict do nothing;
+	
+	  insert into public.reviews (business_id, customer_id, author_name, rating, content, is_published)
+	  values (v_business, v_cust_ids[1], 'María F.', 5, 'El mejor servicio de Lima. Salí como nuevo y la atención es de otro nivel.', true),
+	         (v_business, v_cust_ids[5], 'Jorge C.', 5, 'Carlos entiende exactamente lo que quieres. Ya no voy a otro lado.', true),
+	         (v_business, null, 'Renzo G.', 4, 'Ambiente increíble y precios justos. Recomendadísimo.', true)
+	  on conflict do nothing;
+	
+	  -- ── Automatizaciones WhatsApp ────────────────────────────────────────────
+	  insert into public.automation_rules (business_id, name, trigger_event, channel, template, delay_minutes)
+	  values (v_business, 'Confirmación de cita', 'APPOINTMENT_CREATED', 'WHATSAPP',
+	          'Hola {{cliente}}, tu cita de {{servicio}} está registrada para el {{fecha}} a las {{hora}}. ¡Te esperamos!', 5),
+	         (v_business, 'Recordatorio 24 h', 'REMINDER_24H', 'WHATSAPP',
+	          'Hola {{cliente}}, te recordamos tu cita mañana a las {{hora}}. ¿Confirmamos?', 0),
+	         (v_business, 'Gracias post-visita', 'APPOINTMENT_COMPLETED', 'WHATSAPP',
+	          'Gracias por visitarnos, {{cliente}}. ¡Nos vemos la próxima!', 60),
+	         (v_business, 'Rebooking 28 días', 'CUSTOMER_AT_RISK', 'WHATSAPP',
+	          'Hola {{cliente}}, ¿ya es momento de tu próxima visita? Reserva aquí: {{link}}', 0),
+	         (v_business, 'Hueco liberado', 'WAITLIST_SLOT_OPENED', 'WHATSAPP',
+	          '¡Hola {{cliente}}! Se liberó un horario compatible: {{fecha}} a las {{hora}}. ¿Lo tomamos?', 0)
+	  on conflict do nothing;
+	
+	  -- ── Waitlist + at-risk de ejemplo + insights IA sembrados ────────────────
+	  insert into public.waitlist (business_id, customer_id, service_id, employee_id, preferred_date, time_start, time_end, priority)
+	  values (v_business, v_cust_ids[7], v_s_corte, v_e_carlos, current_date + 3, '17:00', '20:00', 1),
+	         (v_business, v_cust_ids[9], v_s_combo, null, current_date + 3, '16:00', '21:00', 0),
+	         (v_business, v_cust_ids[12], v_s_barba, v_e_luis, null, null, null, 0)
+	  on conflict do nothing;
+	
+	  insert into public.ai_insights (business_id, type, severity, title, body, data)
+	  values (v_business, 'AT_RISK', 'warning',
+	          '6 clientes fuera de su frecuencia habitual',
+	          'Detectamos 6 clientes que suelen regresar entre 21 y 30 días y actualmente están fuera de su frecuencia. Recomendamos enviarles un recordatorio personalizado.',
+	          '{"customer_ids": ["..."], "action": "view_clients"}'::jsonb),
+	         (v_business, 'WEAK_SLOTS', 'info',
+	          'Los martes tienen menor ocupación (41%)',
+	          'Los martes entre 2:00 y 5:00 PM son los huecos más débiles. Una promo express podría levantar la ocupación un 15%.',
+	          '{"dow": 2, "hours": [14,15,16,17]}'::jsonb),
+	         (v_business, 'OPPORTUNITY', 'info',
+	          'Corte + Barba es tu combo más rentable',
+	          'Representa el 38% de los ingresos. Sugiere ofrecerlo como upsell automático al reservar solo corte.',
+	          '{"service": "Corte + Barba"}'::jsonb);
+	
+	  -- Publicar el sitio con la RPC real (snapshot completo) como el Business Admin
+	  if not exists (select 1 from public.website_releases wr where wr.business_id = v_business) then
+	    perform set_config('request.jwt.claim.sub', v_admin::text, true);
+	    perform public.publish_website(v_business);
+	    perform set_config('request.jwt.claim.sub', v_super::text, true);
+	  end if;
+	
+	  -- Stats de clientes
+	  perform public.refresh_customer_stats(v_business);
+	
+	  raise notice '✅ Seed BLACK HOUSE BARBER completado (negocio: %)', v_business;
+	end $$;
+2026-09-21 20:43:36.533 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:43:36.538 UTC [5483] LOG:  checkpoint complete: wrote 20 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.006 s; sync files=10, longest=0.001 s, average=0.001 s; distance=6920 kB, estimate=6920 kB; lsn=0/3E3F2E0, redo lsn=0/3E3F288
+2026-09-21 20:43:36.852 UTC [5846] ERROR:  column "status" is of type commission_status but expression is of type text at character 287
+2026-09-21 20:43:36.852 UTC [5846] HINT:  You will need to rewrite or cast the expression.
+2026-09-21 20:43:36.852 UTC [5846] QUERY:  insert into public.commissions (business_id, employee_id, sale_item_id, base_amount, rate, amount, status)
+	      select v_business, si.employee_id, si.id, si.total,
+	             coalesce(e.commission_rate, 10), round(si.total * coalesce(e.commission_rate, 10) / 100.0, 2),
+	             case when d > 7 then 'PAID' else 'PENDING' end
+	      from public.sale_items si
+	      left join public.employees e on e.id = si.employee_id
+	      where si.sale_id = v_sale
+2026-09-21 20:43:36.852 UTC [5846] CONTEXT:  PL/pgSQL function inline_code_block line 311 at SQL statement
+2026-09-21 20:43:36.852 UTC [5846] STATEMENT:  do $$
+	declare
+	  v_business uuid; v_loc uuid; v_super uuid; v_admin uuid; v_carlos_user uuid; v_andrea_user uuid;
+	  v_plan uuid; v_cat_cortes uuid; v_cat_barba uuid;
+	  v_s_corte uuid; v_s_barba uuid; v_s_combo uuid; v_s_diseno uuid;
+	  v_e_carlos uuid; v_e_andrea uuid; v_e_luis uuid;
+	  v_customer uuid; v_appt uuid; v_sale uuid; v_acct uuid;
+	  v_cust_ids uuid[] := '{}'; v_names text[] := array[
+	    'María Fernández','José Castillo','Ana Torres','Luis Ramírez','Carmen Rojas',
+	    'Pedro Salazar','Lucía Mendoza','Diego Vargas','Rosa Paredes','Miguel Ángel Soto',
+	    'Elena Quispe','Jorge Chávez','Valeria Cárdenas','Renzo Gutiérrez','Daniela Ponce',
+	    'Andrés Loayza','Camila Herrera','Raúl Montoya','Gabriela Núñez','Sergio Ibáñez',
+	    'Paola Ríos','Mateo Farfán','Isabel Prado','Hugo Espinoza','Nicole Vergara',
+	    'Alonso Mejía','Fernanda Castro','Óscar Villanueva','Teresa Linares','Bruno Sandoval'];
+	  v_phones text[] := array[
+	    '987654321','912345678','933445566','944556677','955667788','966778899','977889900',
+	    '988990011','900112233','911223344','922334455','933556677','944667788','955778899',
+	    '966889900','977990011','988001122','999112233','901223344','912334455','923445566',
+	    '934556677','945667788','956778899','967889900','978990011','989001122','900011223',
+	    '910122334','920233445'];
+	  i int; d int; h int; v_status appointment_status; v_method payment_method;
+	  v_total numeric(12,2); v_name text; v_slug_exists boolean;
+	begin
+	  -- ── Usuarios auth + profiles ──────────────────────────────────────────────
+	  if not exists (select 1 from auth.users where email = 'super@beautyapp.pe') then
+	    insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	    values (gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	      'super@beautyapp.pe', crypt('Demo123!', gen_salt('bf')), now(),
+	      '{"provider":"email","providers":["email"]}'::jsonb, '{"full_name":"Súper Admin"}'::jsonb, now(), now());
+	  end if;
+	  insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+	    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+	  select gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+	    e.mail, crypt('Demo123!', gen_salt('bf')), now(),
+	    '{"provider":"email","providers":["email"]}'::jsonb,
+	    jsonb_build_object('full_name', e.nm), now(), now()
+	  from (values
+	    ('admin@blackhouse.pe','Ricardo Peña'),
+	    ('carlos@blackhouse.pe','Carlos Mendoza'),
+	    ('andrea@blackhouse.pe','Andrea Ruiz')
+	  ) as e(mail, nm)
+	  where not exists (select 1 from auth.users u where u.email = e.mail);
+	
+	  select id into v_super from auth.users where email = 'super@beautyapp.pe';
+	  select id into v_admin from auth.users where email = 'admin@blackhouse.pe';
+	  select id into v_carlos_user from auth.users where email = 'carlos@blackhouse.pe';
+	  select id into v_andrea_user from auth.users where email = 'andrea@blackhouse.pe';
+	
+	  update public.users set platform_role = 'SUPER_ADMIN' where id = v_super;
+	  update public.users set full_name = 'Ricardo Peña'  where id = v_admin;
+	  update public.users set full_name = 'Carlos Mendoza' where id = v_carlos_user;
+	  update public.users set full_name = 'Andrea Ruiz'    where id = v_andrea_user;
+	
+	  -- Contexto de Super Admin para triggers/funciones con auth.uid() durante la siembra
+	  perform set_config('request.jwt.claim.sub', v_super::text, true);
+	
+	  -- ── Planes (Super Admin) ─────────────────────────────────────────────────
+	  insert into public.plans (id, code, name, description, price_monthly, limits, modules)
+	  values
+	    (gen_random_uuid(), 'STARTER', 'Starter', 'Para quien recién comienza', 79.00,
+	     '{"max_employees": 5, "max_monthly_appointments": 300, "max_storage_mb": 500}'::jsonb,
+	     '{"website": true, "loyalty": false, "ai": false, "whatsapp": false}'::jsonb),
+	    (gen_random_uuid(), 'PRO', 'Pro', 'El favorito de los negocios en crecimiento', 149.00,
+	     '{"max_employees": 12, "max_monthly_appointments": 2000, "max_storage_mb": 2000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true}'::jsonb),
+	    (gen_random_uuid(), 'BUSINESS', 'Business', 'Multi-sucursal sin límites', 299.00,
+	     '{"max_employees": 50, "max_monthly_appointments": 20000, "max_storage_mb": 10000}'::jsonb,
+	     '{"website": true, "loyalty": true, "ai": true, "whatsapp": true, "multibranch": true}'::jsonb)
+	  on conflict (code) do nothing;
+	  select id into v_plan from public.plans where code = 'PRO';
+	
+	  -- ── RBAC: roles + permisos + matriz (espejo de docs/permisos.md) ──────────
+	  insert into public.roles (code, name, description) values
+	    ('BUSINESS_ADMIN', 'Administrador', 'Administrador principal del negocio'),
+	    ('RECEPTIONIST', 'Recepción', 'Agenda, clientes y ventas'),
+	    ('BARBER', 'Barbero', 'Trabajador de barbería'),
+	    ('STYLIST', 'Estilista', 'Trabajador de estilismo'),
+	    ('THERAPIST', 'Terapeuta', 'Trabajador de spa/masaje'),
+	    ('CASHIER', 'Caja', 'Cobros y ventas')
+	  on conflict (code) do nothing;
+	
+	  insert into public.permissions (key, name, category) values
+	    ('dashboard.view', 'Ver panel', 'Trabajo'),
+	    ('calendar.view_all', 'Ver agenda completa', 'Trabajo'),
+	    ('calendar.view_own', 'Ver agenda propia', 'Trabajo'),
+	    ('calendar.manage', 'Gestionar citas', 'Trabajo'),
+	    ('clients.view', 'Ver clientes', 'Trabajo'),
+	    ('clients.manage', 'Gestionar clientes', 'Trabajo'),
+	    ('services.view', 'Ver servicios', 'Negocio'),
+	    ('services.manage', 'Gestionar servicios', 'Negocio'),
+	    ('team.view', 'Ver equipo', 'Negocio'),
+	    ('team.manage', 'Gestionar equipo', 'Negocio'),
+	    ('sales.view', 'Ver ventas', 'Ventas'),
+	    ('sales.manage', 'Operar ventas/POS', 'Ventas'),
+	    ('cash.manage', 'Gestionar caja', 'Ventas'),
+	    ('inventory.view', 'Ver inventario', 'Ventas'),
+	    ('inventory.manage', 'Gestionar inventario', 'Ventas'),
+	    ('loyalty.manage', 'Gestionar fidelización', 'Crecimiento'),
+	    ('commissions.view_own', 'Ver comisiones propias', 'Ventas'),
+	    ('commissions.view_all', 'Ver todas las comisiones', 'Ventas'),
+	    ('website.manage', 'Gestionar página web', 'Negocio'),
+	    ('reports.view', 'Ver reportes', 'Negocio'),
+	    ('ai.use', 'Usar Copiloto IA', 'Crecimiento'),
+	    ('whatsapp.manage', 'Gestionar WhatsApp', 'Crecimiento'),
+	    ('settings.manage', 'Gestionar ajustes', 'Negocio')
+	  on conflict (key) do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on true
+	  where r.code = 'BUSINESS_ADMIN'
+	  on conflict do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on p.key in (
+	    'dashboard.view', 'calendar.view_all', 'calendar.manage', 'clients.view', 'clients.manage',
+	    'services.view', 'team.view', 'sales.view', 'sales.manage', 'cash.manage',
+	    'inventory.view', 'loyalty.manage', 'whatsapp.manage')
+	  where r.code = 'RECEPTIONIST'
+	  on conflict do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on p.key in (
+	    'dashboard.view', 'calendar.view_own', 'calendar.manage', 'clients.view', 'clients.manage',
+	    'services.view', 'team.view', 'sales.view', 'sales.manage', 'commissions.view_own')
+	  where r.code in ('BARBER', 'STYLIST', 'THERAPIST')
+	  on conflict do nothing;
+	
+	  insert into public.role_permissions (role_code, permission_key)
+	  select r.code, p.key
+	  from public.roles r join public.permissions p on p.key in (
+	    'dashboard.view', 'clients.view', 'services.view', 'team.view',
+	    'sales.view', 'sales.manage', 'cash.manage', 'inventory.view', 'inventory.manage')
+	  where r.code = 'CASHIER'
+	  on conflict do nothing;
+	
+	  -- ── Negocio + sucursal + settings + branding + website ───────────────────
+	  select exists (select 1 from public.businesses where slug = 'barberia-black') into v_slug_exists;
+	  if not v_slug_exists then
+	    insert into public.businesses (id, name, slug, type, status, description, phone, whatsapp, email, address)
+	    values (gen_random_uuid(), 'Black House Barber', 'barberia-black', 'BARBERSHOP', 'ACTIVE',
+	      'Barbería premium en el corazón de Miraflores. Cortes clásicos y modernos, barba de precisión y una experiencia que se siente como en casa.',
+	      '+51 987 654 321', '+51 987 654 321', 'hola@blackhouse.pe', 'Av. La Paz 450, Miraflores, Lima')
+	    returning id into v_business;
+	  else
+	    select id into v_business from public.businesses where slug = 'barberia-black';
+	  end if;
+	
+	  insert into public.locations (business_id, name, address, city, geo, is_default)
+	  values (v_business, 'Miraflores', 'Av. La Paz 450, Miraflores', 'Lima',
+	          '{"lat": -12.1222, "lng": -77.0300}'::jsonb, true)
+	  on conflict do nothing;
+	  select id into v_loc from public.locations where business_id = v_business and is_default limit 1;
+	
+	  insert into public.business_settings (business_id) values (v_business) on conflict do nothing;
+	  insert into public.business_branding (business_id, preset, colors, font_key)
+	  values (v_business, 'DARK', '{"primary":"#c9a227","button":"#c9a227"}'::jsonb, 'sans')
+	  on conflict do nothing;
+	  insert into public.business_website (business_id, tagline, socials, map_query)
+	  values (v_business, 'Tu estilo comienza aquí.',
+	          '{"instagram": "https://instagram.com/blackhouse.barber", "tiktok": "https://tiktok.com/@blackhouse.barber", "facebook": ""}'::jsonb,
+	          'Av. La Paz 450, Miraflores, Lima')
+	  on conflict do nothing;
+	
+	  insert into public.subscriptions (business_id, plan_id, status, trial_ends_at)
+	  values (v_business, v_plan, 'ACTIVE', now() + interval '14 days')
+	  on conflict do nothing;
+	
+	  -- Horarios: mar–sáb 9–20, dom 9–14, lun cerrado
+	  insert into public.business_hours (business_id, location_id, weekday, open_time, close_time, is_closed)
+	  select v_business, v_loc, w.d, w.o::time, w.c::time, w.closed
+	  from (values (0,'09:00','14:00',false),(1,'09:00','20:00',true),(2,'09:00','20:00',false),
+	               (3,'09:00','20:00',false),(4,'09:00','20:00',false),(5,'09:00','21:00',false),
+	               (6,'08:00','21:00',false)) as w(d,o,c,closed)
+	  where not exists (select 1 from public.business_hours bh
+	                    where bh.business_id = v_business and bh.weekday = w.d);
+	
+	  -- ── Equipo (5 máx. hoy) ─────────────────────────────────────────────────
+	  insert into public.employees (id, business_id, location_id, full_name, role_label, specialty, bio, commission_rate, show_on_website)
+	  values (gen_random_uuid(), v_business, v_loc, 'Carlos Mendoza', 'Barber', 'Fades y cortes clásicos',
+	          '10 años perfeccionando el degradado perfecto.', 10, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Andrea Ruiz', 'Stylist', 'Color y estilismo',
+	          'Especialista en colorimetría y looks de tendencia.', 12, true),
+	         (gen_random_uuid(), v_business, v_loc, 'Luis Fernández', 'Barber', 'Barba y afeitado clásico',
+	          'Toalla caliente y precisión de bisturí.', 10, true)
+	  on conflict do nothing;
+	  select id into v_e_carlos from public.employees where business_id = v_business and full_name = 'Carlos Mendoza';
+	  select id into v_e_andrea from public.employees where business_id = v_business and full_name = 'Andrea Ruiz';
+	  select id into v_e_luis from public.employees where business_id = v_business and full_name = 'Luis Fernández';
+	
+	  insert into public.business_users (business_id, user_id, role_code, employee_id, status)
+	  values (v_business, v_admin, 'BUSINESS_ADMIN', null, 'ACTIVE'),
+	         (v_business, v_carlos_user, 'BARBER', v_e_carlos, 'ACTIVE'),
+	         (v_business, v_andrea_user, 'STYLIST', v_e_andrea, 'ACTIVE')
+	  on conflict (business_id, user_id) do nothing;
+	
+	  -- ── Categorías + servicios ──────────────────────────────────────────────
+	  insert into public.service_categories (id, business_id, name, position)
+	  values (gen_random_uuid(), v_business, 'Cortes', 0), (gen_random_uuid(), v_business, 'Barba', 1)
+	  on conflict do nothing;
+	  select id into v_cat_cortes from public.service_categories where business_id = v_business and name = 'Cortes';
+	  select id into v_cat_barba  from public.service_categories where business_id = v_business and name = 'Barba';
+	
+	  insert into public.services (id, business_id, category_id, name, description, duration_min, price, position, show_on_website)
+	  values (gen_random_uuid(), v_business, v_cat_cortes, 'Corte Premium', 'Corte personalizado con lavado, styling y acabado premium.', 45, 35, 0, true),
+	         (gen_random_uuid(), v_business, v_cat_barba, 'Barba', 'Perfilado y arreglo de barba con toalla caliente.', 30, 20, 1, true),
+	         (gen_random_uuid(), v_business, null, 'Corte + Barba', 'El combo completo. Sale como nuevo.', 60, 50, 2, true),
+	         (gen_random_uuid(), v_business, v_cat_cortes, 'Diseño', 'Diseños y líneas a cuchilla. Arte en tu corte.', 45, 40, 3, true),
+	         (gen_random_uuid(), v_business, null, 'Mascarilla Facial', 'Limpieza e hidratación express.', 20, 15, 4, true)
+	  on conflict do nothing;
+	  select id into v_s_corte  from public.services where business_id = v_business and name = 'Corte Premium';
+	  select id into v_s_barba  from public.services where business_id = v_business and name = 'Barba';
+	  select id into v_s_combo  from public.services where business_id = v_business and name = 'Corte + Barba';
+	  select id into v_s_diseno from public.services where business_id = v_business and name = 'Diseño';
+	
+	  insert into public.employee_services (employee_id, service_id, business_id)
+	  values (v_e_carlos, v_s_corte, v_business), (v_e_carlos, v_s_barba, v_business), (v_e_carlos, v_s_combo, v_business), (v_e_carlos, v_s_diseno, v_business),
+	         (v_e_andrea, v_s_corte, v_business), (v_e_andrea, v_s_diseno, v_business),
+	         (v_e_luis, v_s_barba, v_business), (v_e_luis, v_s_combo, v_business), (v_e_luis, v_s_corte, v_business)
+	  on conflict do nothing;
+	
+	  -- ── Secciones del website (draft) ───────────────────────────────────────
+	  insert into public.website_sections (business_id, type, position, active, content)
+	  values
+	    (v_business, 'HERO', 0, true,
+	     '{"title":"Tu estilo comienza aquí.","subtitle":"Reserva tu próxima experiencia en Black House Barber.","cta":"Reservar cita","cta_enabled":true}'::jsonb),
+	    (v_business, 'SERVICES', 1, true, '{"title":"Nuestros servicios"}'::jsonb),
+	    (v_business, 'ABOUT', 2, true,
+	     '{"title":"Más que una barbería","body":"Desde 2018 cuidamos el estilo de Miraflores con obsesión por el detalle."}'::jsonb),
+	    (v_business, 'GALLERY', 3, true, '{"title":"Nuestro trabajo","visible_count":6}'::jsonb),
+	    (v_business, 'TEAM', 4, true, '{"title":"Nuestro equipo"}'::jsonb),
+	    (v_business, 'PROMOTIONS', 5, true, '{"title":"Promociones"}'::jsonb),
+	    (v_business, 'TESTIMONIALS', 6, true, '{"title":"Lo que dicen de nosotros"}'::jsonb),
+	    (v_business, 'LOCATION', 7, true, '{"title":"Visítanos"}'::jsonb),
+	    (v_business, 'CTA', 8, true, '{"title":"¿Listo para tu próximo look?","cta":"Reservar cita"}'::jsonb),
+	    (v_business, 'FOOTER', 9, true, '{}'::jsonb)
+	  on conflict (business_id, type) do nothing;
+	
+	  -- ── Clientes (30) + fidelización ────────────────────────────────────────
+	  for i in 1..30 loop
+	    insert into public.customers (business_id, full_name, phone, referral_code, birth_date, created_at)
+	    values (v_business, v_names[i], v_phones[i],
+	            upper(left(regexp_replace(v_names[i], '[^a-zA-Z]', '', 'g'), 4)) || '-' || lpad(i::text, 3, '0'),
+	            (date '1985-01-01' + ((i * 37) % 12000)),
+	            now() - ((60 - i) || ' days')::interval)
+	    on conflict (business_id, phone) do nothing;
+	  end loop;
+	  select array_agg(id order by created_at) into v_cust_ids
+	  from public.customers where business_id = v_business;
+	
+	  insert into public.loyalty_accounts (business_id, customer_id, points, lifetime_points, tier)
+	  select v_business, c.id,
+	         (random() * 450)::int, (random() * 900)::int,
+	         case when random() > 0.85 then 'GOLD' when random() > 0.6 then 'SILVER' else 'STARTER' end::public.loyalty_tier
+	  from public.customers c where c.business_id = v_business
+	  and not exists (select 1 from public.loyalty_accounts la where la.customer_id = c.id);
+	
+	  -- ── Citas históricas (6 semanas) + ventas ───────────────────────────────
+	  for i in 1..90 loop
+	    v_customer := v_cust_ids[1 + (i * 7) % array_length(v_cust_ids, 1)];
+	    d := (i * 3) % 42;                       -- días atrás
+	    h := 9 + (i * 5) % 11;                   -- 9:00–19:00
+	    v_status := case (i % 10)
+	      when 0 then 'CANCELLED'::appointment_status
+	      when 1 then 'NO_SHOW'::appointment_status
+	      when 2 then 'CONFIRMED'::appointment_status
+	      else 'COMPLETED'::appointment_status end;
+	    if d = 0 and h > 12 then v_status := 'CONFIRMED'; end if;
+	
+	    v_total := case (i % 4) when 0 then 35 when 1 then 20 when 2 then 50 else 40 end;
+	
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_at)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            v_status, case (i % 3) when 0 then 'LANDING'::appointment_source when 1 then 'WHATSAPP'::appointment_source else 'WALK_IN'::appointment_source end,
+	            now() - (d || ' days')::interval + ((h - extract(hour from now())) || ' hours')::interval,
+	            now() - (d || ' days')::interval + ((h + 1 - extract(hour from now())) || ' hours')::interval,
+	            v_total, now() - ((d + 2) || ' days')::interval)
+	    returning id into v_appt;
+	
+	    insert into public.appointment_items (appointment_id, business_id, service_id, employee_id, unit_price, duration_min)
+	    select v_appt, v_business, s.id,
+	           case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	           s.price, s.duration_min
+	    from public.services s
+	    where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	    if v_status = 'COMPLETED' then
+	      v_method := case (i % 4) when 0 then 'CASH' when 1 then 'YAPE' when 2 then 'PLIN' else 'CARD' end;
+	      insert into public.sales (business_id, location_id, customer_id, employee_id, appointment_id, status,
+	        subtotal, discount_total, total, created_by, created_at)
+	      values (v_business, v_loc, v_customer,
+	              case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	              v_appt, 'PAID', v_total, 0, v_total, v_admin, now() - (d || ' days')::interval)
+	      returning id into v_sale;
+	
+	      insert into public.sale_items (sale_id, business_id, item_type, service_id, description, qty, unit_price, total, employee_id)
+	      select v_sale, v_business, 'SERVICE', s.id, s.name, 1, s.price, s.price,
+	             case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end
+	      from public.services s
+	      where s.id = case (i % 4) when 0 then v_s_corte when 1 then v_s_barba when 2 then v_s_combo else v_s_diseno end;
+	
+	      insert into public.payments (sale_id, business_id, method, amount, reference, created_by)
+	      values (v_sale, v_business, v_method, v_total,
+	              case when v_method in ('YAPE','PLIN') then 'OP-' || lpad(i::text, 6, '0') else '' end, v_admin);
+	
+	      insert into public.commissions (business_id, employee_id, sale_item_id, base_amount, rate, amount, status)
+	      select v_business, si.employee_id, si.id, si.total,
+	             coalesce(e.commission_rate, 10), round(si.total * coalesce(e.commission_rate, 10) / 100.0, 2),
+	             case when d > 7 then 'PAID' else 'PENDING' end
+	      from public.sale_items si
+	      left join public.employees e on e.id = si.employee_id
+	      where si.sale_id = v_sale;
+	    end if;
+	  end loop;
+	
+	  -- Citas futuras (próximos 7 días)
+	  for i in 1..12 loop
+	    v_customer := v_cust_ids[1 + (i * 11) % array_length(v_cust_ids, 1)];
+	    insert into public.appointments (business_id, location_id, customer_id, employee_id, status, source,
+	      scheduled_start, scheduled_end, price_total, created_by)
+	    values (v_business, v_loc, v_customer,
+	            case (i % 3) when 0 then v_e_carlos when 1 then v_e_andrea else v_e_luis end,
+	            case when i % 2 = 0 then 'CONFIRMED' else 'PENDING' end,
+	            case (i % 2) when 0 then 'LANDING' else 'WHATSAPP' end,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) || ' hours')::interval,
+	            now() + ((i / 2) || ' days')::interval + ((i % 5) + 1 || ' hours')::interval,
+	            case (i % 3) when 0 then 35 when 1 then 50 else 20 end, v_admin);
+	  end loop;
+	
+	  -- ── Inventario ───────────────────────────────────────────────────────────
+	  insert into public.products (business_id, name, sku, category, price, cost, stock, stock_min)
+	  values (v_business, 'Pomada Mate Black House', 'BH-POM-001', 'Styling', 65, 32, 18, 5),
+	         (v_business, 'Cera Texturizadora', 'BH-CER-002', 'Styling', 55, 26, 4, 5),
+	         (v_business, 'Aceiente para Barba', 'BH-ACE-003', 'Barba', 48, 22, 12, 4),
+	         (v_business, 'Shampoo Fortalecedor', 'BH-SHA-004', 'Cuidado', 42, 19, 0, 3)
+	  on conflict (business_id, sku) do nothing;
+	
+	  -- ── Fidelización · referidos · promos · testimonios ──────────────────────
+	  insert into public.loyalty_transactions (business_id, account_id, type, points, reason)
+	  select v_business, la.id, 'EARN', 50, 'Cita completada'
+	  from public.loyalty_accounts la where la.business_id = v_business
+	  limit 15;
+	
+	  insert into public.referrals (business_id, code, referrer_customer_id, referred_customer_id, status, reward_points, completed_at)
+	  values (v_business, 'MARIA-458', v_cust_ids[1], v_cust_ids[2], 'REWARDED', 100, now() - interval '10 days'),
+	         (v_business, 'JOSE-212', v_cust_ids[3], v_cust_ids[4], 'COMPLETED', 100, now() - interval '3 days')
+	  on conflict (business_id, code) do nothing;
+	
+	  insert into public.promotions (business_id, service_id, name, description, price, discount_percent, starts_at, ends_at, show_on_website)
+	  values (v_business, v_s_combo, 'Martes Beauty', 'Corte + Barba + Mascarilla a precio especial.',
+	          70, 17, current_date - 7, current_date + 30, true),
+	         (v_business, v_s_corte, 'Padre e hijo', 'Dos cortes premium. Padre e hijo juntos.',
+	          60, 14, current_date - 7, current_date + 30, true)
+	  on conflict do nothing;
+	
+	  insert into public.reviews (business_id, customer_id, author_name, rating, content, is_published)
+	  values (v_business, v_cust_ids[1], 'María F.', 5, 'El mejor servicio de Lima. Salí como nuevo y la atención es de otro nivel.', true),
+	         (v_business, v_cust_ids[5], 'Jorge C.', 5, 'Carlos entiende exactamente lo que quieres. Ya no voy a otro lado.', true),
+	         (v_business, null, 'Renzo G.', 4, 'Ambiente increíble y precios justos. Recomendadísimo.', true)
+	  on conflict do nothing;
+	
+	  -- ── Automatizaciones WhatsApp ────────────────────────────────────────────
+	  insert into public.automation_rules (business_id, name, trigger_event, channel, template, delay_minutes)
+	  values (v_business, 'Confirmación de cita', 'APPOINTMENT_CREATED', 'WHATSAPP',
+	          'Hola {{cliente}}, tu cita de {{servicio}} está registrada para el {{fecha}} a las {{hora}}. ¡Te esperamos!', 5),
+	         (v_business, 'Recordatorio 24 h', 'REMINDER_24H', 'WHATSAPP',
+	          'Hola {{cliente}}, te recordamos tu cita mañana a las {{hora}}. ¿Confirmamos?', 0),
+	         (v_business, 'Gracias post-visita', 'APPOINTMENT_COMPLETED', 'WHATSAPP',
+	          'Gracias por visitarnos, {{cliente}}. ¡Nos vemos la próxima!', 60),
+	         (v_business, 'Rebooking 28 días', 'CUSTOMER_AT_RISK', 'WHATSAPP',
+	          'Hola {{cliente}}, ¿ya es momento de tu próxima visita? Reserva aquí: {{link}}', 0),
+	         (v_business, 'Hueco liberado', 'WAITLIST_SLOT_OPENED', 'WHATSAPP',
+	          '¡Hola {{cliente}}! Se liberó un horario compatible: {{fecha}} a las {{hora}}. ¿Lo tomamos?', 0)
+	  on conflict do nothing;
+	
+	  -- ── Waitlist + at-risk de ejemplo + insights IA sembrados ────────────────
+	  insert into public.waitlist (business_id, customer_id, service_id, employee_id, preferred_date, time_start, time_end, priority)
+	  values (v_business, v_cust_ids[7], v_s_corte, v_e_carlos, current_date + 3, '17:00', '20:00', 1),
+	         (v_business, v_cust_ids[9], v_s_combo, null, current_date + 3, '16:00', '21:00', 0),
+	         (v_business, v_cust_ids[12], v_s_barba, v_e_luis, null, null, null, 0)
+	  on conflict do nothing;
+	
+	  insert into public.ai_insights (business_id, type, severity, title, body, data)
+	  values (v_business, 'AT_RISK', 'warning',
+	          '6 clientes fuera de su frecuencia habitual',
+	          'Detectamos 6 clientes que suelen regresar entre 21 y 30 días y actualmente están fuera de su frecuencia. Recomendamos enviarles un recordatorio personalizado.',
+	          '{"customer_ids": ["..."], "action": "view_clients"}'::jsonb),
+	         (v_business, 'WEAK_SLOTS', 'info',
+	          'Los martes tienen menor ocupación (41%)',
+	          'Los martes entre 2:00 y 5:00 PM son los huecos más débiles. Una promo express podría levantar la ocupación un 15%.',
+	          '{"dow": 2, "hours": [14,15,16,17]}'::jsonb),
+	         (v_business, 'OPPORTUNITY', 'info',
+	          'Corte + Barba es tu combo más rentable',
+	          'Representa el 38% de los ingresos. Sugiere ofrecerlo como upsell automático al reservar solo corte.',
+	          '{"service": "Corte + Barba"}'::jsonb);
+	
+	  -- Publicar el sitio con la RPC real (snapshot completo) como el Business Admin
+	  if not exists (select 1 from public.website_releases wr where wr.business_id = v_business) then
+	    perform set_config('request.jwt.claim.sub', v_admin::text, true);
+	    perform public.publish_website(v_business);
+	    perform set_config('request.jwt.claim.sub', v_super::text, true);
+	  end if;
+	
+	  -- Stats de clientes
+	  perform public.refresh_customer_stats(v_business);
+	
+	  raise notice '✅ Seed BLACK HOUSE BARBER completado (negocio: %)', v_business;
+	end $$;
+2026-09-21 20:43:49.919 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:43:49.923 UTC [5483] LOG:  checkpoint complete: wrote 14 buffers (0.1%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.002 s, sync=0.001 s, total=0.005 s; sync files=10, longest=0.001 s, average=0.001 s; distance=6730 kB, estimate=6901 kB; lsn=0/44D1E48, redo lsn=0/44D1DF0
+2026-09-21 20:44:04.568 UTC [5892] ERROR:  Sin permiso
+2026-09-21 20:44:04.568 UTC [5892] CONTEXT:  PL/pgSQL function get_business_kpis(uuid,timestamp with time zone,timestamp with time zone) line 5 at RAISE
+2026-09-21 20:44:04.568 UTC [5892] STATEMENT:  select (public.get_business_kpis((select id from businesses limit 1), now() - interval '30 days', now()) ->> 'revenue') as ingresos_30d,
+	       jsonb_array_length(public.get_at_risk_clients((select id from businesses limit 1))) as clientes_en_riesgo,
+	       jsonb_array_length(public.ai_tool_top_services((select id from businesses limit 1), now() - interval '30 days', now())) as top_servicios;
+2026-09-21 20:44:11.410 UTC [5910] ERROR:  Ese horario ya no está disponible
+2026-09-21 20:44:11.410 UTC [5910] CONTEXT:  PL/pgSQL function create_booking(text,uuid[],uuid,timestamp with time zone,text,text,text) line 22 at RAISE
+	PL/pgSQL assignment "v_res := public.create_booking('barberia-black',
+	    (select array_agg(id) from services where name = 'Barba'),
+	    (v_slots -> 0 ->> 'employee_id')::uuid, v_start, 'Cliente Prueba', '999000111', 'smoke test')"
+	PL/pgSQL function inline_code_block line 7 at assignment
+2026-09-21 20:44:11.410 UTC [5910] STATEMENT:  do $$
+	declare v_slots jsonb; v_start timestamptz; v_res jsonb;
+	begin
+	  v_slots := public.get_public_availability('barberia-black', current_date + 3,
+	    (select array_agg(id) from services where name = 'Barba'), null);
+	  v_start := (v_slots -> 0 ->> 'starts_at')::timestamptz;
+	  v_res := public.create_booking('barberia-black',
+	    (select array_agg(id) from services where name = 'Barba'),
+	    (v_slots -> 0 ->> 'employee_id')::uuid, v_start, 'Cliente Prueba', '999000111', 'smoke test');
+	  raise notice '✅ booking creado: %', v_res ->> 'appointment_id';
+	end $$;
+2026-09-21 20:44:14.881 UTC [5919] ERROR:  Ese horario ya no está disponible
+2026-09-21 20:44:14.881 UTC [5919] CONTEXT:  PL/pgSQL function create_booking(text,uuid[],uuid,timestamp with time zone,text,text,text) line 22 at RAISE
+	PL/pgSQL assignment "v_res := public.create_booking('barberia-black',
+	    (select array_agg(id) from services where name = 'Barba'),
+	    (v_slots -> 0 ->> 'employee_id')::uuid, v_start, 'Cliente Prueba', '999000111', 'smoke test')"
+	PL/pgSQL function inline_code_block line 7 at assignment
+2026-09-21 20:44:14.881 UTC [5919] STATEMENT:  do $$
+	declare v_slots jsonb; v_start timestamptz; v_res jsonb;
+	begin
+	  v_slots := public.get_public_availability('barberia-black', current_date + 3,
+	    (select array_agg(id) from services where name = 'Barba'), null);
+	  v_start := (v_slots -> 0 ->> 'starts_at')::timestamptz;
+	  v_res := public.create_booking('barberia-black',
+	    (select array_agg(id) from services where name = 'Barba'),
+	    (v_slots -> 0 ->> 'employee_id')::uuid, v_start, 'Cliente Prueba', '999000111', 'smoke test');
+	  raise notice '✅ booking creado: %', v_res ->> 'appointment_id';
+	end $$;
+2026-09-21 20:44:31.198 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:44:31.204 UTC [5483] LOG:  checkpoint complete: wrote 51 buffers (0.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.007 s; sync files=15, longest=0.001 s, average=0.001 s; distance=7280 kB, estimate=7280 kB; lsn=0/4BEE180, redo lsn=0/4BEE128
+2026-09-21 20:44:31.574 UTC [5946] ERROR:  syntax error at or near "(" at character 29
+2026-09-21 20:44:31.574 UTC [5946] STATEMENT:  set request.jwt.claim.sub = (select id::text from public.users where email = 'admin@blackhouse.pe');
+2026-09-21 20:44:35.257 UTC [5955] ERROR:  Ese horario ya no está disponible
+2026-09-21 20:44:35.257 UTC [5955] CONTEXT:  PL/pgSQL function create_booking(text,uuid[],uuid,timestamp with time zone,text,text,text) line 22 at RAISE
+	PL/pgSQL assignment "v_res := public.create_booking('barberia-black',
+	    (select array_agg(id) from services where name = 'Barba'),
+	    v_emp, v_start, 'Cliente Prueba', '999000111', 'smoke test')"
+	PL/pgSQL function inline_code_block line 11 at assignment
+2026-09-21 20:44:35.257 UTC [5955] STATEMENT:  do $$
+	declare v_slots jsonb; v_start timestamptz; v_res jsonb; v_emp uuid;
+	begin
+	  v_slots := public.get_public_availability('barberia-black', current_date + 6,
+	    (select array_agg(id) from services where name = 'Barba'), null);
+	  if jsonb_array_length(v_slots) = 0 then
+	    raise notice '⚠ sin slots en fecha+6 (horario ocupado) — omitido'; return;
+	  end if;
+	  v_start := (v_slots -> 0 ->> 'starts_at')::timestamptz;
+	  v_emp := (v_slots -> 0 ->> 'employee_id')::uuid;
+	  v_res := public.create_booking('barberia-black',
+	    (select array_agg(id) from services where name = 'Barba'),
+	    v_emp, v_start, 'Cliente Prueba', '999000111', 'smoke test');
+	  raise notice '✅ booking creado: %', v_res ->> 'appointment_id';
+	  -- segundo booking en el MISMO hueco debe fallar
+	  begin
+	    perform public.create_booking('barberia-black',
+	      (select array_agg(id) from services where name = 'Barba'),
+	      v_emp, v_start, 'Cliente Repetido', '999000222', 'doble');
+	    raise notice '❌ FALLO: se permitió doble booking';
+	  exception when others then
+	    raise notice '✅ doble booking bloqueado: %', sqlerrm;
+	  end;
+	end $$;
+2026-09-21 20:44:42.946 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:44:42.950 UTC [5483] LOG:  checkpoint complete: wrote 10 buffers (0.1%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.002 s, sync=0.001 s, total=0.005 s; sync files=9, longest=0.001 s, average=0.001 s; distance=6898 kB, estimate=7242 kB; lsn=0/52AAC40, redo lsn=0/52AABE8
+2026-09-21 20:44:43.328 UTC [5974] ERROR:  syntax error at or near "(" at character 29
+2026-09-21 20:44:43.328 UTC [5974] STATEMENT:  set request.jwt.claim.sub = (select id::text from public.users where email = 'admin@blackhouse.pe');
+2026-09-21 20:45:15.937 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:45:15.942 UTC [5483] LOG:  checkpoint complete: wrote 16 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.005 s; sync files=10, longest=0.001 s, average=0.001 s; distance=7092 kB, estimate=7227 kB; lsn=0/5997FA0, redo lsn=0/5997F48
+2026-09-21 20:45:16.339 UTC [6000] ERROR:  column "c.total_spent" must appear in the GROUP BY clause or be used in an aggregate function at character 586
+2026-09-21 20:45:16.339 UTC [6000] QUERY:  coalesce((
+	    select jsonb_agg(jsonb_build_object(
+	      'customer_id', c.id, 'name', c.full_name, 'phone', c.phone,
+	      'avg_recurrence_days', c.avg_recurrence_days,
+	      'days_overdue', (extract(epoch from (now() - c.last_visit_at)) / 86400)::int
+	        - coalesce(c.avg_recurrence_days, 0),
+	      'total_spent', c.total_spent))
+	    from public.customers c
+	    where c.business_id = p_business_id
+	      and c.visit_count >= 2
+	      and c.avg_recurrence_days is not null
+	      and now() - c.last_visit_at > (c.avg_recurrence_days * p_tolerance || ' days')::interval
+	    order by c.total_spent desc
+	  ), '[]'::jsonb)
+2026-09-21 20:45:16.339 UTC [6000] CONTEXT:  PL/pgSQL function get_at_risk_clients(uuid,numeric) line 6 at RETURN
+2026-09-21 20:45:16.339 UTC [6000] STATEMENT:  select (public.get_business_kpis((select id from businesses where slug = 'barberia-black'), now() - interval '30 days', now()) ->> 'revenue') as ingresos_30d,
+	       jsonb_array_length(public.get_at_risk_clients((select id from businesses where slug = 'barberia-black'))) as clientes_en_riesgo,
+	       jsonb_array_length(public.ai_tool_top_services((select id from businesses where slug = 'barberia-black'), now() - interval '30 days', now())) as top_servicios;
+2026-09-21 20:45:28.144 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:45:28.149 UTC [5483] LOG:  checkpoint complete: wrote 13 buffers (0.1%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.002 s, sync=0.001 s, total=0.006 s; sync files=10, longest=0.001 s, average=0.001 s; distance=6900 kB, estimate=7194 kB; lsn=0/6055028, redo lsn=0/6054FD0
+2026-09-21 20:45:28.536 UTC [6033] ERROR:  Solo Super Admin puede asignar el rol BUSINESS_ADMIN
+2026-09-21 20:45:28.536 UTC [6033] CONTEXT:  PL/pgSQL function protect_business_users() line 5 at RAISE
+2026-09-21 20:45:28.536 UTC [6033] STATEMENT:  insert into business_users (business_id, user_id, role_code, status)
+	values ('22222222-2222-4222-8222-222222222222', '11111111-1111-4111-8111-111111111111', 'BUSINESS_ADMIN', 'ACTIVE')
+	on conflict (business_id, user_id) do nothing;
+2026-09-21 20:45:35.013 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:45:35.020 UTC [5483] LOG:  checkpoint complete: wrote 20 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.007 s; sync files=10, longest=0.001 s, average=0.001 s; distance=7093 kB, estimate=7184 kB; lsn=0/6742560, redo lsn=0/6742508
+2026-09-21 20:45:35.514 UTC [6059] ERROR:  permission denied for table business_users
+2026-09-21 20:45:35.514 UTC [6059] STATEMENT:  select set_config('request.jwt.claim.sub', (select id::text from public.users where email = 'carlos@blackhouse.pe'), false);
+2026-09-21 20:46:04.559 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:46:04.564 UTC [5483] LOG:  checkpoint complete: wrote 17 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.005 s; sync files=10, longest=0.001 s, average=0.001 s; distance=7080 kB, estimate=7174 kB; lsn=0/6E2C788, redo lsn=0/6E2C730
+2026-09-21 20:46:04.621 UTC [6078] ERROR:  schema "auth" does not exist
+2026-09-21 20:46:04.621 UTC [6078] STATEMENT:  grant usage on schema auth, storage to anon, authenticated, service_role;
+2026-09-21 20:46:22.918 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:46:22.924 UTC [5483] LOG:  checkpoint complete: wrote 15 buffers (0.1%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.002 s, sync=0.001 s, total=0.007 s; sync files=9, longest=0.001 s, average=0.001 s; distance=4338 kB, estimate=6890 kB; lsn=0/7269328, redo lsn=0/72692D0
+2026-09-21 20:46:22.994 UTC [6091] ERROR:  schema "auth" does not exist
+2026-09-21 20:46:22.994 UTC [6091] STATEMENT:  grant usage on schema auth, storage to anon, authenticated, service_role;
+2026-09-21 20:46:32.076 UTC [5483] LOG:  checkpoint starting: immediate force wait
+2026-09-21 20:46:32.080 UTC [5483] LOG:  checkpoint complete: wrote 8 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.004 s; sync files=8, longest=0.001 s, average=0.001 s; distance=4323 kB, estimate=6634 kB; lsn=0/76A21A8, redo lsn=0/76A2150

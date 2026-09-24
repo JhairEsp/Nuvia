@@ -1,0 +1,4 @@
+NOTICE:  database "beautyos_preflight_test" does not exist, skipping
+DO
+PASS: preflight rechaza Starter excedido y revierte catálogo/historial, sin borrar trabajadores
+PASS: SUPABASE.sql bloquea ejecución en proyecto BeautyOS existente

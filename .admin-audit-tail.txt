@@ -1,0 +1,34 @@
+/* ── Auditoría (§38 trazabilidad) ───────────────────────────────────────── */
+export function AdminAudit() {
+  const db = useDB();
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-title font-semibold tracking-[-0.014em]">Auditoría</h1>
+        <p className="text-body text-muted">Toda acción importante queda registrada: quién, qué, cuándo, antes/después</p>
+      </div>
+      <Card>
+        <CardHeader><CardTitle className="flex items-center gap-2"><FileClock className="h-4 w-4 text-accent" /> Actividad</CardTitle>
+          <Badge>{db.audit.length} eventos</Badge>
+        </CardHeader>
+        <CardContent className="space-y-1">
+          {db.audit.map((a) => (
+            <div key={a.id} className="flex items-start gap-4 p-3.5 rounded-[var(--radius-tile)] hover:bg-subtle transition-colors">
+              <Badge tone={a.action === "PUBLISH" ? "accent" : a.action === "DELETE" ? "danger" : "neutral"}>{a.action}</Badge>
+              <div className="flex-1 min-w-0">
+                <p className="text-body truncate">{a.detail}</p>
+                <p className="text-caption text-muted num">
+                  {a.user} · {a.entity} · {dayLabel(a.at)}
+                  {a.before && ` · antes: ${a.before} → después: ${a.after}`}
+                </p>
+              </div>
+            </div>
+          ))}
+          {db.audit.length === 0 && <p className="text-body text-muted text-center py-6">Sin eventos</p>}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export const AdminIcons = { Building2, Users };

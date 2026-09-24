@@ -1,0 +1,483 @@
+CREATE EXTENSION
+DO
+GRANT
+ALTER DEFAULT PRIVILEGES
+ALTER DEFAULT PRIVILEGES
+ALTER DEFAULT PRIVILEGES
+CREATE SCHEMA
+CREATE TABLE
+CREATE TABLE
+CREATE FUNCTION
+CREATE SCHEMA
+CREATE TABLE
+CREATE TABLE
+CREATE FUNCTION
+GRANT
+CREATE FUNCTION
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TYPE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+ALTER TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+ALTER TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+ALTER TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+NOTICE:  trigger "users_updated_at" for relation "public.users" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+NOTICE:  trigger "businesses_updated_at" for relation "public.businesses" does not exist, skipping
+NOTICE:  trigger "locations_updated_at" for relation "public.locations" does not exist, skipping
+NOTICE:  trigger "business_users_updated_at" for relation "public.business_users" does not exist, skipping
+NOTICE:  trigger "business_settings_updated_at" for relation "public.business_settings" does not exist, skipping
+NOTICE:  trigger "business_branding_updated_at" for relation "public.business_branding" does not exist, skipping
+NOTICE:  trigger "business_website_updated_at" for relation "public.business_website" does not exist, skipping
+NOTICE:  trigger "website_sections_updated_at" for relation "public.website_sections" does not exist, skipping
+NOTICE:  trigger "services_updated_at" for relation "public.services" does not exist, skipping
+NOTICE:  trigger "service_categories_updated_at" for relation "public.service_categories" does not exist, skipping
+NOTICE:  trigger "employees_updated_at" for relation "public.employees" does not exist, skipping
+NOTICE:  trigger "customers_updated_at" for relation "public.customers" does not exist, skipping
+NOTICE:  trigger "appointments_updated_at" for relation "public.appointments" does not exist, skipping
+NOTICE:  trigger "waitlist_updated_at" for relation "public.waitlist" does not exist, skipping
+NOTICE:  trigger "sales_updated_at" for relation "public.sales" does not exist, skipping
+NOTICE:  trigger "sale_items_updated_at" for relation "public.sale_items" does not exist, skipping
+NOTICE:  trigger "products_updated_at" for relation "public.products" does not exist, skipping
+NOTICE:  trigger "promotions_updated_at" for relation "public.promotions" does not exist, skipping
+NOTICE:  trigger "automation_rules_updated_at" for relation "public.automation_rules" does not exist, skipping
+NOTICE:  trigger "plans_updated_at" for relation "public.plans" does not exist, skipping
+NOTICE:  trigger "subscriptions_updated_at" for relation "public.subscriptions" does not exist, skipping
+NOTICE:  trigger "loyalty_accounts_updated_at" for relation "public.loyalty_accounts" does not exist, skipping
+NOTICE:  trigger "ai_conversations_updated_at" for relation "public.ai_conversations" does not exist, skipping
+DO
+CREATE FUNCTION
+NOTICE:  trigger "on_auth_user_created" for relation "auth.users" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+CREATE FUNCTION
+NOTICE:  trigger "protect_business_columns" for relation "public.businesses" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+CREATE FUNCTION
+NOTICE:  trigger "protect_business_users" for relation "public.business_users" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+CREATE FUNCTION
+NOTICE:  trigger "appointment_status_tg" for relation "public.appointments" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+CREATE FUNCTION
+NOTICE:  trigger "services_audit" for relation "public.services" does not exist, skipping
+NOTICE:  trigger "employees_audit" for relation "public.employees" does not exist, skipping
+NOTICE:  trigger "plans_audit" for relation "public.plans" does not exist, skipping
+NOTICE:  trigger "subscriptions_audit" for relation "public.subscriptions" does not exist, skipping
+NOTICE:  trigger "business_branding_audit" for relation "public.business_branding" does not exist, skipping
+NOTICE:  trigger "business_settings_audit" for relation "public.business_settings" does not exist, skipping
+NOTICE:  trigger "products_audit" for relation "public.products" does not exist, skipping
+DO
+CREATE FUNCTION
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+ _tpl 
+------
+ 
+(1 row)
+
+DROP FUNCTION
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+ALTER TABLE
+CREATE POLICY
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+INSERT 0 3
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+CREATE POLICY
+BEGIN
+CREATE FUNCTION
+CREATE FUNCTION
+NOTICE:  trigger "admin_protect_user" for relation "public.users" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+CREATE FUNCTION
+DO
+CREATE FUNCTION
+NOTICE:  trigger "businesses_audit" for relation "public.businesses" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+NOTICE:  trigger "users_audit" for relation "public.users" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+NOTICE:  trigger "business_users_audit" for relation "public.business_users" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+GRANT
+NOTIFY
+COMMIT
