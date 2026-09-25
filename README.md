@@ -103,3 +103,7 @@ El Copiloto permite Hugging Face/Qwen3-8B, servidor propio compatible o Groq, ma
 ### Copiloto con respaldo automático
 
 Principal: Hugging Face/Qwen3-8B. Respaldo: Groq/gpt-oss-120b. Conmuta por cuota agotada o fallos temporales, conservando permisos y tenant. No es uso ilimitado y no se ha activado remotamente. [Configuración segura, acceso necesario y pruebas](docs/activar-doble-ia.md).
+
+### Plantillas exclusivas de Barbería
+
+Para negocios de tipo Barbería, Mi página ofrece **Clásica, Urbana y Caballeros**: tres diseños específicos con animaciones, arte decorativo y adaptación móvil. Los demás rubros conservan sus plantillas. Sin migración SQL. [Funcionamiento y pruebas](docs/barberia-plantillas.md).

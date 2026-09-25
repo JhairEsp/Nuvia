@@ -14,6 +14,10 @@ El rubro determina la recomendación y los textos iniciales; cualquiera de las t
 
 Los negocios sin `template_key` eligen primero una plantilla. Cambiar después conserva contenido, imágenes, orden y visibilidad, pero aplica la fuente y los colores del nuevo diseño. La web publicada anterior sigue intacta hasta publicar de nuevo.
 
+## Variante exclusiva de Barbería
+
+Cuando el tipo guardado es **Barbería**, las tres opciones se presentan como **Clásica, Urbana y Caballeros**, con composiciones, paletas, arte y animación propios del rubro. Conservan los mismos IDs SQL. Los demás tipos mantienen el selector descrito arriba. [Detalles y pruebas](barberia-plantillas.md).
+
 ## Qué se puede editar
 
 - **Marca:** logo, colores principal/botones, fuente y frase de marca.

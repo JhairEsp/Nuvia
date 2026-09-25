@@ -5,3 +5,30 @@
 @media(prefers-reduced-motion:reduce){.we-template-card{transition:none}.we-template-card:hover{transform:none}}
 
 .we-recommended{top:auto;bottom:10px;left:12px;transform:none}.we-template-art:has(.we-recommended) .we-mini-bottom>span:first-child{visibility:hidden}
+
+/* Selector de Barbería: tres composiciones reales, no etiquetas de otros rubros. */
+.we-barber-chooser .we-template-art{height:365px!important}
+.we-barber-chooser .we-mini-layout{gap:12px;grid-template-columns:1.05fr 1fr}
+.we-barber-chooser .we-mini-layout h3{font-size:30px!important;line-height:1.08!important}
+.we-barber-chooser .we-mini-art{height:220px;background:#191715;border:1px solid #e8cf9a33}
+.we-barber-chooser .we-mini-button{background:#d6ab73;color:#171512;border-radius:2px;font-size:8px}
+.we-barber-chooser .we-mini-nav{position:relative;z-index:3;font-size:10px}
+.we-barber-chooser .we-template-art.nw-editorial .we-mini-art{border-radius:100px 100px 3px 3px}
+.we-barber-chooser .we-mini-bottom{color:inherit;opacity:.75;position:relative;z-index:3;letter-spacing:.08em}
+.we-barber-chooser .nw-studio .we-mini-layout{display:block;text-align:left;margin-top:33px}
+.we-barber-chooser .we-template-art.nw-studio .we-mini-art{inset:-20px -15px -20px;height:235px;opacity:.58;border:0;border-radius:0}
+.we-barber-chooser .nw-studio .nw-barber-art img{filter:grayscale(1)}
+.we-barber-chooser .nw-studio .nw-barber-art:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#101211a0,transparent)}
+.we-barber-chooser .we-template-art.nw-studio h3{font-size:45px!important;max-width:250px;line-height:.95!important}
+.we-barber-chooser .we-template-art.nw-studio .we-mini-button{background:#d5f54a;border-radius:2px;margin-top:22px}
+.we-barber-chooser .we-template-art.nw-serene .we-mini-layout{display:flex;flex-direction:column;text-align:center;gap:18px;margin-top:20px}
+.we-barber-chooser .we-template-art.nw-serene .we-mini-art{height:110px;width:100%;border-radius:2px;transform:none}
+.we-barber-chooser .we-template-art.nw-serene .we-mini-layout h3{font-size:28px!important;max-width:270px;margin:auto!important}
+.we-barber-chooser .we-template-art.nw-serene .we-mini-kicker{font-size:6px;margin-bottom:10px}
+.we-barber-chooser .we-template-art.nw-serene .we-mini-button{background:#254c44;border-radius:2px;margin-top:14px}
+.we-barber-chooser .we-template-art.nw-serene .we-mini-bottom{padding-top:10px}
+.we-barber-chooser .we-template-art.nw-serene .nw-barber-art img{object-position:70% 57%}
+.we-barber-chooser .nw-studio .nw-barber-seal,.we-barber-chooser .nw-serene .nw-barber-seal{display:none}
+.we-barber-chooser .we-recommended{font-size:8px;bottom:11px}
+@media(min-width:761px) and (max-width:1250px){.we-barber-chooser .we-mini-layout h3{font-size:25px!important}.we-barber-chooser .we-template-art.nw-studio h3{font-size:35px!important}.we-barber-chooser .we-template-art.nw-serene .we-mini-layout h3{font-size:26px!important}}
+@media(max-width:760px){.we-barber-chooser .we-template-art{height:370px!important}.we-barber-chooser .we-mini-layout{gap:15px}.we-barber-chooser .we-template-info{padding:22px}.we-barber-chooser .we-template-art.nw-studio h3{font-size:48px!important}}
