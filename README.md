@@ -46,17 +46,18 @@ Solo las claves públicas de Supabase van en `VITE_*`. **Nunca** colocar `servic
 3. Revisar el [alcance y las reglas](docs/planes-alcance-migracion.md).
 4. Aplicar **una vez** `supabase/PLANES_Y_SUCURSALES.sql`. Es una copia exacta de la migración `20260924000003_two_plans.sql`: aplicar uno u otro, no ambos.
 5. Para el editor «Mi página», aplicar **una vez** `supabase/EDITOR_WEB.sql` (migración 04), después de la 03. No ejecutar una migración que ya esté instalada.
-6. Volver a desplegar el frontend y, para los cambios de planes/IA, las funciones indicadas en la guía de entrega. Ver [activación del editor](docs/entrega-editor-web.md).
+6. Para QR de Yape/Plin y fotos del equipo, aplicar **una vez** `supabase/VENTAS_Y_EQUIPO.sql` (05), después de la 04.
+7. Volver a desplegar el frontend y, para los cambios de planes/IA, las funciones indicadas en la guía de entrega. Ver [activación del editor](docs/entrega-editor-web.md).
 
 **No ejecutar `SUPABASE.sql`, los tests ni `FIX_AUTH.sql` sobre el proyecto existente.** No insertar cuentas en `auth.users`/`auth.identities`; se administran mediante Supabase Auth API.
 
 ### Instalación nueva
 
-`supabase/SUPABASE.sql` incluye esquema, configuración RBAC, administración, planes y editor web (migraciones 01–04). **Solo para un proyecto sin Nuvia instalado; no es idempotente.** No contiene usuarios Auth, contraseñas ni registros operativos de demostración.
+`supabase/SUPABASE.sql` incluye esquema, configuración RBAC, administración, planes, editor web y medios de negocio (migraciones 01–05). **Solo para un proyecto sin Nuvia instalado; no es idempotente.** No contiene usuarios Auth, contraseñas ni registros operativos de demostración.
 
 Crear la primera cuenta mediante Supabase Authentication. Con el propietario del proyecto y el UID verificado, establecer su rol inicial en `public.users` desde un contexto SQL administrativo de confianza. Después, los negocios y usuarios se gestionan desde el panel. No existe una cuenta ni una contraseña predeterminada.
 
-Alternativa con CLI: aplicar las cuatro migraciones en orden y la configuración RBAC de `seed.sql`. Este seed solo configura roles/permisos; no sirve para poblar una demo. No mezclar el paquete SQL completo con migraciones ya registradas/aplicadas.
+Alternativa con CLI: aplicar las cinco migraciones en orden y la configuración RBAC de `seed.sql`. Este seed solo configura roles/permisos; no sirve para poblar una demo. No mezclar el paquete SQL completo con migraciones ya registradas/aplicadas.
 
 ## Rutas
 
@@ -90,3 +91,15 @@ La disponibilidad de un módulo en el plan no acredita una entrega externa: What
 Selector inicial de **Éditorial, Studio y Serene**, adaptadas al rubro. Subida de imágenes desde la aplicación, diez secciones editables, borrador persistente, previsualización privada en tres tamaños y publicación confirmada con URL del despliegue actual. El borrador no modifica el sitio público hasta publicar.
 
 [Funcionamiento](docs/website-builder.md) · [Instalación, pruebas y limitaciones](docs/entrega-editor-web.md). Los cambios locales no actualizan automáticamente un despliegue existente.
+
+## Ventas, fidelización, equipo e IA
+
+QR propios de Yape/Plin subidos desde Ajustes y abiertos al seleccionar el método en Ventas; confirmación humana del abono, no integración bancaria. Foto del trabajador desde Equipo y guardado real. Lectura corregida de los puntos de fidelización (relación 1:1) y elección explícita del cliente al cobrar.
+
+El Copiloto permite Hugging Face/Qwen3-8B, servidor propio compatible o Groq, manteniendo RBAC/RLS. Tokens exclusivamente en Edge Secrets. **Modelo abierto no significa API gratuita ilimitada**: HF tiene créditos/cuotas; autoalojar requiere hardware.
+
+[Activación de migración 05, frontend y Copiloto, pruebas y límites](docs/entrega-ventas-fidelizacion-equipo-ia.md).
+
+### Copiloto con respaldo automático
+
+Principal: Hugging Face/Qwen3-8B. Respaldo: Groq/gpt-oss-120b. Conmuta por cuota agotada o fallos temporales, conservando permisos y tenant. No es uso ilimitado y no se ha activado remotamente. [Configuración segura, acceso necesario y pruebas](docs/activar-doble-ia.md).

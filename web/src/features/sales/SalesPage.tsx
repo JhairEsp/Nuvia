@@ -10,6 +10,9 @@ import { money } from "../../lib/format";
 import { useDB } from "../../store/db";
 import type { PaymentMethod, SaleItem } from "../../types/domain";
 
+import PaymentQrModal from "./PaymentQrModal";
+import type { QrMethod } from "../../lib/business-media";
+
 const METHODS: Array<{ id: PaymentMethod; label: string; icon: typeof Banknote }> = [
   { id: "CASH", label: "Efectivo", icon: Banknote },
   { id: "YAPE", label: "Yape", icon: Smartphone },
@@ -21,16 +24,21 @@ const METHODS: Array<{ id: PaymentMethod; label: string; icon: typeof Banknote }
 export default function SalesPage() {
   const db = useDB();
   const [cart, setCart] = useState<SaleItem[]>([]);
-  const [customerId, setCustomerId] = useState(db.customers[0]?.id ?? "");
+  const [customerId, setCustomerId] = useState("");
   const [employeeId, setEmployeeId] = useState(db.employees[0]?.id ?? "");
   const [discount, setDiscount] = useState(0);
-  const [method, setMethod] = useState<PaymentMethod>("YAPE");
+  const [method, setMethod] = useState<PaymentMethod>("CASH");
+  const [qrMethod,setQrMethod]=useState<QrMethod|null>(null);
+  const [verified,setVerified]=useState(false);
   const [ref, setRef] = useState("");
-  useEffect(() => { setCart([]); setDiscount(0); setRef(""); }, [db.locationId]);
+  useEffect(() => { setCart([]); setDiscount(0); setRef(""); setQrMethod(null); setVerified(false); }, [db.locationId,db.businessId]);
   useEffect(() => { setEmployeeId(db.employees[0]?.id ?? ""); }, [db.employees]);
 
   const subtotal = cart.reduce((a, i) => a + i.unitPrice * i.qty, 0);
   const total = Math.max(0, subtotal - discount);
+
+  useEffect(()=>{setVerified(false);},[total,method,customerId]);
+  useEffect(()=>{if(customerId!=="__none__"&&!db.customers.some(c=>c.id===customerId))setCustomerId("");},[db.customers,customerId]);
 
   const add = (kind: "SERVICE" | "PRODUCT", id: string, description: string, unitPrice: number) => {
     setCart((c) => {
@@ -46,18 +54,22 @@ export default function SalesPage() {
   const [saving, setSaving] = useState(false);
   const charge = async () => {
     if (cart.length === 0 || saving) return;
+    if(!customerId){toast.error("Selecciona un cliente o elige Venta sin cliente. Sin cliente no se acumulan puntos.");return;}
+    if((method==="YAPE"||method==="PLIN")&&!verified){setQrMethod(method);return;}
+    const tenant=db.businessId,branch=db.locationId;
     setSaving(true);
     try {
     await db.createSale({
-      customerId, employeeId, items: cart, discountTotal: discount,
+      customerId:customerId==="__none__"?"":customerId, employeeId, items: cart, discountTotal: discount,
       payments: [{ method, amount: total, reference: ref }],
       createdBy: "",
     });
+    if(useDB.getState().businessId!==tenant||useDB.getState().locationId!==branch)return;
     toast.success(`Venta registrada · ${money(total)} 🎉`, {
       description: method === "YAPE" || method === "PLIN" ? `Op. ${ref || "—"}` : METHODS.find((m) => m.id === method)?.label,
     });
-    setCart([]); setDiscount(0); setRef("");
-    } catch (e) { toast.error(planError(e)); } finally { setSaving(false); }
+    setCart([]); setDiscount(0); setRef(""); setVerified(false); setCustomerId("");
+    } catch (e) { if(useDB.getState().businessId===tenant&&useDB.getState().locationId===branch)toast.error(planError(e)); } finally { setSaving(false); }
   };
 
   return (
@@ -67,7 +79,8 @@ export default function SalesPage() {
         <p className="text-body text-muted">Cobra servicios y productos · comisiones y puntos se aplican solos</p>
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-4">
+      {qrMethod&&db.businessId&&<PaymentQrModal bid={db.businessId} method={qrMethod} total={total} onClose={()=>setQrMethod(null)} onVerified={()=>{setVerified(true);setQrMethod(null);}}/>}
+      <div className="grid lg:grid-cols-5 gap-4" inert={saving} aria-busy={saving}>
         {/* Catálogo */}
         <div className="lg:col-span-3 space-y-4">
           <Card>
@@ -126,7 +139,8 @@ export default function SalesPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-2">
               <Field label="Cliente">
-                <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="w-full h-11 px-3 rounded-[var(--radius-control)] bg-subtle text-body">
+                <select aria-label="Cliente de la venta" value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="w-full h-11 px-3 rounded-[var(--radius-control)] bg-subtle text-body">
+                  <option value="" disabled>Seleccionar cliente</option><option value="__none__">Venta sin cliente · sin puntos</option>
                   {db.customers.map((c) => <option key={c.id} value={c.id}>{c.fullName}</option>)}
                 </select>
               </Field>
@@ -163,13 +177,15 @@ export default function SalesPage() {
               <p className="text-caption font-semibold mb-1.5">Método de pago</p>
               <div className="grid grid-cols-4 gap-1.5">
                 {METHODS.map((m) => (
-                  <button key={m.id} onClick={() => setMethod(m.id)}
+                  <button key={m.id} onClick={() => {setMethod(m.id);if(m.id==="YAPE"||m.id==="PLIN")setQrMethod(m.id);}}
                     className={`flex flex-col items-center gap-1 py-2.5 rounded-[var(--radius-tile)] border text-micro font-medium transition-all ${method === m.id ? "border-accent bg-accent-soft text-accent" : "border-hairline text-muted hover:border-accent/40"}`}>
                     <m.icon className="h-4 w-4" />{m.label}
                   </button>
                 ))}
               </div>
             </div>
+            {(method === "YAPE" || method === "PLIN") && <div className="space-y-2"><Button variant="quiet" size="sm" onClick={()=>setQrMethod(method)}>Ver QR de {method}</Button><p className="text-caption text-muted">{verified?"Abono verificado por el cajero":"Pendiente: verificar el abono antes de registrar la venta"}</p></div>}
+            <p className="text-caption text-muted">{customerId&&customerId!=="__none__"?`Esta venta suma ${Math.floor(total)} puntos al cliente (1 punto por S/1 cobrado).`:"Selecciona un cliente para sumar puntos; las ventas sin cliente no acumulan."}</p>
             {(method === "YAPE" || method === "PLIN") && (
               <Field label="Nº de operación"><Input value={ref} onChange={(e) => setRef(e.target.value)} placeholder="OP-000123" /></Field>
             )}

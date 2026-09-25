@@ -1,0 +1,21 @@
+// Aisladas: no utiliza tokens ni proveedores reales.
+import { createAiCaller, AiProviderError } from './ai-provider.ts';
+const ok=(b:unknown,label:string)=>{if(!b)throw new Error(label);};
+const configuration:Record<string,string>={AI_PROVIDER:'huggingface',HF_TOKEN:'hf-test',GROQ_API_KEY:'groq-test'};
+const env=(patch:Record<string,string|undefined>={})=>(name:string)=>({...configuration,...patch})[name];
+const reply=()=>Response.json({choices:[{message:{role:'assistant',content:'Respuesta autorizada'}}]});
+async function run(primaryStatus:number,backupStatus=200,patch:Record<string,string|undefined>={},secondCall=false){
+ const original=fetch,calls:Array<{host:string;token:string|null;body:any}>=[];
+ globalThis.fetch=(async(input:RequestInfo|URL,init?:RequestInit)=>{const req=new Request(input,init),host=new URL(req.url).hostname;calls.push({host,token:req.headers.get('authorization'),body:JSON.parse(await req.text())});const status=host==='router.huggingface.co'?primaryStatus:backupStatus;if(status===0)throw new TypeError('network unavailable');return status===200?reply():new Response('private-provider-prompt',{status});}) as typeof fetch;
+ try{const caller=createAiCaller(env(patch));let result,error;try{result=await caller({messages:[{role:'user',content:'Consulta'}],model:'attacker-model'});if(secondCall)await caller({messages:[]});}catch(e){error=e;}return{result,error,info:caller.info(),calls};}finally{globalThis.fetch=original;}
+}
+Deno.test('Principal sano no llama respaldo ni altera modelo configurado',async()=>{const r=await run(200);ok(r.calls.length===1&&!r.info.usedFallback,'Solo principal');ok(r.calls[0].body.model==='Qwen/Qwen3-8B','Modelo fijo');});
+for(const status of [402,429,500,503,0])Deno.test(`Fallback por estado ${status} a proveedor distinto`,async()=>{const r=await run(status);ok(r.calls.length===2&&r.info.usedFallback&&r.result,'Respaldo respondió');ok(r.calls[0].token==='Bearer hf-test'&&r.calls[1].token==='Bearer groq-test','Tokens separados');ok(r.calls[1].body.model==='openai/gpt-oss-120b','Modelo respaldo');ok(!JSON.stringify(r.info).includes('test'),'No expone claves');});
+for(const status of [400,401,403,404,422])Deno.test(`No cambia proveedor por rechazo ${status}`,async()=>{const r=await run(status);ok(r.error instanceof AiProviderError&&r.calls.length===1&&!r.info.usedFallback,'No elude rechazo');});
+Deno.test('Respaldo permanece activo para siguientes rondas de la pregunta',async()=>{const r=await run(429,200,{},true);ok(r.calls.map(c=>c.host).join(',')==='router.huggingface.co,api.groq.com,api.groq.com','No vuelve al agotado');});
+Deno.test('Si fallan ambos no hace bucles ni devuelve contenido privado',async()=>{const r=await run(402,503);ok(r.calls.length===2&&!r.result&&r.error instanceof AiProviderError,'Dos intentos');ok((r.error as Error).message.includes('respaldo')&&!(r.error as Error).message.includes('private'),'Error seguro');});
+Deno.test('Se puede desactivar explícitamente el respaldo',async()=>{const r=await run(429,200,{AI_FALLBACK_PROVIDER:'none'});ok(r.calls.length===1&&!r.info.usedFallback&&r.error,'Sin respaldo');});
+Deno.test('Principal funciona aunque aún no exista token del respaldo explícito',async()=>{const r=await run(200,200,{AI_FALLBACK_PROVIDER:'groq',GROQ_API_KEY:undefined});ok(r.calls.length===1&&r.result,'Principal sigue');});
+Deno.test('No inventa token del respaldo al agotarse principal',async()=>{const r=await run(402,200,{AI_FALLBACK_PROVIDER:'groq',GROQ_API_KEY:undefined});ok(r.calls.length===1&&r.error instanceof AiProviderError&&!r.result,'Falta secreto');});
+Deno.test('Dos proveedores iguales se rechazan como configuración inválida',()=>{let caught=false;try{createAiCaller(env({AI_FALLBACK_PROVIDER:'huggingface'}));}catch(e){caught=e instanceof AiProviderError;}ok(caught,'No es respaldo independiente');});
+Deno.test('Una negativa del modelo no provoca cambio de proveedor',async()=>{const original=fetch;let calls=0;globalThis.fetch=(()=>{calls++;return Promise.resolve(Response.json({choices:[{message:{content:'No puedo ayudar con esa petición.'}}]}));}) as typeof fetch;try{const caller=createAiCaller(env());const result=await caller({messages:[]});ok(calls===1&&!caller.info().usedFallback&&result.content.includes('No puedo'),'No elude negativa');}finally{globalThis.fetch=original;}});

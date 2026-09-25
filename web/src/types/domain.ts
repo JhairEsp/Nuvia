@@ -81,6 +81,7 @@ export interface Customer {
   avgRecurrenceDays?: number;
   tier: LoyaltyTier;
   points: number;
+  lifetimePoints?: number;
   referralCode?: string;
   birthDate?: string;
   whatsappOptIn?: boolean;

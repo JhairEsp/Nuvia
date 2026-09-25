@@ -1,0 +1,9 @@
+import { aiInvocationError } from '../src/lib/ai-errors.ts';
+const ok=(b:unknown)=>{if(!b)throw new Error('Assertion failed');};
+Deno.test('404 del gateway explica que secretos no despliegan función',async()=>{const text=await aiInvocationError({context:Response.json({code:'NOT_FOUND',message:'Requested function was not found'},{status:404})});ok(text.includes('no está desplegada')&&text.includes('404'));});
+Deno.test('Fetch fallido por preflight 404 detecta ruta ausente sin inferencia',async()=>{let count=0;const text=await aiInvocationError({name:'FunctionsFetchError'},async()=>{count++;return Response.json({code:'NOT_FOUND'},{status:404});});ok(count===1&&text.includes('no está desplegada'));});
+Deno.test('Fallo de red no se presenta como función ausente confirmada',async()=>{const text=await aiInvocationError({},()=>Promise.reject(new Error('network')));ok(text.includes('red o CORS')&&!text.includes('no está desplegada'));});
+Deno.test('Ruta existente con GET 405 no se presenta como ausente',async()=>{const text=await aiInvocationError({},async()=>new Response('',{status:405}));ok(text.includes('red o CORS')&&!text.includes('no está desplegada'));});
+Deno.test('JWT de gateway tiene mensaje distinto del proveedor',async()=>{const text=await aiInvocationError({context:Response.json({message:'Invalid JWT'},{status:401})});ok(text.includes('sesión')&&text.includes('401'));});
+Deno.test('Preserva error autorizado de cuota enviado por la función',async()=>{const text=await aiInvocationError({context:Response.json({error:'Ambas IA alcanzaron su cuota'},{status:429})});ok(text==='Ambas IA alcanzaron su cuota');});
+Deno.test('Fallo de inicio sin JSON apunta a logs sin mostrar body crudo',async()=>{const text=await aiInvocationError({context:new Response('private stack',{status:503})});ok(text.includes('logs')&&!text.includes('private stack'));});

@@ -1,3 +1,4 @@
+import { validateImage } from '../../lib/business-media';
 import { supabase } from '../../lib/supabase';
 import { publicSiteFromSnapshot } from '../../store/db';
 import type { PublicSite } from '../../types/domain';
@@ -23,14 +24,7 @@ export async function publishDraft(bid:string,draft:PublicSite,revision:number):
 }
 export async function uploadWebsiteImage(bid:string,file:File,role:'cover'|'logo'|'about'|'gallery'):Promise<string> {
  const ext:Record<string,string>={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
- if(!ext[file.type])throw new Error('Selecciona una imagen JPG, PNG o WebP.');
- if(file.size>10*1024*1024||!file.size)throw new Error('La imagen debe pesar entre 1 byte y 10 MB.');
- // Validar que sea una imagen decodificable, no confiar solo en la extensión.
- if(typeof createImageBitmap==='function') {
-  const bitmap=await createImageBitmap(file).catch(()=>{throw new Error('No se pudo leer esta imagen. Prueba con otro archivo.');});bitmap.close();
- } else {
-  await new Promise<void>((resolve,reject)=>{const url=URL.createObjectURL(file);const img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve();};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('No se pudo leer esta imagen.'));};img.src=url;});
- }
+ await validateImage(file,10);
  const bucket=role==='cover'||role==='logo'?'brand-assets':'website-media';
  const path=`${bid}/website/${role}/${crypto.randomUUID()}.${ext[file.type]}`;
  const {error}=await supabase.storage.from(bucket).upload(path,file,{upsert:false,contentType:file.type,cacheControl:'31536000'});

@@ -29,7 +29,7 @@ export default function LoyaltyPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-title font-semibold tracking-[-0.014em]">Fidelización & Promos</h1>
-        <p className="text-body text-muted">Puntos, niveles, referidos y promociones que llenan tu agenda</p>
+        <p className="text-body text-muted">1 punto por S/1 cobrado en una venta con cliente · el saldo se actualiza al registrar el pago</p>
       </div>
 
       <Tabs
@@ -38,6 +38,7 @@ export default function LoyaltyPage() {
             label: "Fidelización", icon: <Sparkles className="h-3.5 w-3.5" />,
             content: (
               <div className="space-y-4">
+                <p className="text-caption text-muted">Los puntos se calculan sobre el total cobrado después de descuentos, redondeado hacia abajo. Completar una cita no equivale a cobrar: registra su venta en POS. Las ventas sin cliente no suman puntos. Los niveles usan puntos acumulados históricos.</p>
                 <Card>
                   <CardHeader><CardTitle>Niveles</CardTitle></CardHeader>
                   <CardContent className="grid sm:grid-cols-4 gap-3">
@@ -57,9 +58,9 @@ export default function LoyaltyPage() {
                       <div key={c.id}>
                         <div className="flex justify-between text-caption mb-1.5">
                           <span className="font-medium flex items-center gap-2"><UserRound className="h-3.5 w-3.5 text-accent" />{c.fullName} · {TIER_LABEL[c.tier]}</span>
-                          <span className="num text-muted">{c.points} / {TIER_NEXT[c.tier] ?? 1200} pts</span>
+                          <span className="num text-muted">{c.points} puntos disponibles · {c.lifetimePoints??c.points} acumulados</span>
                         </div>
-                        <Progress value={c.points} max={TIER_NEXT[c.tier] ?? 1200} />
+                        <Progress value={c.lifetimePoints??c.points} max={TIER_NEXT[c.tier] ?? 1200} />
                       </div>
                     ))}
                   </CardContent>

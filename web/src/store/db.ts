@@ -22,7 +22,7 @@ const s = (v: unknown): string => (typeof v === "string" ? v : v == null ? "" : 
 /* ── Filas (snake_case, lo que devuelve PostgREST) ───────────────────────── */
 type ServiceRow = { location_id?: string; id: string; name: string; description: string | null; duration_min: number; price: number; category: string | null; category_id: string | null; show_on_website: boolean; active: boolean; position: number | null; category_ref?: { name: string } | null };
 type EmployeeRow = { location_id?: string; id: string; full_name: string; role_label: string; specialty: string | null; bio: string | null; photo_url: string | null; commission_rate: number; show_on_website: boolean; active: boolean; employee_services?: { service_id: string }[] };
-type CustomerRow = { id: string; full_name: string; phone: string; visit_count: number; total_spent: number; last_visit_at: string | null; avg_recurrence_days: number | null; referral_code: string | null; birth_date: string | null; whatsapp_opt_in: boolean; notes_summary: string | null; loyalty_accounts?: { points: number; tier: string }[]; customer_notes?: NoteRow[]; customer_photos?: PhotoRow[] };
+type CustomerRow = { id: string; full_name: string; phone: string; visit_count: number; total_spent: number; last_visit_at: string | null; avg_recurrence_days: number | null; referral_code: string | null; birth_date: string | null; whatsapp_opt_in: boolean; notes_summary: string | null; loyalty_accounts?: { points: number; tier: string; lifetime_points?:number } | { points: number; tier: string; lifetime_points?:number }[] | null; customer_notes?: NoteRow[]; customer_photos?: PhotoRow[] };
 type NoteRow = { id: string; note: string; created_at: string };
 type PhotoRow = { id: string; kind: string; storage_path: string; notes: string; taken_at: string };
 type ApptRow = {
@@ -58,11 +58,11 @@ const toEmployee = (r: EmployeeRow): Employee => ({
   active: r.active, serviceIds: (r.employee_services ?? []).map((es) => es.service_id),
 });
 const toCustomer = (r: CustomerRow): Customer => {
-  const acc = r.loyalty_accounts?.[0];
+  const acc = Array.isArray(r.loyalty_accounts)?r.loyalty_accounts[0]:r.loyalty_accounts;
   return {
     id: r.id, fullName: r.full_name, phone: r.phone, visitCount: n(r.visit_count), totalSpent: n(r.total_spent),
     lastVisitAt: r.last_visit_at ?? undefined, avgRecurrenceDays: r.avg_recurrence_days ?? undefined,
-    tier: (acc?.tier as LoyaltyTier) ?? "STARTER", points: n(acc?.points),
+    tier: (acc?.tier as LoyaltyTier) ?? "STARTER", points: n(acc?.points), lifetimePoints:n(acc?.lifetime_points??acc?.points),
     referralCode: r.referral_code ?? undefined, birthDate: r.birth_date ?? undefined, whatsappOptIn: r.whatsapp_opt_in,
     notes: (r.customer_notes ?? []).map((x): CustomerNote => ({ id: x.id, note: x.note, createdAt: x.created_at, by: "Equipo" })),
     photos: (r.customer_photos ?? []).map((x): CustomerPhoto => ({ id: x.id, kind: (x.kind as CustomerPhoto["kind"]) ?? "STYLE", url: x.storage_path, note: x.notes, takenAt: x.taken_at })),
@@ -395,7 +395,7 @@ export const useDB = create<DB>()((set, get) => {
           supabase.from("businesses").select("*").eq("id", businessId).maybeSingle(),
           allPages(() => q<ServiceRow>("services", "*, category_ref:service_categories(name)").order("position", { ascending: true }).order("id")), 
           allPages(() => q<EmployeeRow>("employees", "*, employee_services(service_id)").order("full_name").order("id")), 
-          allPages(() => q<CustomerRow>("customers", "*, loyalty_accounts(points, tier), customer_notes(id, note, created_at), customer_photos(id, kind, storage_path, notes, taken_at)").order("full_name").order("id")), 
+          allPages(() => q<CustomerRow>("customers", "*, loyalty_accounts(points, tier, lifetime_points), customer_notes(id, note, created_at), customer_photos(id, kind, storage_path, notes, taken_at)").order("full_name").order("id")), 
           allPages(() => q<ApptRow>("appointments", "*, customers(full_name), employees(full_name), appointment_items(service_id, unit_price, duration_min, services(name))").order("scheduled_start", { ascending: false }).order("id")), 
           q<WaitRow>("waitlist", "*, customers(full_name), services(name), employees(full_name)").order("created_at", { ascending: false }),
           allPages(() => q<ProductRow>("products", "*").order("name").order("id")), 
@@ -629,11 +629,12 @@ export const useDB = create<DB>()((set, get) => {
       void supabase.from("services").update({ active: false }).eq("id", id).then(({ error }) => error && fail(error));
     },
     async saveEmployee(e) {
-      const { error } = await supabase.rpc("save_team_member", { p_business_id: B(), p_id: e.id,
+      const bid=B();
+      const { error } = await supabase.rpc("save_team_member", { p_business_id: bid, p_id: e.id,
         p_data: { location_id: locationForWrite(e.locationId), full_name: e.fullName, role_label: e.roleLabel, specialty: e.specialty,
-          bio: e.bio, commission_rate: e.commissionRate, show_on_website: e.showOnWebsite, active: e.active ?? true }, p_services: e.serviceIds ?? [] });
+          bio: e.bio, photo_url: e.photoUrl??null, commission_rate: e.commissionRate, show_on_website: e.showOnWebsite, active: e.active ?? true }, p_services: e.serviceIds ?? [] });
       if (error) throw error;
-      await get().load(B());
+      if(get().businessId===bid)await get().load(bid);
     },
     async saveProduct(p) {
       const { error } = await supabase.from("products").upsert({
@@ -651,14 +652,15 @@ export const useDB = create<DB>()((set, get) => {
 
     /* ── Ventas (POS) ──────────────────────────────────────────────────── */
     async createSale(sale) {
+      const bid=B();
       const location_id = locationForWrite(sale.locationId);
       const { data, error } = await supabase.rpc("create_branch_sale", {
-        p_business_id: B(), p_location_id: location_id, p_customer_id: sale.customerId || null,
+        p_business_id: bid, p_location_id: location_id, p_customer_id: sale.customerId || null,
         p_employee_id: sale.employeeId || null, p_discount: sale.discountTotal,
         p_items: sale.items, p_payments: sale.payments,
       });
       if (error) throw error;
-      await get().load(B());
+      if(get().businessId===bid)await get().load(bid);
       return data as string;
     },
 

@@ -9,6 +9,8 @@ import { Field, Input, Textarea } from "../../components/ui/input";
 import { Switch } from "../../components/ui/switch";
 import { useDB } from "../../store/db";
 
+import PaymentQrSettings from "./PaymentQrSettings";
+
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
 export default function SettingsPage() {
@@ -28,6 +30,8 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3"><Link className="bg-subtle rounded-2xl p-5 font-semibold" to="/app/settings/plan">Plan y facturación → Mi plan</Link><Link className="bg-subtle rounded-2xl p-5 font-semibold" to="/app/settings/branches">Sucursales → Gestionar ubicaciones y horarios</Link></div>
+
+      <PaymentQrSettings />
 
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><Building2 className="h-4 w-4 text-accent" /> Información del negocio</CardTitle></CardHeader>

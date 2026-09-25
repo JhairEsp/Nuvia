@@ -1,0 +1,18 @@
+
+> nuvia-web@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 3856 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                     1.24 kB │ gzip:   0.57 kB
+dist/assets/index-BC22vIo9.css     82.67 kB │ gzip:  16.38 kB
+dist/assets/index-B5H-P6Iq.js   1,436.81 kB │ gzip: 408.27 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 10.45s

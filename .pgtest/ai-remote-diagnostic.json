@@ -1,0 +1,17 @@
+{
+  "endpoint": "https://uvydtpclprvuxhxdvwoq.supabase.co/functions/v1/ai-copilot",
+  "probes": [
+    {
+      "method": "OPTIONS",
+      "status": 404,
+      "cors": "*",
+      "body": "{\"code\":\"NOT_FOUND\",\"message\":\"Requested function was not found\"}"
+    },
+    {
+      "method": "GET",
+      "status": 404,
+      "cors": "*",
+      "body": "{\"code\":\"NOT_FOUND\",\"message\":\"Requested function was not found\"}"
+    }
+  ]
+}

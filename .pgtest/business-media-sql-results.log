@@ -1,0 +1,203 @@
+BEGIN
+CREATE FUNCTION
+CREATE FUNCTION
+ALTER TABLE
+GRANT
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000002
+(1 row)
+
+  set_config   
+---------------
+ authenticated
+(1 row)
+
+SET
+NOTICE:  PASS: QR inicial vacío, sin datos demo
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+                                                                       save_payment_qr                                                                       
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"holder": "Titular real", "method": "YAPE", "storage_path": "b0000000-0000-0000-0000-000000000001/payments/yape/00000000-0000-0000-0000-000000000001.png"}
+(1 row)
+
+NOTICE:  PASS: Admin guarda y recupera QR propio
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: No acepta archivo inexistente
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: No acepta ruta ajena
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: QR lectura IDOR
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: QR eliminación IDOR
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Sin escritura directa de QR
+ reject 
+--------
+ 
+(1 row)
+
+           save_team_member           
+--------------------------------------
+ e9000000-0000-0000-0000-000000000001
+(1 row)
+
+NOTICE:  PASS: RPC guarda foto trabajador
+ ok 
+----
+ 
+(1 row)
+
+           save_team_member           
+--------------------------------------
+ e9000000-0000-0000-0000-000000000001
+(1 row)
+
+NOTICE:  PASS: Cliente antiguo no borra foto al omitir campo
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Foto rechaza esquema peligroso
+ reject 
+--------
+ 
+(1 row)
+
+           save_team_member           
+--------------------------------------
+ e9000000-0000-0000-0000-000000000001
+(1 row)
+
+NOTICE:  PASS: Quitar foto persiste sin borrar trabajador
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+INSERT 0 1
+          create_branch_sale          
+--------------------------------------
+ 9c1748b9-6171-49f5-bc99-7ae692e42081
+(1 row)
+
+          create_branch_sale          
+--------------------------------------
+ 03c4b5e1-be13-4364-92a1-612e0dbb4e38
+(1 row)
+
+NOTICE:  PASS: Yape y Plin suman 25+20 puntos después de descuentos
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Un movimiento por venta, sin doble suma
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Pago incorrecto no registra venta
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Venta rechazada no suma puntos
+ ok 
+----
+ 
+(1 row)
+
+          create_branch_sale          
+--------------------------------------
+ 54f1cc37-8af1-4efa-8e09-b4d91f64bafe
+(1 row)
+
+NOTICE:  PASS: Venta sin cliente no adjudica puntos a otra persona
+ ok 
+----
+ 
+(1 row)
+
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000004
+(1 row)
+
+NOTICE:  PASS: Operador de ventas lee QR
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Operador no cambia cuenta de cobro
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Operador no sube QR por Storage directo
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Operador no cambia trabajador
+ reject 
+--------
+ 
+(1 row)
+
+RESET
+INSERT 0 1
+SET
+INSERT 0 1
+NOTICE:  PASS: team.manage permite retrato sin permiso website.manage
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Retrato de otro tenant bloqueado
+ reject 
+--------
+ 
+(1 row)
+
+SET
+NOTICE:  PASS: Anónimo no consulta configuración QR
+ reject 
+--------
+ 
+(1 row)
+
+ROLLBACK

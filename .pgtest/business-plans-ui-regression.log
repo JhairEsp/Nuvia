@@ -1,0 +1,10 @@
+PASS: pricing muestra dos planes y las mismas capacidades base
+PASS: Mi plan muestra consumo entregado por backend
+PASS: Starter advierte sexto trabajador sin simular guardado
+PASS: WhatsApp no anuncia éxito ni cierra el formulario ante rechazo backend
+PASS: WhatsApp confirma cola persistida, no entrega externa
+PASS: plantilla WhatsApp persiste al guardar, no por pulsación
+PASS: Business muestra ilimitados, no 50 ni 20000
+PASS: Business crea sucursal usando RPC y refresca la lista
+PASS: editor Super Admin preserva null y las capacidades
+PASS: sin errores de runtime React

@@ -1,0 +1,12 @@
+[0m[32mCheck[0m web/tests/ai-errors_test.ts
+[0m[38;5;245mrunning 7 tests from ./web/tests/ai-errors_test.ts[0m
+404 del gateway explica que secretos no despliegan función ... [0m[32mok[0m [0m[38;5;245m(21ms)[0m
+Fetch fallido por preflight 404 detecta ruta ausente sin inferencia ... [0m[32mok[0m [0m[38;5;245m(216µs)[0m
+Fallo de red no se presenta como función ausente confirmada ... [0m[32mok[0m [0m[38;5;245m(363µs)[0m
+Ruta existente con GET 405 no se presenta como ausente ... [0m[32mok[0m [0m[38;5;245m(289µs)[0m
+JWT de gateway tiene mensaje distinto del proveedor ... [0m[32mok[0m [0m[38;5;245m(163µs)[0m
+Preserva error autorizado de cuota enviado por la función ... [0m[32mok[0m [0m[38;5;245m(122µs)[0m
+Fallo de inicio sin JSON apunta a logs sin mostrar body crudo ... [0m[32mok[0m [0m[38;5;245m(273µs)[0m
+
+[0m[32mok[0m | 7 passed | 0 failed [0m[38;5;245m(29ms)[0m
+

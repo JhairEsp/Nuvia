@@ -1,4 +1,6 @@
-# 04 · API & IA (Groq) — Nuvia
+# API & IA — Nuvia
+
+**Actualización 24/09/2026:** el Copiloto admite Hugging Face/Qwen3-8B, servidor propio compatible o Groq. Ver [contrato actual, secretos y activación](entrega-ventas-fidelizacion-equipo-ia.md). Los apartados históricos Groq de abajo no significan que todos los proveedores sean gratuitos ni que el job cron haya cambiado.
 
 ## Principio
 
@@ -117,3 +119,15 @@ gracias post-visita, rebooking a X días, recuperación de huecos, lista de espe
 - Zod en Edge Functions; constraints en SQL (doble cierre).
 - Errores tipados `{ code, message, details }` → toasts amables; nunca stack traces al cliente.
 - Todo mutation responde con feedback + `undo` cuando sea posible (§51: deshacer cancelaciones/marketing).
+
+## Contratos de medios de negocio (migración 05)
+
+`get_payment_qrs(uuid)` devuelve métodos/path/titular para el negocio autorizado (ventas o ajustes). `save_payment_qr(uuid,text,text,text)` y `remove_payment_qr(uuid,text)` requieren `settings.manage`. La tabla no permite DML directo. Los archivos QR tienen prefijo propio y deben existir en Storage antes de asociarse; métodos admitidos YAPE/PLIN.
+
+`save_team_member(uuid,uuid,jsonb,uuid[])` acepta `photo_url` HTTP(S) o null; omitirlo conserva el valor previo. El resto del contrato y seguridad permanece. Uploads de QR y retratos: JPG/PNG/WebP hasta 5 MB en cliente y cuotas agregadas del backend. No se verifica un pago mediante la imagen.
+
+El contrato de puntos de `create_branch_sale` no cambió: suma floor(total) en transacción para cliente asociado/capacidad habilitada. La corrección está en la lectura del objeto `loyalty_accounts` y en evitar ventas sin cliente accidentalmente.
+
+## Principal y respaldo del Copiloto
+
+`ai-copilot` conserva el contrato de consulta y añade `ai: {provider, model, usedFallback}` a las respuestas exitosas. Configuración exclusiva de servidor: `AI_PROVIDER`, `AI_FALLBACK_PROVIDER`, `HF_TOKEN`, `HF_MODEL`, `GROQ_API_KEY`, `GROQ_MODEL`. Con ambos tokens y sin override, principal HF y respaldo Groq. HTTP 402/429/5xx o fallo de red permite una conmutación por consulta; los errores Auth/RBAC y negativas no. [Activación y límites](activar-doble-ia.md).

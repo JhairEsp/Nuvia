@@ -1,0 +1,5 @@
+PASS: dos conexiones compiten por trabajador 5; nunca se crea el sexto
+PASS: dos conexiones compiten por cita 300; nunca se crea la 301
+PASS: dos conexiones compiten por último MB; no sobrepasan 500 MB
+PASS: dos conexiones compiten por primera sucursal Starter; solo una persiste
+PASS: dos canjes compiten por 100 puntos; solo uno persiste y nunca hay saldo negativo

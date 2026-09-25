@@ -1,7 +1,7 @@
 import { runMutation } from "../../lib/mutations";
 import { useCapabilities, limitText } from "../../store/capabilities";
 import { BadgePercent, Eye, EyeOff, Pencil, Plus, UserRound } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Avatar } from "../../components/ui/avatar";
 import { Badge } from "../../components/ui/badge";
@@ -14,11 +14,16 @@ import { money } from "../../lib/format";
 import { useDB } from "../../store/db";
 import type { Employee } from "../../types/domain";
 
+import { uploadBusinessImage, mediaError } from "../../lib/business-media";
+import { usePermission } from "../../store/session";
+
+import { EMPLOYEE_ROLES, employeeRoleLabel } from "./roles";
+
 const DAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 const empty = (): Employee => ({
   id: crypto.randomUUID(),
-  fullName: "", roleLabel: "Barber", specialty: "", bio: "",
+  fullName: "", roleLabel: EMPLOYEE_ROLES[0], specialty: "", bio: "",
   commissionRate: 10, showOnWebsite: true, active: true, serviceIds: [],
 });
 
@@ -27,6 +32,12 @@ export default function TeamPage() {
   const [editing, setEditing] = useState<Employee | null>(null);
   const plan = useCapabilities(s => s.current);
   const [saving, setSaving] = useState(false);
+  const [uploading,setUploading]=useState(false);const epoch=useRef(0);const canManage=usePermission('team.manage');
+  useEffect(()=>{epoch.current++;setEditing(null);setUploading(false);setSaving(false);return()=>{epoch.current++;};},[db.businessId]);
+  const uploadPhoto=async(file?:File)=>{if(!file||!editing||!db.businessId||uploading||saving)return;const token=epoch.current,id=editing.id;setUploading(true);try{
+    const image=await uploadBusinessImage(db.businessId,file,'team',id);if(token!==epoch.current)return;
+    setEditing(current=>current?.id===id?{...current,photoUrl:image.url}:current);toast.success('Foto subida. Guarda el trabajador para aplicar el cambio.');
+  }catch(e){if(token===epoch.current)toast.error(mediaError(e));}finally{if(token===epoch.current)setUploading(false);}};
   const used = plan?.usage.workers ?? 0;
   const limit = plan?.capabilities.maxWorkers;
   const atLimit = limit != null && used >= limit;
@@ -53,10 +64,10 @@ export default function TeamPage() {
             <Card key={e.id} className={e.active === false ? "opacity-55" : ""}>
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <Avatar name={e.fullName} size="lg" />
+                  <Avatar name={e.fullName} src={e.photoUrl} size="lg" />
                   <div className="min-w-0">
                     <CardTitle className="truncate">{e.fullName.split(" ")[0]}</CardTitle>
-                    <p className="text-caption text-accent font-medium">{e.roleLabel}</p>
+                    <p className="text-caption text-accent font-medium">{employeeRoleLabel(e.roleLabel)}</p>
                   </div>
                 </div>
                 <Switch checked={e.showOnWebsite} label="Visible en la página"
@@ -103,7 +114,7 @@ export default function TeamPage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button size="sm" variant="quiet" className="flex-1" onClick={() => setEditing(e)}>
+                  <Button size="sm" variant="quiet" className="flex-1" onClick={() => setEditing({...e,roleLabel:employeeRoleLabel(e.roleLabel)})}>
                     <Pencil className="h-3.5 w-3.5" /> Editar
                   </Button>
                   <Button size="sm" variant="ghost"
@@ -118,22 +129,25 @@ export default function TeamPage() {
       </div>
 
       {editing && (
-        <Modal open onClose={() => setEditing(null)}>
+        <Modal open onClose={() => {if(!saving&&!uploading){epoch.current++;setEditing(null);}}} className="max-h-[90dvh] overflow-y-auto">
           <div className="space-y-4">
             <h2 className="text-title font-semibold tracking-[-0.014em]" >
               {db.employees.some((x) => x.id === editing.id) ? "Editar trabajador" : "Nuevo trabajador"}
             </h2>
+            <div className="flex items-center gap-4"><Avatar name={editing.fullName||'Trabajador'} src={editing.photoUrl} size="lg"/><div className="min-w-0 space-y-2"><Field label="Foto del trabajador"><input aria-label="Subir foto del trabajador" type="file" accept="image/jpeg,image/png,image/webp" disabled={!canManage||uploading||saving} className="w-full text-caption" onChange={e=>{const file=e.target.files?.[0];e.target.value='';void uploadPhoto(file);}}/></Field>{editing.photoUrl&&<Button size="sm" variant="quiet" disabled={uploading||saving} onClick={()=>setEditing({...editing,photoUrl:undefined})}>Quitar foto</Button>}</div></div>
+            <p className="text-micro text-faint">{uploading?'Subiendo foto…':'JPG, PNG o WebP · máximo 5 MB. Usa una foto autorizada: el archivo es público. Guarda para aplicar; quitar no elimina el archivo de publicaciones anteriores.'}</p>
             <Field label="Nombre completo"><Input value={editing.fullName} onChange={(e) => setEditing({ ...editing, fullName: e.target.value })} placeholder="Carlos Mendoza" /></Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Rol">
-                <select value={editing.roleLabel} onChange={(e) => setEditing({ ...editing, roleLabel: e.target.value })} className="w-full h-11 px-3 rounded-[var(--radius-control)] bg-subtle text-body">
-                  {["Barber", "Stylist", "Therapist", "Nail Artist", "Lash Artist", "Recepción"].map((r) => <option key={r}>{r}</option>)}
+                <select aria-label="Rol del trabajador" value={editing.roleLabel} onChange={(e) => setEditing({ ...editing, roleLabel: e.target.value })} className="w-full h-11 px-3 rounded-[var(--radius-control)] bg-subtle text-body">
+                  {!EMPLOYEE_ROLES.some(r=>r===editing.roleLabel)&&<option value={editing.roleLabel}>{editing.roleLabel}</option>}
+                  {EMPLOYEE_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
               </Field>
               <Field label="Comisión (%)"><Input type="number" value={editing.commissionRate} onChange={(e) => setEditing({ ...editing, commissionRate: +e.target.value })} /></Field>
             </div>
-            <Field label="Especialidad"><Input value={editing.specialty} onChange={(e) => setEditing({ ...editing, specialty: e.target.value })} placeholder="Fades y cortes clásicos" /></Field>
-            <Field label="Bio"><Textarea value={editing.bio} onChange={(e) => setEditing({ ...editing, bio: e.target.value })} placeholder="Breve presentación para tu página…" /></Field>
+            <Field label="Especialidad"><Input value={editing.specialty} onChange={(e) => setEditing({ ...editing, specialty: e.target.value })} placeholder="Degradados y cortes clásicos" /></Field>
+            <Field label="Biografía"><Textarea value={editing.bio} onChange={(e) => setEditing({ ...editing, bio: e.target.value })} placeholder="Breve presentación para tu página…" /></Field>
             <div>
               <p className="text-caption font-semibold mb-1.5">Servicios que ofrece</p>
               <div className="flex flex-wrap gap-2">
@@ -149,8 +163,8 @@ export default function TeamPage() {
                 })}
               </div>
             </div>
-            <Button className="w-full" disabled={!editing.fullName.trim()} loading={saving}
-              onClick={async () => { setSaving(true); await runMutation(() => db.saveEmployee(editing), () => { toast.success("Trabajador guardado"); setEditing(null); }); setSaving(false); }}>
+            <Button className="w-full" disabled={!canManage||uploading||!editing.fullName.trim()} loading={saving}
+              onClick={async () => { const token=epoch.current;setSaving(true); await runMutation(() => db.saveEmployee(editing), () => { if(token===epoch.current){toast.success("Trabajador guardado"); setEditing(null);} }); if(token===epoch.current)setSaving(false); }}>
               <UserRound className="h-4 w-4" /> Guardar
             </Button>
           </div>

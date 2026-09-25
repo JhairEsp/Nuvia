@@ -11,7 +11,7 @@ import { Input } from "../../components/ui/input";
 import { askCopilot, type AiReply } from "../../lib/ai";
 import { useDB } from "../../store/db";
 
-interface Msg { role: "user" | "ai"; text: string; cta?: AiReply["cta"]; }
+interface Msg { role: "user" | "ai"; text: string; ai?:AiReply["ai"]; cta?: AiReply["cta"]; }
 
 const SUGGESTIONS = [
   "¿Cómo estuvo mi negocio esta semana?",
@@ -41,7 +41,7 @@ export default function AiPage() {
     setMsgs(m => [...m, { role: "user", text }]); setQ(""); setTyping(true);
     const reply = await askCopilot(text);
     if (tenant.current !== businessId) return;
-    setMsgs(m => [...m, { role: "ai", text: reply.answer, cta: reply.cta }]); setTyping(false);
+    setMsgs(m => [...m, { role: "ai", text: reply.answer, ai:reply.ai, cta: reply.cta }]); setTyping(false);
   };
 
   const insights = db.insights.filter((i) => i.status !== "DISMISSED");
@@ -76,6 +76,7 @@ export default function AiPage() {
                   m.role === "user" ? "bg-accent text-on-accent rounded-tr-md" : "bg-subtle rounded-tl-md"
                 }`}>
                   {m.text}
+                  {m.ai&&<p className="text-micro text-muted mt-2">Nuvia IA</p>}
                   {m.cta && (
                     <button onClick={() => navigate(m.cta!.href)}
                       className="mt-2 flex items-center gap-1.5 text-caption font-semibold text-accent hover:underline">
