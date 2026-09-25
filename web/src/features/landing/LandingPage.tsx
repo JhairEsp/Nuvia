@@ -19,5 +19,5 @@ export default function LandingPage() {
  if(loading)return <div className="min-h-screen bg-bg flex items-center justify-center text-muted">Cargando…</div>;
  if(error)return <div className="min-h-screen bg-bg flex flex-col gap-5 items-center justify-center p-8 text-center"><h1 className="text-title">No se pudo cargar la página</h1><p role="alert">{error}</p><button className="px-6 py-3 rounded-full bg-accent text-on-accent" onClick={()=>setRetry(x=>x+1)}>Reintentar</button></div>;
  if(!site||!site.sections.some(s=>s.active))return <div className="min-h-screen bg-bg flex flex-col gap-3 items-center justify-center p-8 text-center"><h1 className="text-title">{site?.business.name||'Página no disponible'}</h1><p className="text-muted">El negocio aún no tiene una página publicada disponible.</p></div>;
- return <><SiteRenderer key={slug} site={site} onBook={s=>{setService(s??null);setBooking(true);}}/><BookingDrawer open={booking} onClose={()=>setBooking(false)} services={site.services} presetService={service} team={site.team} slug={slug||''}/></>;
+ return <><SiteRenderer key={slug} site={site} onBook={s=>{setService(s??null);setBooking(true);}}/><BookingDrawer open={booking} onClose={()=>setBooking(false)} presetService={service} slug={slug||''}/></>;
 }

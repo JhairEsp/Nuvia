@@ -69,12 +69,14 @@ export function Drawer({
   children,
   side = "right",
   className,
+  labelledBy,
 }: {
   open: boolean;
   onClose: () => void;
   children: ReactNode;
   side?: "right" | "bottom";
   className?: string;
+  labelledBy?: string;
 }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -91,6 +93,7 @@ export function Drawer({
           <motion.div
             role="dialog"
             aria-modal="true"
+            aria-labelledby={labelledBy}
             className={cn(
               "absolute bg-surface border-hairline shadow-[var(--shadow-float)] overflow-y-auto",
               isRight
