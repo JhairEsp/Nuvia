@@ -12,6 +12,7 @@ import { useSession, usePermission } from "../../store/session";
 import { useDB } from "../../store/db";
 import { supabase } from "../../lib/supabase";
 import { money } from "../../lib/format";
+import { loadBookingHours, bookingHoursError } from "./booking-hours";
 
 type Hour = { weekday: number; open_time: string; close_time: string; is_closed: boolean };
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -25,12 +26,20 @@ function BranchEditor({ branch, bid, close }: { branch: Branch | null; bid: stri
   const [form, setForm] = useState({ name: branch?.name ?? "", address: branch?.address ?? "", phone: branch?.phone ?? "", city: branch?.city ?? "", active: branch?.active ?? true });
   const [hours, setHours] = useState<Hour[]>(DAYS.map((_, weekday) => ({ weekday, open_time: "", close_time: "", is_closed: true })));
   const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const [ready, setReady] = useState(!branch);
-  useEffect(() => { if (branch) void (async () => { const r = await supabase.from("business_hours").select("weekday,open_time,close_time,is_closed").eq("business_id", bid).eq("location_id", branch.id); if (r.error) { setError(r.error.message); return; } setHours(prev => prev.map(h => (r.data as Hour[]).find(x => x.weekday === h.weekday) ?? h)); setReady(true); })(); }, [branch?.id]);
-  return <Modal open onClose={() => !busy && close()} className="max-h-[90vh] overflow-y-auto max-w-2xl"><form className="space-y-4" onSubmit={async e => { e.preventDefault(); setBusy(true); setError(""); try { const r = await supabase.rpc("save_branch", { p_business_id: bid, p_id: branch?.id ?? null, p_data: { ...form, hours } }); if (r.error) throw r.error; await useCapabilities.getState().refresh(bid); await useDB.getState().load(bid); toast.success("Sucursal guardada"); close(); } catch (err) { setError(planError(err)); } finally { setBusy(false); } }}>
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    if (!branch) return;
+    let active = true; setReady(false); setError("");
+    void loadBookingHours(bid, branch.id).then(result => {
+      if (active) { setHours(result.hours); setReady(true); }
+    }).catch(err => { if (active) setError(planError(err)); });
+    return () => { active = false; };
+  }, [bid, branch?.id, retry]);
+  return <Modal open onClose={() => !busy && close()} className="max-h-[90vh] overflow-y-auto max-w-2xl"><form className="space-y-4" onSubmit={async e => { e.preventDefault(); const invalid = bookingHoursError(hours); if (invalid) { setError(invalid); return; } setBusy(true); setError(""); try { const r = await supabase.rpc("save_branch", { p_business_id: bid, p_id: branch?.id ?? null, p_data: { ...form, hours } }); if (r.error) throw r.error; await useCapabilities.getState().refresh(bid); await useDB.getState().load(bid); toast.success("Sucursal guardada"); close(); } catch (err) { setError(planError(err)); } finally { setBusy(false); } }}>
     <h2 className="text-title font-semibold">{branch ? "Editar sucursal" : "Crear sucursal"}</h2><fieldset disabled={busy || !ready} className="space-y-4"><div className="grid sm:grid-cols-2 gap-3">{([['name','Nombre'],['address','Dirección'],['city','Ciudad'],['phone','Teléfono']] as const).map(([key,label]) => <Field key={key} label={label}><Input aria-label={label} required={key==='name'} value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} /></Field>)}</div>
     <label className="flex items-center gap-2 text-body"><input type="checkbox" checked={form.active} onChange={e => setForm({ ...form, active: e.target.checked })} />Sucursal activa</label><h3 className="font-semibold">Horarios de esta sucursal</h3>
     {hours.map((h,i) => <div key={h.weekday} className="flex flex-wrap gap-2 items-center"><label className="text-caption w-28 flex items-center gap-2"><input type="checkbox" checked={!h.is_closed} onChange={e => setHours(hours.map((x,j) => j===i ? { ...x, is_closed: !e.target.checked } : x))} />{DAYS[h.weekday]}</label>{!h.is_closed ? <><Input aria-label={`Apertura ${DAYS[h.weekday]}`} className="w-32" type="time" required value={h.open_time.slice(0,5)} onChange={e => setHours(hours.map((x,j) => j===i ? { ...x, open_time: e.target.value } : x))} /><Input aria-label={`Cierre ${DAYS[h.weekday]}`} className="w-32" type="time" required value={h.close_time.slice(0,5)} onChange={e => setHours(hours.map((x,j) => j===i ? { ...x, close_time: e.target.value } : x))} /></> : <span className="text-caption text-muted">Cerrado</span>}</div>)}
-    </fieldset>{error && <p role="alert" className="text-danger text-caption">{error}</p>}<p className="text-caption text-muted">Desactivar conserva el historial y deja de ofrecer reservas públicas. No libera una ubicación de la cuota.</p><Button type="submit" loading={busy} disabled={!ready}>Guardar sucursal</Button>
+    </fieldset>{error && <div className="space-y-2"><p role="alert" className="text-danger text-caption">{error}</p>{!ready && <Button type="button" variant="quiet" onClick={() => setRetry(v => v + 1)}>Reintentar horarios</Button>}</div>}<p className="text-caption text-muted">Desactivar conserva el historial y deja de ofrecer reservas públicas. No libera una ubicación de la cuota.</p><Button type="submit" loading={busy} disabled={!ready}>Guardar sucursal</Button>
   </form></Modal>;
 }
 export default function BranchesPage() {

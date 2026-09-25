@@ -1,0 +1,14 @@
+PASS: snapshot vacío: reserva sin cuenta, servicio S/15, hoy y hora Lima desde Tokio, teléfono validado, notas, RPC completo, éxito pendiente, doble clic bloqueado y reapertura limpia
+PASS: servicio gratuito seleccionable, cambio de sucursal reinicia servicios y profesional, cambio de profesional invalida horario
+PASS: fallo de catálogo honesto, sin fallback obsoleto; reintento recupera servicios
+PASS: error y vacío de disponibilidad diferenciados, reintento, horas deduplicadas, fechas posteriores, descarte de respuestas tardías
+PASS: confirmación conflict: sin éxito falso, recupera otro horario conservando datos
+PASS: confirmación limit: sin éxito falso
+PASS: confirmación null: sin éxito falso, no reenvía ciegamente una reserva de resultado desconocido
+PASS: confirmación network: sin éxito falso, no reenvía ciegamente una reserva de resultado desconocido
+PASS: preselección de tarjeta publicada usa precio y duración actuales, no el snapshot
+PASS: sin sucursales: mensaje claro sin datos inventados
+PASS: sin servicios: mensaje claro sin datos inventados
+PASS: sin equipo: mensaje claro sin datos inventados
+PASS: sin errores React en todas las pruebas
+TOTAL: 13 PASS

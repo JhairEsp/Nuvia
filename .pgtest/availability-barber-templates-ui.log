@@ -1,0 +1,9 @@
+PASS: Barbería ofrece exactamente Clásica, Urbana y Caballeros con arte cargado
+PASS: los demás rubros conservan sus plantillas y las claves SQL no cambian
+PASS: Clásica preview y publicación, arte, móvil sin overflow y reduced-motion
+PASS: Urbana preview y publicación, arte, móvil sin overflow y reduced-motion
+PASS: Caballeros preview y publicación, arte, móvil sin overflow y reduced-motion
+PASS: cambio de diseño conserva texto propio y borrador sin publicar
+PASS: conserva portada propia, galería, orden, visibilidad y descripción
+PASS: Spa sigue usando Serene original, sin variante de barbería
+PASS: sin errores React

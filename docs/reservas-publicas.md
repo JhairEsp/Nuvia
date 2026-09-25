@@ -48,3 +48,8 @@ Ejecutar pruebas locales con Vite activo:
 PLAYWRIGHT_BROWSERS_PATH=/home/user/.cache/ms-playwright node web/tests/public-booking-ui.local.mjs
 npm run build --prefix web
 ```
+
+
+## Corrección posterior: disponibilidad y guardado de horarios
+
+Se encontró un fallo independiente del formulario público: en Ajustes, «Guardar horarios» y «Guardar reglas» solo mostraban un aviso y no persistían los cambios. Además, el editor de sucursales ignoraba horarios generales heredados. Corregido con `BookingSettings.tsx` y `booking-hours.ts`; detalles y pruebas en [disponibilidad-horarios.md](disponibilidad-horarios.md). No se cambiaron RPCs ni cuotas.

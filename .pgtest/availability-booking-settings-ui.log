@@ -1,0 +1,12 @@
+PASS: Ajustes lee reglas guardadas, muestra siete días sin inventar horarios y advierte servicios sin profesional
+PASS: Rechaza cierre anterior a apertura sin enviar cambios
+PASS: Fallo de guardado no anuncia éxito, no pierde edición ni modifica datos
+PASS: Guardar horarios llama RPC tenant/sucursal con siete días, preserva metadatos y persiste al recargar
+PASS: Reglas guardadas en business_settings, error honesto y anticipación 0 persiste tras recargar
+PASS: Selector no mezcla sucursales; hereda horario general y respeta cierres explícitos
+PASS: Editor de sucursales carga el mismo horario efectivo; ya no convierte herencia en todos cerrados
+PASS: Fallo de lectura no permite sobrescribir datos; reintento recupera configuración
+PASS: Editor de horarios usable en móvil sin desbordamiento
+PASS: Sin settings.manage no hay botones de guardado habilitados
+PASS: Sin errores React
+TOTAL: 11 PASS

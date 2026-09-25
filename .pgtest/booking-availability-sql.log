@@ -1,0 +1,205 @@
+BEGIN
+CREATE FUNCTION
+CREATE FUNCTION
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000002
+(1 row)
+
+  set_config   
+---------------
+ authenticated
+(1 row)
+
+SET
+INSERT 0 1
+           save_team_member           
+--------------------------------------
+ e0000000-0000-0000-0000-000000000099
+(1 row)
+
+NOTICE:  PASS: Día de prueba sin reservas
+ ok 
+----
+ 
+(1 row)
+
+SET
+NOTICE:  PASS: Sin horario guardado devuelve vacío aunque no haya citas
+ ok 
+----
+ 
+(1 row)
+
+SET
+             save_branch              
+--------------------------------------
+ 8ba7dc48-0388-433c-9b77-2178e61bae2f
+(1 row)
+
+NOTICE:  PASS: Guardar horarios persiste los siete días en la sucursal
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+NOTICE:  PASS: Reglas se guardan mediante tabla RLS usada por la UI
+ ok 
+----
+ 
+(1 row)
+
+SET
+NOTICE:  PASS: Día vacío configurado ofrece cuatro horas reales sin republicar
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Reserva ocupa solo su intervalo, conserva las demás horas
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: No permite reservar dos veces la misma hora (Ese horario ya no está disponible en esta sucursal)
+ reject 
+--------
+ 
+(1 row)
+
+SET
+NOTICE:  PASS: Reserva persistida pendiente con precio real
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: Items persistidos en la misma transacción
+ ok 
+----
+ 
+(1 row)
+
+UPDATE 1
+NOTICE:  PASS: Cancelar no atendida libera horario
+ ok 
+----
+ 
+(1 row)
+
+UPDATE 1
+NOTICE:  PASS: Anticipación real puede ocultar un día sin citas
+ ok 
+----
+ 
+(1 row)
+
+UPDATE 1
+NOTICE:  PASS: Corregir anticipación recupera horas inmediatamente
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 7
+NOTICE:  PASS: Horario de sucursal prevalece sobre general
+ ok 
+----
+ 
+(1 row)
+
+UPDATE 7
+NOTICE:  PASS: Cierre explícito no se sustituye por horario general abierto
+ ok 
+----
+ 
+(1 row)
+
+             save_branch              
+--------------------------------------
+ 8ba7dc48-0388-433c-9b77-2178e61bae2f
+(1 row)
+
+NOTICE:  PASS: Servidor rechaza cierre anterior a apertura (Revisa las horas de apertura y cierre)
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Guardado fallido revierte borrado y conserva horario anterior
+ ok 
+----
+ 
+(1 row)
+
+DELETE 1
+NOTICE:  PASS: Sin asignación no inventa un profesional para el servicio
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+NOTICE:  PASS: Asignar servicio al profesional recupera disponibilidad
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+NOTICE:  PASS: Turno del profesional reduce a sus horas de trabajo
+ ok 
+----
+ 
+(1 row)
+
+INSERT 0 1
+NOTICE:  PASS: Ausencia bloquea aunque no haya reservas activas
+ ok 
+----
+ 
+(1 row)
+
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000003
+(1 row)
+
+NOTICE:  PASS: Otro negocio no puede leer reglas por ID
+ ok 
+----
+ 
+(1 row)
+
+NOTICE:  PASS: RLS bloquea escribir reglas de otro tenant (new row violates row-level security policy for table "business_settings")
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: RPC impide cambiar horarios de otro tenant (Sin permiso para esta operación en el negocio)
+ reject 
+--------
+ 
+(1 row)
+
+              set_config              
+--------------------------------------
+ a0000000-0000-0000-0000-000000000004
+(1 row)
+
+NOTICE:  PASS: Trabajador sin settings.manage no puede modificar reglas (new row violates row-level security policy for table "business_settings")
+ reject 
+--------
+ 
+(1 row)
+
+NOTICE:  PASS: Trabajador sin permiso no modifica horarios por RPC (Sin permiso para esta operación en el negocio)
+ reject 
+--------
+ 
+(1 row)
+
+ROLLBACK

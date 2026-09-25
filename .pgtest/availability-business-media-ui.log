@@ -1,0 +1,17 @@
+PASS: saldo y nivel leen relación 1:1 como objeto, no muestran cero
+PASS: mapper también conserva compatibilidad con array
+PASS: QR se sube desde Ajustes con ruta propia del tenant
+PASS: guardar QR rechazado no anuncia persistencia
+PASS: QR y titular persisten al recargar
+PASS: POS no asigna ni pierde puntos por elegir cliente silenciosamente
+PASS: elegir Plin abre modal y explica QR faltante
+PASS: elegir Yape abre QR correcto con monto; mostrarlo no registra cobro
+PASS: venta fallida no suma puntos ni vacía ticket
+PASS: cobrar refresca saldo e historial real recibidos del backend
+PASS: trabajador registrado permite subir y previsualizar retrato
+PASS: foto rechazada no finge guardado ni cierra formulario
+PASS: foto persiste tras guardar y recargar, visible en tarjeta
+PASS: quitar foto persiste sin borrar al trabajador
+PASS: ajustes móvil sin overflow y rechazo de SVG sin subir
+PASS: dos QR independientes; Plin se abre también en celular
+PASS: sin errores de runtime

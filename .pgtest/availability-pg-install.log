@@ -1,0 +1,131 @@
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+debconf: unable to initialize frontend: Teletype
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Noninteractive
+Preconfiguring packages ...
+/var/cache/debconf/tmp.ci/postgresql.config.79SveU: 12: pg_lsclusters: not found
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 38546 files and directories currently installed.)
+Preparing to unpack .../libc6-dev_2.41-12+deb13u4_amd64.deb ...
+Unpacking libc6-dev:amd64 (2.41-12+deb13u4) over (2.41-12+deb13u3) ...
+Preparing to unpack .../libc-dev-bin_2.41-12+deb13u4_amd64.deb ...
+Unpacking libc-dev-bin (2.41-12+deb13u4) over (2.41-12+deb13u3) ...
+Preparing to unpack .../libc6_2.41-12+deb13u4_amd64.deb ...
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+debconf: unable to initialize frontend: Teletype
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Noninteractive
+Unpacking libc6:amd64 (2.41-12+deb13u4) over (2.41-12+deb13u3) ...
+Setting up libc6:amd64 (2.41-12+deb13u4) ...
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+debconf: unable to initialize frontend: Teletype
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Noninteractive
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 38547 files and directories currently installed.)
+Preparing to unpack .../libc-bin_2.41-12+deb13u4_amd64.deb ...
+Unpacking libc-bin (2.41-12+deb13u4) over (2.41-12+deb13u3) ...
+Setting up libc-bin (2.41-12+deb13u4) ...
+Selecting previously unselected package libext2fs2t64:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 38547 files and directories currently installed.)
+Preparing to unpack .../libext2fs2t64_1.47.2-3+b12_amd64.deb ...
+Adding 'diversion of /lib/x86_64-linux-gnu/libe2p.so.2 to /lib/x86_64-linux-gnu/libe2p.so.2.usr-is-merged by libext2fs2t64'
+Adding 'diversion of /lib/x86_64-linux-gnu/libe2p.so.2.3 to /lib/x86_64-linux-gnu/libe2p.so.2.3.usr-is-merged by libext2fs2t64'
+Adding 'diversion of /lib/x86_64-linux-gnu/libext2fs.so.2 to /lib/x86_64-linux-gnu/libext2fs.so.2.usr-is-merged by libext2fs2t64'
+Adding 'diversion of /lib/x86_64-linux-gnu/libext2fs.so.2.4 to /lib/x86_64-linux-gnu/libext2fs.so.2.4.usr-is-merged by libext2fs2t64'
+Unpacking libext2fs2t64:amd64 (1.47.2-3+b12) ...
+Preparing to unpack .../comerr-dev_2.1-1.47.2-3+b12_amd64.deb ...
+Unpacking comerr-dev:amd64 (2.1-1.47.2-3+b12) over (2.1-1.47.2-3+b11) ...
+Preparing to unpack .../libcom-err2_1.47.2-3+b12_amd64.deb ...
+Unpacking libcom-err2:amd64 (1.47.2-3+b12) over (1.47.2-3+b11) ...
+Selecting previously unselected package libss2:amd64.
+Preparing to unpack .../libss2_1.47.2-3+b12_amd64.deb ...
+Unpacking libss2:amd64 (1.47.2-3+b12) ...
+Selecting previously unselected package logsave.
+Preparing to unpack .../logsave_1.47.2-3+b12_amd64.deb ...
+Unpacking logsave (1.47.2-3+b12) ...
+Setting up libcom-err2:amd64 (1.47.2-3+b12) ...
+Setting up libext2fs2t64:amd64 (1.47.2-3+b12) ...
+Setting up libss2:amd64 (1.47.2-3+b12) ...
+Selecting previously unselected package e2fsprogs.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 38576 files and directories currently installed.)
+Preparing to unpack .../00-e2fsprogs_1.47.2-3+b12_amd64.deb ...
+Unpacking e2fsprogs (1.47.2-3+b12) ...
+Selecting previously unselected package libjson-perl.
+Preparing to unpack .../01-libjson-perl_4.10000-1_all.deb ...
+Unpacking libjson-perl (4.10000-1) ...
+Selecting previously unselected package postgresql-client-common.
+Preparing to unpack .../02-postgresql-client-common_278_all.deb ...
+Unpacking postgresql-client-common (278) ...
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/03-libio-pty-perl_1%3a1.20-1+b3_amd64.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/03-libio-pty-perl_1%3a1.20-1+b3_amd64.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/04-libipc-run-perl_20231003.0-2_all.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/04-libipc-run-perl_20231003.0-2_all.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/05-postgresql-common-dev_278_all.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/05-postgresql-common-dev_278_all.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/06-ssl-cert_1.1.3_all.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/06-ssl-cert_1.1.3_all.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/07-postgresql-common_278_all.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/07-postgresql-common_278_all.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/08-libpopt0_1.19+dfsg-2_amd64.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/08-libpopt0_1.19+dfsg-2_amd64.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/09-logrotate_3.22.0-1_amd64.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/09-logrotate_3.22.0-1_amd64.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/10-libc-l10n_2.41-12+deb13u4_all.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/10-libc-l10n_2.41-12+deb13u4_all.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/11-locales_2.41-12+deb13u4_all.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/11-locales_2.41-12+deb13u4_all.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/12-e2fsprogs-l10n_1.47.2-3_all.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/12-e2fsprogs-l10n_1.47.2-3_all.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/13-libcommon-sense-perl_3.75-3+b5_amd64.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/13-libcommon-sense-perl_3.75-3+b5_amd64.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/14-libtypes-serialiser-perl_1.01-1_all.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/14-libtypes-serialiser-perl_1.01-1_all.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/15-libjson-xs-perl_4.040-1~deb13u1_amd64.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/15-libjson-xs-perl_4.040-1~deb13u1_amd64.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/16-libpq-dev_17.11-0+deb13u1_amd64.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/16-libpq-dev_17.11-0+deb13u1_amd64.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/17-libpq5_17.11-0+deb13u1_amd64.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/17-libpq5_17.11-0+deb13u1_amd64.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/18-postgresql-client-17_17.11-0+deb13u1_amd64.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/18-postgresql-client-17_17.11-0+deb13u1_amd64.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/19-postgresql-17_17.11-0+deb13u1_amd64.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/19-postgresql-17_17.11-0+deb13u1_amd64.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/20-postgresql_17+278_all.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/20-postgresql_17+278_all.deb': No such file or directory
+dpkg: error processing archive /tmp/apt-dpkg-install-GVJAhu/21-sysstat_12.7.5-2_amd64.deb (--unpack):
+ cannot access archive '/tmp/apt-dpkg-install-GVJAhu/21-sysstat_12.7.5-2_amd64.deb': No such file or directory
+Errors were encountered while processing:
+ /tmp/apt-dpkg-install-GVJAhu/03-libio-pty-perl_1%3a1.20-1+b3_amd64.deb
+ /tmp/apt-dpkg-install-GVJAhu/04-libipc-run-perl_20231003.0-2_all.deb
+ /tmp/apt-dpkg-install-GVJAhu/05-postgresql-common-dev_278_all.deb
+ /tmp/apt-dpkg-install-GVJAhu/06-ssl-cert_1.1.3_all.deb
+ /tmp/apt-dpkg-install-GVJAhu/07-postgresql-common_278_all.deb
+ /tmp/apt-dpkg-install-GVJAhu/08-libpopt0_1.19+dfsg-2_amd64.deb
+ /tmp/apt-dpkg-install-GVJAhu/09-logrotate_3.22.0-1_amd64.deb
+ /tmp/apt-dpkg-install-GVJAhu/10-libc-l10n_2.41-12+deb13u4_all.deb
+ /tmp/apt-dpkg-install-GVJAhu/11-locales_2.41-12+deb13u4_all.deb
+ /tmp/apt-dpkg-install-GVJAhu/12-e2fsprogs-l10n_1.47.2-3_all.deb
+ /tmp/apt-dpkg-install-GVJAhu/13-libcommon-sense-perl_3.75-3+b5_amd64.deb
+ /tmp/apt-dpkg-install-GVJAhu/14-libtypes-serialiser-perl_1.01-1_all.deb
+ /tmp/apt-dpkg-install-GVJAhu/15-libjson-xs-perl_4.040-1~deb13u1_amd64.deb
+ /tmp/apt-dpkg-install-GVJAhu/16-libpq-dev_17.11-0+deb13u1_amd64.deb
+ /tmp/apt-dpkg-install-GVJAhu/17-libpq5_17.11-0+deb13u1_amd64.deb
+ /tmp/apt-dpkg-install-GVJAhu/18-postgresql-client-17_17.11-0+deb13u1_amd64.deb
+ /tmp/apt-dpkg-install-GVJAhu/19-postgresql-17_17.11-0+deb13u1_amd64.deb
+ /tmp/apt-dpkg-install-GVJAhu/20-postgresql_17+278_all.deb
+ /tmp/apt-dpkg-install-GVJAhu/21-sysstat_12.7.5-2_amd64.deb
+E: Sub-process /usr/bin/dpkg returned an error code (1)
