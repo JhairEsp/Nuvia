@@ -1,3 +1,4 @@
+import LoginDemos from "../demo/LoginDemos";
 import BrandMark from "../../components/BrandMark";
 import { BRAND_NAME } from "../../lib/brand";
 import { motion } from "framer-motion";
@@ -90,7 +91,7 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease }}
-          className="w-full max-w-sm space-y-8"
+          className="w-full max-w-md space-y-8"
         >
           <div className="lg:hidden flex items-center gap-3" aria-label="Nuvia">
             <div className="h-11 w-11 rounded-2xl bg-ink text-bg flex items-center justify-center"><BrandMark /></div>
@@ -118,6 +119,8 @@ export default function LoginPage() {
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><User className="h-4 w-4" /> Entrar</>}
             </Button>
           </form>
+
+          <LoginDemos />
 
         </motion.div>
       </div>

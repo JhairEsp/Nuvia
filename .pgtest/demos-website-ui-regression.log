@@ -1,0 +1,13 @@
+PASS: selector inicial con exactamente tres plantillas
+PASS: previsualizar muestra cambios sin guardar, sin publicar ni abrir URL equivocada
+PASS: guardar rechazado no finge persistencia ni pierde cambios
+PASS: texto, fuente, mapa y redes se guardan realmente en la RPC
+PASS: el borrador se conserva al recargar
+PASS: portada usa subida real del cliente Storage y prefijo del tenant
+PASS: archivo no admitido rechazado sin fingir subida
+PASS: publicación fallida no entrega URL ni marca la página publicada
+PASS: publicar confirma release y muestra URL del despliegue con slug real
+PASS: enlace público renderiza el snapshot publicado
+PASS: cambiar las tres plantillas cambia diseño y conserva contenido
+PASS: editor y renderer móvil sin desbordamiento horizontal
+PASS: sin errores de runtime

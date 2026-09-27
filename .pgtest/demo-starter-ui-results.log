@@ -1,0 +1,54 @@
+PASS: Login presenta Starter y las cuatro funciones en ambas demos
+PASS: Reglas: Snapshot Starter exacto: 5 / 300 / 500, una sucursal
+PASS: Reglas: barberia: permite quinto trabajador
+PASS: Reglas: barberia: rechaza sexto también en reducer
+PASS: Reglas: Cita 301 bloqueada barberia
+PASS: Reglas: Cancelada no atendida libera cupo barberia
+PASS: Reglas: Reutiliza cupo sin borrar históricos barberia
+PASS: Reglas: Mes siguiente independiente barberia
+PASS: Reglas: No libera cita ya atendida barberia
+PASS: Reglas: Permite exactamente 500 MB barberia
+PASS: Reglas: Rechaza un byte sobre 500 MB barberia
+PASS: Reglas: Quitar archivo libera capacidad barberia
+PASS: Reglas: Rechaza tamaño negativo barberia
+PASS: Reglas: Canje descuenta exactamente puntos barberia
+PASS: Reglas: Doble confirmación del canje es idempotente barberia
+PASS: Reglas: Nunca deja saldo negativo barberia
+PASS: Reglas: Cola idempotente, nunca SENT barberia
+PASS: Reglas: Copiloto guiado usa ventas actuales barberia
+PASS: Reglas: Reinicio completo y aislado barberia
+PASS: Reglas: estetica: permite quinto trabajador
+PASS: Reglas: estetica: rechaza sexto también en reducer
+PASS: Reglas: Cita 301 bloqueada estetica
+PASS: Reglas: Cancelada no atendida libera cupo estetica
+PASS: Reglas: Reutiliza cupo sin borrar históricos estetica
+PASS: Reglas: Mes siguiente independiente estetica
+PASS: Reglas: No libera cita ya atendida estetica
+PASS: Reglas: Permite exactamente 500 MB estetica
+PASS: Reglas: Rechaza un byte sobre 500 MB estetica
+PASS: Reglas: Quitar archivo libera capacidad estetica
+PASS: Reglas: Rechaza tamaño negativo estetica
+PASS: Reglas: Canje descuenta exactamente puntos estetica
+PASS: Reglas: Doble confirmación del canje es idempotente estetica
+PASS: Reglas: Nunca deja saldo negativo estetica
+PASS: Reglas: Cola idempotente, nunca SENT estetica
+PASS: Reglas: Copiloto guiado usa ventas actuales estetica
+PASS: Reglas: Reinicio completo y aislado estetica
+PASS: barberia: plan completo y ninguna acción de multisucursal
+PASS: barberia: alta/baja de metadatos de archivos sin subir contenido
+PASS: barberia: quinto trabajador disponible para citas, no permite sexto
+PASS: barberia: canje real del estado demo, saldo e historial coherentes en Clientes
+PASS: barberia: Nuvia IA conserva conversación y actualiza respuestas guiadas con las ventas demo
+PASS: barberia: WhatsApp prepara cola demo idempotente y mantiene automatizaciones sin enviar
+PASS: barberia: los cuatro nuevos módulos funcionan en móvil sin overflow
+PASS: barberia: reiniciar restablece equipo, puntos, chat, mensajes y automatizaciones
+PASS: estetica: plan completo y ninguna acción de multisucursal
+PASS: estetica: alta/baja de metadatos de archivos sin subir contenido
+PASS: estetica: quinto trabajador disponible para citas, no permite sexto
+PASS: estetica: canje real del estado demo, saldo e historial coherentes en Clientes
+PASS: estetica: Nuvia IA conserva conversación y actualiza respuestas guiadas con las ventas demo
+PASS: estetica: WhatsApp prepara cola demo idempotente y mantiene automatizaciones sin enviar
+PASS: estetica: los cuatro nuevos módulos funcionan en móvil sin overflow
+PASS: estetica: reiniciar restablece equipo, puntos, chat, mensajes y automatizaciones
+PASS: Cero peticiones Supabase, ningún envío/IA real ni errores React
+TOTAL: 53 PASS

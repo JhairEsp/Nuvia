@@ -1,0 +1,18 @@
+PASS: Dos accesos debajo del formulario, sin necesidad de cuenta
+PASS: barbería: resumen diferenciado, seis citas ficticias, sin cuenta
+PASS: barbería: reserva web simulada se incorpora a la agenda local, sin RPC
+PASS: barbería: venta demo única actualiza resumen, historial y puntos; búsqueda funciona
+PASS: barbería: cancelación local y protección de cita demo ya pagada
+PASS: barbería: reinicio sin tocar sesión, storage Auth ni store real
+PASS: barbería: seis pantallas y reserva en móvil sin overflow, reduced motion respetado
+PASS: estética: resumen diferenciado, seis citas ficticias, sin cuenta
+PASS: estética: reserva web simulada se incorpora a la agenda local, sin RPC
+PASS: estética: venta demo única actualiza resumen, historial y puntos; búsqueda funciona
+PASS: estética: cancelación local y protección de cita demo ya pagada
+PASS: estética: reinicio sin tocar sesión, storage Auth ni store real
+PASS: estética: seis pantallas y reserva en móvil sin overflow, reduced motion respetado
+PASS: Cambiar rubro inicia datos propios, sin mezclar demos
+PASS: Explorar demo no permite entrar a rutas privadas sin login
+PASS: Ruta demo inválida vuelve al login
+PASS: CERO llamadas Supabase y CERO errores React en todo el recorrido
+TOTAL: 17 PASS

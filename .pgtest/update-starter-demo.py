@@ -1,0 +1,38 @@
+from pathlib import Path
+p=Path('web/src/features/demo/DemoPage.tsx');s=p.read_text()
+s=s.replace('useEffect, useMemo, useRef, useState','useEffect, useMemo, useReducer, useRef, useState')
+s=s.replace('CalendarDays, Check,','CalendarDays, Gift, Bot, MessageCircle, HardDrive, Check,')
+s=s.replace(', initialAppointments,', ',')
+s=s.replace("import './demo.css';", "import './demo.css';\nimport { DEMO_STARTER, type DemoView } from './starter-plan';\nimport { availableDemoSlots, createDemoState, demoReducer, demoPoints, monthlyAppointments } from './starter-state';\nimport { StarterSummary, StarterPlan, DemoTeamAdd, DemoLoyalty, DemoCopilot, DemoWhatsApp } from './StarterFeatures';")
+s=s.replace("type View = 'overview' | 'agenda' | 'clients' | 'services' | 'sales' | 'website';", "type View = DemoView;")
+s=s.replace("['website','Página web',Globe] ]", "['website','Página web',Globe], ['loyalty','Fidelización',Gift], ['ai','Copiloto IA',Bot], ['whatsapp','WhatsApp',MessageCircle], ['plan','Plan y almacenamiento',HardDrive] ]")
+s=s.replace(" const site=useMemo(()=>demoSite(kind),[kind]);\n const [appointments,setAppointments]=useState(()=>initialAppointments(kind,today));", " const [demo,dispatch]=useReducer(demoReducer,{kind,today},createDemoState);\n const appointments=demo.appointments;\n const site=useMemo(()=>{const base=demoSite(kind);return {...base,team:demo.workers.map((fullName,i)=>({...base.team[0]!,id:`demo-${kind}-employee-${i}`,fullName}))};},[kind,demo.workers]);")
+s=s.replace("setNotice('');window.scrollTo", "setNotice('');dispatch({type:'CLEAR_ERROR'});window.scrollTo")
+s=s.replace('config.team', 'demo.workers')
+a=s.index(' const slots=Array.from(');b=s.index('\n const openBooking=',a)
+s=s[:a]+" const slots=availableDemoSlots(demo,newService,newEmployee,newDay);\n const monthFull=monthlyAppointments(demo,newDay)>=DEMO_STARTER.maxMonthlyAppointments;"+s[b:]
+s=s.replace("||!slots.includes(newTime))return;", "||monthFull||!slots.includes(newTime))return;")
+s=s.replace("  setAppointments(list=>[...list,{id:`demo-new-${crypto.randomUUID()}`,customer:newName.trim(),serviceId:newService,employee:newEmployee,day:newDay,time:newTime,status:'CONFIRMED',source,paid:false}]);", "  dispatch({type:'ADD_APPOINTMENT',appointment:{id:`demo-new-${crypto.randomUUID()}`,customer:newName.trim(),serviceId:newService,employee:newEmployee,day:newDay,time:newTime,status:'CONFIRMED',source,paid:false}});")
+s=s.replace("  setAppointments(list=>list.map(item=>item.id===id?{...item,paid:true,status:'COMPLETED'}:item));", "  dispatch({type:'PAY',id});")
+s=s.replace("setAppointments(values=>values.map(item=>item.id===a.id?{...item,status:'CANCELLED'}:item))", "dispatch({type:'CANCEL',id:a.id})")
+s=s.replace("setAppointments(initialAppointments(kind,today));", "dispatch({type:'RESET'});")
+s=s.replace('Explora sin límites','Starter en acción')
+s=s.replace('Prueba el recorrido con datos ficticios. Nada afecta a negocios reales.', 'Web, fidelización, Copiloto IA y WhatsApp. Una sucursal, todo conectado en esta demo.')
+s=s.replace('    {notice&&', '    {demo.error&&<div className="nd-notice nd-error" role="alert">{demo.error}<button aria-label="Cerrar error demo" onClick={()=>dispatch({type:\'CLEAR_ERROR\'})}><X size={17}/></button></div>}\n    {notice&&')
+s=s.replace('     <div className="nd-overview-grid">', '     <StarterSummary state={demo} navigate={navigate}/>\n     <div className="nd-overview-grid">')
+s=s.replace("{Math.floor(spent)}</strong> puntos demo", "{demoPoints(demo,name)}</strong> puntos demo")
+s=s.replace("{Math.floor(paid.filter(a=>a.customer===customer).reduce((sum,a)=>sum+serviceFor(a.serviceId).price,0))} puntos demo", "{demoPoints(demo,customer??'')} puntos demo")
+s=s.replace('Ejemplo de 1 punto por sol de venta simulada.', '1 punto por sol de venta simulada, menos los canjes demo.')
+s=s.replace('<div className="nd-team-grid">', '<DemoTeamAdd state={demo} dispatch={dispatch}/><div className="nd-team-grid">')
+s=s.replace("{demo.workers.length} profesionales</span>", "{demo.workers.length}/{DEMO_STARTER.maxWorkers} profesionales</span>")
+s=s.replace('{dayAppointments.filter(a=>a.status!==\'CANCELLED\').length} citas · Horario ilustrativo en Lima', "{dayAppointments.filter(a=>a.status!=='CANCELLED').length} citas hoy · {monthlyAppointments(demo,agendaDay)}/{DEMO_STARTER.maxMonthlyAppointments} en este mes · Lima")
+s=s.replace('    <footer className="nd-footer">', '''    {view==='loyalty'&&<DemoLoyalty state={demo} dispatch={dispatch}/>}
+    {view==='ai'&&<DemoCopilot state={demo} dispatch={dispatch} navigate={navigate}/>}
+    {view==='whatsapp'&&<DemoWhatsApp state={demo} dispatch={dispatch}/>}
+    {view==='plan'&&<StarterPlan state={demo} dispatch={dispatch} navigate={navigate}/>}
+    <footer className="nd-footer">''')
+s=s.replace('   <form onSubmit={e=>', '   {monthFull&&<p className="nd-quota-warning" role="alert">Starter permite {DEMO_STARTER.maxMonthlyAppointments} citas en el mes seleccionado. Elige otro mes o cancela una cita demo no atendida para liberar cupo.</p>}\n   <form onSubmit={e=>')
+s=s.replace("disabled={!newName.trim()||!newDay||newDay<today||!slots.includes(newTime)}", "disabled={!newName.trim()||!newDay||newDay<today||monthFull||!slots.includes(newTime)}")
+s=s.replace('Se restablecerán las citas y ventas ficticias de', 'Se restablecerán las citas, ventas, equipo, archivos, puntos, conversación y mensajes ficticios de')
+p.write_text(s)
+p=Path('web/src/features/demo/LoginDemos.tsx');s=p.read_text().replace("import './login-demos.css';", "import './login-demos.css';\nimport { DEMO_STARTER } from './starter-plan';").replace('  <small>Datos ficticios.', '  <p className="login-demo-plan"><strong>Starter</strong> · Hasta {DEMO_STARTER.maxWorkers} trabajadores · {DEMO_STARTER.maxMonthlyAppointments} citas/mes · {DEMO_STARTER.maxStorageMb} MB<br/>Web · Fidelización · Copiloto IA · WhatsApp<br/>Sin multisucursal</p>\n  <small>Datos ficticios.');p.write_text(s)

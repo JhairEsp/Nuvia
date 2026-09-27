@@ -1,7 +1,7 @@
 import { BRAND_NAME } from "./lib/brand";
 import { HashRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
-import type { ReactNode } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import AppShell from "./app/AppShell";
 import AdminShell from "./app/AdminShell";
 import LoginPage from "./features/auth/LoginPage";
@@ -25,6 +25,8 @@ import AdminOverview from "./features/admin/AdminOverview";
 import { AdminAudit, AdminBusinesses, AdminPlans, AdminUsers } from "./features/admin/AdminPages";
 import LandingPage from "./features/landing/LandingPage";
 import { useSession } from "./store/session";
+
+const DemoPage = lazy(() => import("./features/demo/DemoPage"));
 
 function Splash() {
   return <div className="min-h-screen bg-bg flex items-center justify-center text-muted text-body">{BRAND_NAME}…</div>;
@@ -78,6 +80,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<SmartLanding />} />
         <Route path="/login" element={<RequireGuest><LoginPage /></RequireGuest>} />
+
+        {/* Demos públicas aisladas: no autentican ni montan stores de negocio. */}
+        <Route path="/demo/:kind" element={<Suspense fallback={<Splash />}><DemoPage /></Suspense>} />
 
         {/* Business Admin + Workers */}
         <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>}>
